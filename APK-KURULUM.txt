@@ -1,60 +1,57 @@
-YILDIZ AKINI — APK KURULUMU (Telefon)
-=====================================
+YILDIZ AKINI — ANDROID KURULUMU
+================================
 
-Dosya: Yildiz-Akini.apk  (~73 KB)
-Konumlar:
-  - Bilgisayar: C:\Users\süreklikayip\Documents\Varsayılan Proje\Yildiz-Akini.apk
-  - İnternet:   GitHub deposundan indirilebilir (Yildiz-Akini.apk)
+Sürüm : 8.0 (versionCode 8)
+Dosya : Yildiz-Akini.apk  (~174 KB)
+Paket : com.saklabann.yildizakini
+Gereksinim : Android 5.0 veya üzeri
 
-Bu, oyunu telefonda gerçek bir uygulama gibi (tam ekran, ikonlu, internetsiz,
-dikey) çalıştıran kurulabilir bir Android paketidir. Oyunun tamamı APK'nın
-içine gömülüdür; kurduktan sonra internet gerekmez.
 
---------------------------------------------------------------------------------
-1) APK'yı telefona atma
---------------------------------------------------------------------------------
-En kolay yollar:
-  a) GitHub'dan: telefonun tarayıcısıyla depoyu aç, Yildiz-Akini.apk'ya dokun.
-  b) USB kablosu: Telefonu bilgisayara bağla, "Dosya aktarımı / MTP" seç.
-     Yildiz-Akini.apk dosyasını telefonun "İndirilenler" klasörüne sürükle.
-  c) Ya da kendine WhatsApp'tan / e-postadan gönderip telefonda indir.
+1) APK'YI TELEFONA AKTAR
+------------------------
+a) GitHub: Telefonun tarayıcısından depoyu aç, Yildiz-Akini.apk dosyasına dokun.
+b) USB: Telefonu bilgisayara bağla, "Dosya aktarımı / MTP" seç ve APK'yı
+   İndirilenler klasörüne kopyala.
+c) Kendine WhatsApp veya e-posta ile gönderip telefonda indir.
 
---------------------------------------------------------------------------------
-2) Kurma
---------------------------------------------------------------------------------
-  a) Telefonda "Dosyalar" (Files) uygulamasını aç, APK'yı bul ve üzerine bas.
-  b) Telefon "Bilinmeyen kaynaklara izin ver" derse:
-        Ayarlar > Güvenlik > Bilinmeyen kaynaklar  (veya tarayıcı/dosya
-     yöneticisi için ayrı ayrı) iznini aç ve tekrar dene.
-  c) Play Protect "Bilinmeyen bir uygulama yükleniyor" uyarısı verirse:
-        "Yine de yükle" / "Install anyway" seçeneğine bas.
-     (Uyarı normaldir; APK kendi debug anahtarıyla imzalandığı için Mağaza
-     onayı yoktur.)
-  d) "Yükle" → "Aç". Oyun açılır. Ekranda "Yıldız Akını" ikonu görünür.
 
---------------------------------------------------------------------------------
-3) İlk açılış / kontroller
---------------------------------------------------------------------------------
-  - Oyun dikey (portre) ve tam ekran açılır; ekran kapanmaz.
-  - Hareket: ekranın SOL yarısına parmağını koy ve sürükle (sanal joystick).
-  - Ateş: OTOMATİK — sadece kaçmaya odaklan.
-  - Sağ alttaki butonlar:  B = Bomba  ·  »  = Atılma (kısa dokunulmazlık)
-  - GERİ tuşu: ilk basış oyunu duraklatır; 2 saniye içinde iki kez basarsan
-    uygulamadan çıkar.
-  - Telefonu yan çevirmene gerek yok; oyun dikey tasarlandı.
-  - Kazandığın paralar, başarımlar ve rekorlar telefonda saklanır; uygulamayı
-    kapatıp açsan da kalır.
+2) KUR
+------
+a) Telefonda Dosyalar uygulamasını aç, APK'yı bul ve üzerine dokun.
+b) "Bilinmeyen kaynaklara izin ver" uyarısı çıkarsa:
+   Ayarlar > Güvenlik > Bilinmeyen kaynaklar
+   ve ilgili tarayıcı/dosya yöneticisi için izni aç.
+c) Play Protect "bilinmeyen uygulama" uyarısı verirse "Yine de yükle"
+   seçeneğini kullan. APK mağaza dışı dağıtım için kendi debug anahtarıyla
+   imzalandığından bu uyarı normaldir.
+d) "Yükle" > "Aç". Yıldız Akını ikonu ana ekrana eklenir.
 
---------------------------------------------------------------------------------
-4) Bir sorun olursa
---------------------------------------------------------------------------------
-  - "Uygulama yüklenemedi": Bilinmeyen kaynaklar iznini kontrol et; APK'yı
-    önce telefonun dahili depolamasına (İndirilenler) kopyala, oradan aç.
-  - Ses gelmiyorsa: telefonun medya sesi kısık olabilir ya da oyunun M tuşu
-    (masaüstünde) ile sessize alınmış olabilir.
-  - Android 5.0 (API 21) ve üzeri için derlendi; daha eski sürümlerde çalışmaz.
 
-Not: Bu APK bu bilgisayarda aapt2 + d8 + jarsigner ile üretildi ve kendi debug
-anahtarıyla imzalandı. Paket adı: com.saklabann.yildizakini · Sürüm: 2.0.
+3) İLK AÇILIŞ
+-------------
+- Oyun dikey ve tam ekran açılır; ekran kapanmaz.
+- Hareket: ekranın sol yarısına parmağını koy ve sürükle.
+- Ateş: otomatik. Sen sadece kaçmaya odaklan.
+- Sağ alttaki butonlar: bomba, dash ve gemi yeteneği.
+- Ayarlardan dil, ses, sarsıntı, parçacık kalitesi ve renk körü modu
+  değiştirilebilir.
 
-İyi akınlar! ⭐
+
+4) GÜNCELLEME
+-------------
+Yeni APK'yı aynı paket adı ve imzayla üzerine kurabilirsin. Kayıtlar
+(coin, başarımlar, rekorlar) korunur. APK'yı kaldırırsan yerel kayıtlar da
+silinir.
+
+
+5) SORUN GİDERME
+----------------
+- "Uygulama yüklenmedi": Eski bir sürüm farklı imzayla kurulu olabilir.
+  Önce eski Yıldız Akını'nı kaldır, sonra yükle. (Kayıtlar silinir.)
+- Ses gelmiyor: Telefon sessizde olabilir; oyun içinde M tuşu yoktur,
+  Ayarlar > Ses bölümünü kontrol et.
+- Tam ekran sorunu: Çentikli ekranlarda uygulamayı yeniden başlat.
+- Düşük FPS: Ayarlar > Parçacıklar > Düşük seçeneğini dene.
+
+
+İyi akınlar.

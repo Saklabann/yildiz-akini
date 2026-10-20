@@ -1,0 +1,57 @@
+name: Özellik önerisi
+description: Oyuna yeni bir mekanik, mod veya iyileştirme öner.
+title: "[Öneri]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Önerini paylaştığın için teşekkürler. Önce `ROADMAP.md` dosyasına göz atmanı öneririm.
+
+  - type: dropdown
+    id: alan
+    attributes:
+      label: Alan
+      options:
+        - Oynanış / silahlar
+        - Düşmanlar ve boss'lar
+        - Modlar
+        - İlerleme / ekonomi
+        - Kozmetikler
+        - Arayüz / erişilebilirlik
+        - Performans
+        - Diğer
+    validations:
+      required: true
+
+  - type: textarea
+    id: oneri
+    attributes:
+      label: Öneri
+      description: Ne eklenmeli? Nasıl çalışmalı?
+    validations:
+      required: true
+
+  - type: textarea
+    id: neden
+    attributes:
+      label: Neden değerli?
+      description: Oyuncu deneyimine ne katıyor? Hangi sorunu çözüyor?
+
+  - type: dropdown
+    id: oncelik
+    attributes:
+      label: Sence önceliği ne?
+      options:
+        - Düşük
+        - Orta
+        - Yüksek
+        - Çok yüksek
+    validations:
+      required: true
+
+  - type: textarea
+    id: ornek
+    attributes:
+      label: Referans veya örnek
+      description: Benzer bir oyun, görsel veya kısa bir mockup ekleyebilirsin.

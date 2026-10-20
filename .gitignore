@@ -1,0 +1,24 @@
+# Geçici ve yerel dosyalar
+_test.html
+_test_touch.html
+*-onizleme/
+onizleme-*.png
+token.txt
+device.json
+device.txt
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editör
+.vscode/
+.idea/
+*.swp
+*~
+
+# Arşivler ve derleme çıktıları
+*.zip
+*.7z
+*.log

@@ -1,0 +1,108 @@
+name: Hata bildirimi
+description: Oyunun beklenmedik davrandığı bir durumu bildir.
+title: "[Hata]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bildirim için teşekkürler. Lütfen aşağıdaki alanları doldur; sorunu ne kadar net tarif edersen o kadar hızlı çözülür.
+
+  - type: dropdown
+    id: surum
+    attributes:
+      label: Sürüm
+      options:
+        - v8.0
+        - v7.0
+        - v2.0
+        - Diğer / bilmiyorum
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Android APK
+        - Windows tarayıcı
+        - macOS tarayıcı
+        - Linux tarayıcı
+        - iOS/Safari
+        - Diğer
+    validations:
+      required: true
+
+  - type: input
+    id: cihaz
+    attributes:
+      label: Cihaz ve tarayıcı
+      placeholder: "Örn. Pixel 7 / Android 14 veya Chrome 130"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mod
+    attributes:
+      label: Oyun modu
+      options:
+        - Klasik
+        - Sonsuz
+        - Boss Akını
+        - Günlük Görev
+        - Zaman Yarışı
+        - Kusursuz
+        - Menü / oyun dışı
+    validations:
+      required: true
+
+  - type: input
+    id: gemi
+    attributes:
+      label: Gemi (varsa)
+      placeholder: "Denge, Şimşek, Kale, Nova, Hayalet, Titan"
+
+  - type: textarea
+    id: aciklama
+    attributes:
+      label: Sorun
+      description: Ne oldu? Ne olmasını bekliyordun?
+      placeholder: "Dalga 12'de boss gelmedi ve oyun dondu..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: adimlar
+    attributes:
+      label: Yeniden üretme adımları
+      placeholder: |
+        1. Hangar'dan Titan'ı seç
+        2. Kusursuz modu başlat
+        3. 5. dalgaya kadar oyna
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: kayit
+    attributes:
+      label: Konsol çıktısı veya hata mesajı
+      description: Tarayıcı konsolundaki hata varsa tam metni ekle.
+      render: shell
+
+  - type: textarea
+    id: ekran
+    attributes:
+      label: Ekran görüntüsü / video
+      description: Dosyayı bu alana sürükleyebilirsin.
+
+  - type: checkboxes
+    id: kontrol
+    attributes:
+      label: Kontrol listesi
+      options:
+        - label: Aynı sorunun daha önce bildirilmediğini kontrol ettim.
+          required: true
+        - label: Oyunun en güncel sürümünü kullanıyorum.
+          required: true

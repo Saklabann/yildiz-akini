@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Güvenlik açığı bildir
+    url: https://github.com/Saklabann/yildiz-akini/security/advisories/new
+    about: Güvenlik sorunlarını herkese açık issue olarak değil, özel danışmanlık üzerinden bildir.
+  - name: Sürüm notları
+    url: https://github.com/Saklabann/yildiz-akini/releases
+    about: Son sürümde neler değişti?
