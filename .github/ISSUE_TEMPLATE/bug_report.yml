@@ -13,9 +13,10 @@ body:
     attributes:
       label: Sürüm
       options:
+        - v9.0
+        - v8.4
         - v8.0
         - v7.0
-        - v2.0
         - Diğer / bilmiyorum
     validations:
       required: true
@@ -49,10 +50,13 @@ body:
       options:
         - Klasik
         - Sonsuz
-        - Boss Akını
+        - Hızlı Akın
         - Günlük Görev
         - Zaman Yarışı
         - Kusursuz
+        - Boss Akını
+        - Tek Can
+        - Kaos
         - Menü / oyun dışı
     validations:
       required: true

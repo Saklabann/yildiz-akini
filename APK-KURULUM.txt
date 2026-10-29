@@ -1,9 +1,9 @@
 YILDIZ AKINI — ANDROID KURULUMU
 ================================
 
-Sürüm : 8.0 (versionCode 8)
-Dosya : Yildiz-Akini.apk  (~174 KB)
-Paket : com.saklabann.yildizakini
+Sürüm      : 9.5 (versionCode 17)
+Dosya      : Yildiz-Akini.apk  (~0.8 MB)
+Paket      : com.saklabann.yildizakini
 Gereksinim : Android 5.0 veya üzeri
 
 
@@ -33,25 +33,57 @@ d) "Yükle" > "Aç". Yıldız Akını ikonu ana ekrana eklenir.
 - Hareket: ekranın sol yarısına parmağını koy ve sürükle.
 - Ateş: otomatik. Sen sadece kaçmaya odaklan.
 - Sağ alttaki butonlar: bomba, dash ve gemi yeteneği.
-- Ayarlardan dil, ses, sarsıntı, parçacık kalitesi ve renk körü modu
-  değiştirilebilir.
+- 4, 9, 14, 19... dalgalarında tam 50 düşmanlık akın gelir; bomba ve öfkeyi
+  bu dalgalara sakla.
+- Normal dalgalar çok kalabalıktır (dalga ortasında takviye gelir).
+  Boss dalgalarında 8–28 koruma düşmanı bulunur; boss ölse bile korumalar
+  temizlenene kadar dalga bitmez.
+- Öldürdükçe AKSİYON çubuğu ısınır: ateş hızı ve hasar artar. 6 zincirden
+  sonra şarapnel, her 10 zincirde nova patlar. Hasar almak zinciri sıfırlar.
+- Ayarlardan dil, ses, sarsıntı, renk körü modu, efekt kalitesi,
+  FPS sınırı, pil tasarrufu ve dokunmatik hassasiyet değiştirilebilir.
+- İlk açılışta kısa eğitim başlar; ATLA ile geçebilirsin.
+- Profilini Ayarlar > VERİ bölümünden yedekleyebilirsin.
 
 
-4) GÜNCELLEME
+4) BONUS KAMPANYA
+-----------------
+Ana menüdeki BONUS KAMPANYA satırı 300 görevlik isteğe bağlı kampanyayı açar.
+5 halka × 60 görev vardır; tüm görevler baştan açıktır. İlk temizlemede ödül
+verilir, aynı görevi tekrar oynayınca ödül verilmez. Ayrı bir "300 içerik"
+sekmesi yoktur; 300+ özellik oyunun mevcut ekranlarına dağıtılmıştır.
+
+
+5) FÜZYON, KANAT VE DÜELLO
+--------------------------
+- FÜZYONLAR: 6. dalgadan sonra yükseltme ekranında füzyon kartı çıkar.
+  Seçtiğin kart kalıcıdır ve iki gemiden biriyle uçarken etkindir. Toplam 15.
+- KANAT FİLOSU: 1, 3 ve 5 füzyonda sırasıyla 1, 2 ve 3 eskort açılır.
+- DÜELLO: Ana menüden 60 saniyelik çevrimdışı 1v1 başlatır. En çok avlayan
+  kazanır; galibiyet coin ve yıldız tozu verir.
+- ALTIN IŞIN: Güçlendirme olarak düşer; 2.6 saniye boyunca kolonundaki tüm
+  düşmanları biçer.
+
+
+6) GÜNCELLEME
 -------------
 Yeni APK'yı aynı paket adı ve imzayla üzerine kurabilirsin. Kayıtlar
-(coin, başarımlar, rekorlar) korunur. APK'yı kaldırırsan yerel kayıtlar da
-silinir.
+(coin, başarımlar, rekorlar, füzyonlar) korunur. APK'yı kaldırırsan yerel
+kayıtlar da silinir.
 
 
-5) SORUN GİDERME
+7) SORUN GİDERME
 ----------------
 - "Uygulama yüklenmedi": Eski bir sürüm farklı imzayla kurulu olabilir.
   Önce eski Yıldız Akını'nı kaldır, sonra yükle. (Kayıtlar silinir.)
 - Ses gelmiyor: Telefon sessizde olabilir; oyun içinde M tuşu yoktur,
   Ayarlar > Ses bölümünü kontrol et.
 - Tam ekran sorunu: Çentikli ekranlarda uygulamayı yeniden başlat.
-- Düşük FPS: Ayarlar > Parçacıklar > Düşük seçeneğini dene.
+- Düşük FPS: Ayarlar > PERFORMANS > Pil tasarrufu veya Efekt kalitesi > Düşük
+  seçeneğini dene. Kalabalık dalgalarda oyun aktif düşman sayısını otomatik
+  sınırlar.
+- Kayıt kayboldu: Ayarlar > VERİ bölümünden daha önce aldığın yedek kodunu
+  veya .txt dosyasını geri yükle.
 
 
 İyi akınlar.

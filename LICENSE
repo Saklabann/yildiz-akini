@@ -15,6 +15,8 @@ Yazılı izin olmadan:
 
 Kişisel, ticari olmayan oyun deneyimi için oyunu indirip oynamak serbesttir. Oyunu arkadaşlarınla paylaşırken bu depoya veya resmî indirme bağlantısına yönlendirme yapabilirsin.
 
+**Üçüncü taraf istisnası.** Gömülü sanat paketindeki Kenney Space Shooter Redux ve ambientCG Metal032 varlıkları CC0 1.0 ile, NASA görselleri kamu malı statüsüyle kullanılır. Bu varlıklar bu özel lisansın kapsamında değildir; kaynak, kimlik ve değişiklik kaydı [CREDITS.md](CREDITS.md) dosyasındadır. Altı el çizimi galeri referansı ise tüm hakları saklı tutulacak şekilde proje sanatçı arşivine aittir.
+
 ## English
 
 This repository and all of its contents — including the game source (`yildiz-akini.html`), the Android package, documentation, screenshots, cover art, icon, and all procedurally generated audiovisual assets — are the property of Saklabann and are protected by copyright law.
@@ -27,6 +29,8 @@ Without prior written permission, you may not:
 - create and share derivative works from the source code.
 
 You may download and play the game for personal, non-commercial use. When sharing the game with friends, please link to this repository or the official download instead of redistributing the files.
+
+**Third-party exception.** Kenney Space Shooter Redux and ambientCG Metal032 assets in the embedded art pack are used under CC0 1.0; NASA imagery is used as public domain. Those assets are not covered by this proprietary license. Sources, identifiers and modification records are listed in [CREDITS.md](CREDITS.md). The six hand-drawn gallery references remain all rights reserved to the project's artist archive.
 
 ## İletişim / Contact
 

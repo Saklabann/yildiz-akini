@@ -4,7 +4,8 @@
 
 | Sürüm | Destek |
 |---|---|
-| 8.x | Aktif |
+| 9.x | Aktif |
+| 8.x | Güvenlik düzeltmeleri |
 | 7.x ve öncesi | Desteklenmiyor |
 
 ## Açık bildirimi

@@ -20,8 +20,10 @@ Yıldız Akını kişisel ve özel bir projedir. Depo herkese açık olmadığı
 
 ## Değişiklik kontrol listesi
 
-- [ ] Altı mod da açılıyor ve oynanabiliyor.
+- [ ] Dokuz mod da açılıyor ve oynanabiliyor.
 - [ ] Altı gemi ve altı yetenek çalışıyor.
+- [ ] 300 özellik dizisi eksiksiz; ayrı içerik sekmesi yok.
+- [ ] Normal dalga tabanı 10 + 4n, horde tam 50 ve boss korumaları 10–22.
 - [ ] Yeni metinlerin TR/EN karşılıkları var.
 - [ ] Kayıt/yükleme eski profilleri bozmuyor.
 - [ ] Dokunmatik HUD küçük ekranda taşmıyor.
