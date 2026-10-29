@@ -8,7 +8,7 @@
 
 Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, reklam veya hesap gerekmez.
 
-[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v9.5-67e8f9?style=flat-square)](CHANGELOG.md)
+[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v9.7-67e8f9?style=flat-square)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/HTML5-tek%20dosya-e34f26?style=flat-square&logo=html5&logoColor=white)](yildiz-akini.html)
 [![Canvas](https://img.shields.io/badge/Canvas-2D-38bdf8?style=flat-square)](yildiz-akini.html)
 [![Android](https://img.shields.io/badge/Android-5.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)](Yildiz-Akini.apk)
@@ -18,24 +18,30 @@ Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, rek
 
 </div>
 
-![Yıldız Akını v9.5 kapak görseli](docs/kapak.png)
+![Yıldız Akını v9.7 kapak görseli](docs/kapak.png)
 
 ## Oyun nedir?
 
 **Yıldız Akını**, tek bir HTML dosyasında çalışan dikey bir neon uzay savaşı oyunudur. Ateş otomatiktir; sen sadece konumlanır, kaçar ve doğru anda patlarsın. Dalgalar ilerledikçe düşmanlar sertleşir; her beş dalgada bir boss, her üç dalgada bir yükseltme ve 4, 9, 14, 19... dalgalarında 50 düşmanlık akın gelir.
 
-v9.5 **Aksiyon 4.0**, oyunun ritmini bir kademe daha yükseltir: öldürdükçe ısınan bir **aksiyon metreği**, 2.4 saniyelik **öldürme zinciri**, zincir kırıldıkça etrafa saçılan **şarapnel**, her 10 zincirde patlayan **nova** ve tüm neon ışıkları tek katmanda toplayan düşük çözünürlüklü **bloom** tamponu. v9.4'ün 15 gemi füzyonu, kanat filosu, çevrimdışı 1v1 düellosu ve altın ışını; v9.3'ün Overdrive metreği ve yörüngeli boss modülleri bu katmanın altında çalışmaya devam eder.
+v9.7 **Arayüz 6.0**, oyunun tüm ekranlarını yeniden düzenler: komuta güvertesi biçimli ana menü, gemi karuseli ve sayfalı skin galerisiyle **Hangar 2.0**, nadirlik renkli kartlar, yenileme ve atlama düğmeleriyle **Yükseltme 2.0**, koşu özeti ve günlük hedef içeren duraklatma ekranı, S–D derece halkası ve ödül dökümüyle sonuç ekranı. Sol el düzeni, sade HUD, nişan çizgisi ve arayüz animasyonu ayarları da bu sürümde. v9.5'in aksiyon ısısı, öldürme zinciri, şarapnel/nova ve bloom katmanı; v9.4'ün 15 füzyonu, kanat filosu, düellosu ve altın ışını; v9.3'ün Overdrive'ı ve boss modülleri aynen çalışmaya devam eder.
 
 Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma anında indirilen bir dosya vardır: gemi, düşman, boss ve bölge sanatı HTML'in içine gömülüdür; müzik ve efektler Web Audio API ile anlık üretilir. Tek dosyayı kopyaladığında tüm sanat da yanında gelir.
 
-## v9.5'in öne çıkanları
+## v9.7'nin öne çıkanları
 
 | Alan | İçerik |
 |---|---|
+| **Komuta güvertesi** | Ana menü; sezon şeridi, gemi vitrini, gemi/mod/zorluk çipleri, büyük BAŞLA düğmesi, 3×3 kutucuk ızgarası ve günlük operasyon kartıyla tek ekranda toplanır. |
+| **Hangar 2.0** | Gemi karuseli, canlı hız/ateş/can/bomba çubukları, pasif yetenek kartı, sayfalı 16 skin galerisi ve geliştirme ağacı/koleksiyon/füzyon kısayolları. |
+| **Yükseltme 2.0** | Nadirlik renkli kartlar, kademe pipleri, NEW rozetleri; 30 coin'e yenileme ve +20 coin ile atlama. |
+| **Duraklatma ve sonuç** | Duraklatmada dalga/kill/zincir özeti, donanım çipleri ve günlük hedef; sonuçta S/A/B/C/D derece halkası, para/toz/sezon XP dökümü. |
+| **Erişilebilirlik** | ARAYÜZ sekmesi: sol el düzeni, sade HUD, nişan çizgisi ve sayfa animasyonu. Dokunmatik tuşlar ve bomba/can göstergeleri aynalanır. |
+| **Altı yeni skin** | `void`, `reactor`, `prism`, `wraith`, `chrono` ve `zenith`; kombo, dalga, füzyon, süre ve sezon koşullarıyla açılır. Toplam 16. |
 | **Aksiyon ısısı** | 0–100 arası bir metre, beş kademe (SOĞUK · ISINIYOR · HIZLI · ÖFKELİ · KAOS). Isı yükseldikçe ateş hızı %22'ye, hasar %20'ye kadar artar; kademe atlayışı ekran bandı, halka ve sesle duyurulur. Zincir sürerken ısı 1.7/sn, zincir boşken 3.4/sn soğur. Hasar almak ısıyı 30 puan düşürür ve zinciri sıfırlar. |
 | **Öldürme zinciri** | Her öldürme 2.4 saniyelik pencereyi yeniler. 6 zincirden sonra her öldürme 2–4 şarapnel mermisi saçar; her 10 zincirde 92–172 px yarıçaplı nova patlar. Nova zinciri derinleştirir ama sonsuz döngüye girmez (en fazla 2 iç içe tetikleme). |
 | **Görsel katman** | 120 × 180 çözünürlüklü bloom tamponu (en fazla 48 ışık lekesi), şarapnel yıldız patlamaları, nova halkaları, ısı ve zincir HUD'u. Tümü `fxLevel()`, parçacık bütçesi, `fpsCap`, pil tasarrufu ve azaltılmış hareket ayarlarına bağlıdır. |
-| **300+ entegre özellik** | 63 koşu yükseltmesi · 37 düşman (17 temel + 20 varyant) · 11 boss (5 temel + 6 varyant) · 9 mod · 9 galaksi bölgesi · 66 başarım · 15 güçlendirme · 6 gemi · 15 füzyon · 10 skin · 3 çip · 7 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi — canlı sayım **318** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
+| **300+ entegre özellik** | 63 koşu yükseltmesi · 37 düşman (17 temel + 20 varyant) · 11 boss (5 temel + 6 varyant) · 9 mod · 9 galaksi bölgesi · 66 başarım · 15 güçlendirme · 6 gemi · 15 füzyon · 16 skin · 3 çip · 7 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi — canlı sayım **324** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
 | **15 gemi füzyonu** | Altı geminin tüm ikili eşleşmeleri (C(6,2) = 15). 6. dalgadan sonra yükseltme kartlarında çıkar, profiline kalıcı yazılır ve çiftteki iki gemiden biriyle uçarken etkindir. |
 | **Kanat filosu** | Füzyon sayısına bağlı 0–3 kalıcı eskort. 1 füzyonda bir, 3'te iki, 5'te üç kanat uçar; en yakın düşmana 560 px içinde otomatik ateş eder. |
 | **Çevrimdışı düello** | 60 saniyelik 1v1: sen ve yapay zekâ rakip aynı dalgada avlanır. En çok avlayan kazanır; galibiyet coin, toz ve "Düellocu" başarımı verir. |
@@ -68,11 +74,17 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 |:---:|:---:|
 | <img src="docs/screens/kampanya.jpg" width="300" alt="300 görevlik bonus kampanya haritası"> | <img src="docs/screens/sonuc.jpg" width="300" alt="Koşu sonucu ekranı"> |
 
+### Arayüz 6.0
+
+| Yükseltme 2.0 | Duraklatma 2.0 | Arayüz ayarları |
+|:---:|:---:|:---:|
+| <img src="docs/screens/yukseltme.jpg" width="230" alt="Nadirlik renkli yükseltme kartları"> | <img src="docs/screens/duraklat.jpg" width="230" alt="Koşu özetli duraklatma ekranı"> | <img src="docs/screens/ayarlar.jpg" width="230" alt="Sol el ve HUD ayarları"> |
+
 ## İndir
 
 ### Android · APK
 
-[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **9.5** (versionCode 17)
+[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **9.7** (versionCode 18)
 
 - Tam ekran, portre, ikonlu ve çevrimdışı.
 - APK **internet izni istemez**; hiçbir veri cihazdan çıkmaz.
@@ -133,7 +145,7 @@ Füzyonlar ayrıca **kanat filosu** besler: 1 füzyonda bir, 3'te iki, 5'te üç
 - **Yıldız tozu**: nadir para birimi; özel mağaza ürünleri ve kozmetikler için kullanılır.
 - **Mağaza**: başlangıç kalkanı, ekstra bomba, mıknatıs, silah seviyesi, altın paleti, yan silah çipi ve öfke.
 - **Görevler**: 3 günlük + 3 haftalık görev; ilerleme otomatik sayılır, ödül elle alınır. Haftalık görevler pazartesi yenilenir.
-- **Kozmetikler**: 10 skin, 3 iz ve 2 patlama efekti; kill, dalga, boss, başarım ve sezon koşullarıyla açılır.
+- **Kozmetikler**: 16 skin, 3 iz ve 2 patlama efekti; kill, dalga, boss, başarım ve sezon koşullarıyla açılır.
 - **Sezon**: "Neon Şafak" 20 seviye; puan, boss ve görevlerden XP. Ödüller coin, yıldız tozu, rozet ve Aurora/Tutulma görünümleri.
 - **Eğitim**: İlk açılışta hareket, ateş, bomba ve yükseltmeyi öğreten 4 kısa görev. Atlanabilir, menüden yeniden başlatılabilir.
 - **Yedekleme**: Profili panoya kopyala veya `.txt` indir; geri yüklerken sürüm ve sağlama toplamı doğrulanır.
@@ -200,7 +212,7 @@ Ayrıntılı adımlar: [APK-KURULUM.txt](APK-KURULUM.txt)
 | **Ses** | Web Audio API ile phonk esintili prosedürel müzik: 808 bas, cowbell melodi, trap davulları, plak cızırtısı |
 | **Kayıt** | `localStorage` (`ya_profile`, `ya_settings`) |
 | **Dosya boyutu** | HTML ~1.4 MB · APK ~0.8 MB (gömülü WebP sanat dahil) |
-| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v9.5 (versionCode 17) · minSdk 21 · targetSdk 29 |
+| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v9.7 (versionCode 18) · minSdk 21 · targetSdk 29 |
 | **Ağ** | Hiçbir ağ isteği yok; APK'da `INTERNET` izni yok |
 | **Derleme** | Gradle'sız: `aapt2` + `javac` + `d8` + `jarsigner` |
 
@@ -234,7 +246,7 @@ Depo özeldir ve tüm hakları saklıdır. Kullanım koşulları için [LICENSE]
 
 ## Yol haritası
 
-v9.5 ile aksiyon ısısı, öldürme zinciri, şarapnel/nova katmanı ve bloom tamamlandı; v9.4'ün füzyon, kanat filosu, düello ve altın ışın sistemleri korunuyor. Sonraki sürümlerde odak/şarjlı atış, yardım modu, sol el düzeni ve haftalık mutatör modu değerlendirilecek.
+v9.7 ile komuta güvertesi menüsü, Hangar 2.0, Yükseltme 2.0, derece/ödül ekranı ve ARAYÜZ ayarları tamamlandı; v9.5'in aksiyon ısısı/zinciri ve v9.4'ün füzyon, kanat, düello ve altın ışını korunuyor. Sonraki sürümlerde odak/şarjlı atış, yardım modu ve haftalık mutatör modu değerlendirilecek.
 
 Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
@@ -242,7 +254,10 @@ Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
 **Yıldız Akını** (Star Rush) is a single-file, offline neon space shooter built with HTML5 Canvas and Web Audio. It ships as both a standalone HTML game and a tiny Android APK.
 
-- **300+ integrated features**: 63 run perks, 37 enemies (17 base + 20 variants), 11 bosses (5 base + 6 variants), 9 modes, 9 regions, 66 achievements, 15 power-ups, 6 ships, 15 fusions, 10 skins, 3 chips, 7 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types and 8 campaign goals — 318 live entries
+- **300+ integrated features**: 63 run perks, 37 enemies (17 base + 20 variants), 11 bosses (5 base + 6 variants), 9 modes, 9 regions, 66 achievements, 15 power-ups, 6 ships, 15 fusions, 16 skins, 3 chips, 7 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types and 8 campaign goals — 324 live entries
+- **UI 6.0**: command-deck main menu, Hangar 2.0 carousel with stat bars and a paged 16-skin gallery, rarity-colored upgrade cards with reroll/skip, a pause build summary, and an S–D grade ring with a reward breakdown on the results screen
+- Left-hand layout, minimal HUD, aim guide and interface-animation toggles in the new UI settings tab
+- Six new skins (void, reactor, prism, wraith, chrono, zenith), 16 total
 - No separate "300 content" tab: the content is woven into gameplay, the hangar, the shop, achievements and the bonus campaign
 - **Action heat** (0–100, five tiers): up to 22% faster fire and 20% more damage, with tier callouts; cools down 1.7/s while a kill chain is alive and 3.4/s when it is not
 - **Kill chain**: every kill refreshes a 2.4 s window; 6+ chain scatters shrapnel bullets, every 10th kill detonates a nova that can chain at most twice

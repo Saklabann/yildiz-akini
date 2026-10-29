@@ -2,6 +2,45 @@
 
 Tüm önemli değişiklikler bu dosyada tutulur. Biçim, [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) temel alınarak hazırlanmıştır; sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
+## [9.7.0] - 2026-10-29
+
+### Eklendi
+
+- **Komuta güvertesi ana menü.** Sezon şeridi, gemi vitrini, gemi/mod/zorluk çipleri, büyük BAŞLA düğmesi, 3×3 kutucuk ızgarası ve günlük operasyon kartı tek ekranda birleşti. Yardım düğmesi sağ üstte; altbilgi sürüm ve dalga kurallarını gösterir.
+- **Hangar 2.0.** Gemi karuseli, canlı hız/ateş/can/bomba çubukları, pasif yetenek kartı, sayfalı 16 skin galerisi (kilit koşullarıyla) ve geliştirme ağacı/koleksiyon/füzyon kısayolları.
+- **Yükseltme 2.0.** Kartlar nadirlik rengi, kademe pipleri, NEW rozeti ve füzyon vurgusu taşır. 30 coin'e yenileme (dalga başına bir kez) ve +20 coin karşılığında atlama eklendi; eğitimde bu düğmeler gizlenir.
+- **Duraklatma 2.0.** Dalga/kill/en iyi zincir özeti, pasif yetenek, koşu donanımı çipleri, günlük hedef ilerlemesi ve sürüm bilgisi.
+- **Sonuç 2.0.** S/A/B/C/D derece halkası, para/toz/sezon XP ödül dökümü, mod ve ısı/zincir rozetleri; rekor şeridi korunur.
+- **ARAYÜZ ayarları.** Sol el modu (dokunmatik tuşlar, bomba/can göstergeleri ve joystick yarısı aynalanır), sade HUD, dikey nişan çizgisi ve sayfa geçiş animasyonu.
+- **Altı yeni skin.** `void` (50 kombo), `reactor` (30. dalga), `prism` (10 füzyon), `wraith` (80 kombo), `chrono` (10 saat) ve `zenith` (sezon 18). Toplam 16 skin.
+- **Arayüz geçişi.** Menü sayfaları arasında yumuşak karartma; `S.uiAnim` kapatıldığında devre dışı kalır.
+
+### Değişti
+
+- Sürüm `v9.7` (versionCode 18). HTML ~1.4 MB.
+- `defS` içine `lefty`, `hudMin`, `aimLine`, `uiAnim` eklendi; `sanitizeSettings` ve yükleme yolu bu anahtarları doğrular.
+- Ana menü, hangar, yükseltme, duraklatma ve sonuç ekranları yeniden çizildi; kutucuk/karusel düzeni kullanılır.
+- README, teknik doküman, yol haritası, kurulum dosyası ve özellik defteri v9.7 için yenilendi; ekran görüntüleri ve kapak yeni arayüzden üretildi.
+
+### Düzeltildi
+
+- NEW rozetinden sonra metin hizasının kayması giderildi; derece etiketi halkanın üstüne taşındı.
+- Playwright paketi 62/62 geçti; 240 saniyelik otopilot koşusu 21 dalga, 1.166 kill, 0 NaN ve 0 konsol hatasıyla tamamlandı.
+
+## [9.6.0] - 2026-10-29
+
+### Eklendi
+
+- **Gemi pasifleri.** Denge Overdrive kazancı +%15; Şimşek atılma beklemesi ×0.85 ve ateş beklemesi ×0.92; Kale +3 başlangıç kalkanı ve +0.6 sn dokunulmazlık; Nova ısı kazancı +%20; Hayalet sıyırma yarıçapı +8 ve coin +%10; Titan boss hasarı +%12 ve +1 bomba. Pasifler füzyonlardan sonra uygulanır.
+- **Zincir ödülleri.** 15, 30 ve 50 zincirde güçlendirme düşer; `ZİNCİR ÖDÜLÜ ×n` bildirimi ve sesi çalışır.
+- **Modül ısısı.** Boss modülü yıkımı 12 ısı ve 0.05 Overdrive ekler; zırh kırılması ek 0.12 Overdrive verir.
+- **Koşu istatistikleri.** Duraklatma ekranında dalga, kill, en iyi zincir ve pasif yetenek; sonuç ekranında ısı/zincir özeti gösterilir.
+
+### Değişti
+
+- Sürüm `v9.6` olarak hazırlandı; yayın v9.7'de tamamlandı.
+- Overdrive dolumu gemi çarpanına (`st.odMul`), ısı kazancı `st.heatMul` değerine, dokunulmazlık `st.invBonus` değerine bağlandı.
+
 ## [9.5.0] - 2026-10-29
 
 ### Eklendi

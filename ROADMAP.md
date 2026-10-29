@@ -11,7 +11,7 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] Günlük ve haftalık görevler
 - [x] 66 başarım ve istatistik paneli
 - [x] 9 galaksi bölgesi
-- [x] Kozmetik koleksiyonu: 10 skin, 3 iz, 2 patlama, 7 rozet
+- [x] Kozmetik koleksiyonu: 16 skin, 3 iz, 2 patlama, 7 rozet
 - [x] Etkileşimli eğitim ve 20 seviyelik sezon
 - [x] Doğrulanmış kayıt dışa/içe aktarma
 - [x] Performans ve erişilebilirlik ayarları
@@ -31,7 +31,12 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] v9.5 aksiyon ısısı, öldürme zinciri, şarapnel ve nova katmanı
 - [x] v9.5 düşük çözünürlüklü bloom tamponu ve ısı/zincir HUD'u
 - [x] v9.5 negatif delta ve koruma spawn NaN düzeltmeleri
-- [x] Çevrimdışı Android APK (v9.5 / versionCode 17)
+- [x] v9.6 gemi pasifleri, zincir ödülleri ve koşu istatistikleri
+- [x] v9.7 komuta güvertesi menüsü, Hangar 2.0 ve Yükseltme 2.0
+- [x] v9.7 duraklatma/sonuç ekranları, S–D derece halkası ve ödül dökümü
+- [x] v9.7 ARAYÜZ ayarları: sol el modu, sade HUD, nişan çizgisi, animasyon
+- [x] v9.7 altı yeni skin (toplam 16)
+- [x] Çevrimdışı Android APK (v9.7 / versionCode 18)
 
 ## v10 — Planlanan
 
@@ -54,7 +59,6 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 ### Erişilebilirlik ve platform
 
 - [ ] Yardım modu (hasar yarısı, ekstra can)
-- [ ] Sol el düzeni
 - [ ] Kontrol tuşlarını yeniden atama
 - [ ] Oyun içi ekran okuyucu ipuçları
 

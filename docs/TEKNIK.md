@@ -61,7 +61,7 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 
 ## 300+ özellik
 
-v9.5'te 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
+v9.7'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
 
 | Kategori | Adet |
 |---|---:|
@@ -74,7 +74,7 @@ v9.5'te 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Güçlendirmeler (`POWER_CATALOG`) | 15 |
 | Gemiler (`SHIPS`) | 6 |
 | Füzyonlar (`FUSIONS`) | 15 |
-| Skinler (`SKINS`) | 10 |
+| Skinler (`SKINS`) | 16 |
 | Çipler | 3 |
 | Mağaza ürünleri (`SHOP`) | 7 |
 | İzler (`TRAILS`) | 3 |
@@ -85,7 +85,7 @@ v9.5'te 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Zorluklar (`DIFF`) | 3 |
 | Görev türleri (`MISS_POOL`) | 9 |
 | Kampanya hedefleri (`CAMP_GOALS`) | 8 |
-| **Toplam** | **318** |
+| **Toplam** | **324** |
 
 Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; içerik sekmesi olmadığı için çalışma zamanında ayrı bir katalog nesnesi tutulmaz. Belgede ve pazarlama metinlerinde güvenli alt sınır olarak "300+" kullanılır.
 
@@ -120,6 +120,22 @@ Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; iç
 - En fazla 48 ışık lekesi (`bloomN > 48` koruması) ve ekran dışı eleme vardır.
 - `fxLevel() === 0` veya azaltılmış harekette tampon tamamen atlanır.
 - Tampon 1/4 ölçekte olduğu için maliyet düşüktür; mobilde pil tasarrufu açıkken ek maliyet oluşturmaz.
+
+## Gemi pasifleri ve zincir ödülleri (v9.6)
+
+- `baseStats()` füzyonlardan sonra gemi pasifini uygular: `std` Overdrive kazancı ×1.15; `speed` atılma beklemesi ×0.85, ateş beklemesi ×0.92; `tank` +3 kalkan ve +0.6 sn dokunulmazlık; `nova` ısı kazancı ×1.2; `ghost` sıyırma yarıçapı +8 ve coin ×1.1; `titan` boss hasarı ×1.12 ve +1 bomba.
+- `addOverdrive()` `st.odMul`, `addHeat()` `st.heatMul`, hasar sonrası dokunulmazlık `st.invBonus` çarpanlarını kullanır.
+- 15/30/50 zincirde `dropPowerup()` güçlendirme bırakır ve `ZİNCİR ÖDÜLÜ ×n` bildirimi çıkar.
+- Boss modülü yıkımı 12 ısı ve 0.05 Overdrive; zırh kırılması ek 0.12 Overdrive ekler.
+
+## Arayüz 6.0 (v9.7)
+
+- **Ana menü.** `renderMenu()` komuta güvertesi düzenini çizer: `menuProfile()` sezon şeridi, `drawMenuHero()` gemi vitrini, üç `menuChip()` (gemi/mod/zorluk), büyük CTA ve 3×3 `menuTile()` ızgarası. `menuDaily()` günlük operasyon kartını üretir. Sayfa geçişleri `state.pageFade` ile karartılır; `S.uiAnim` kapalıyken atlanır.
+- **Hangar 2.0.** `state.hangarSel` karusel seçimini, `state.skinPage` 8'li skin sayfasını tutar. `renderHangar()` gemi istatistik çubuklarını `baseStats()` üzerinden hesaplar; pasif kartı `pas_<gemi>` metnini gösterir. Skin açma koşulları `SKIN_RQ`/`SKIN_OPEN`, satın alma `P.skinsUsed` üzerinden yürür.
+- **Yükseltme 2.0.** `rollUpgradeOptions()` üç kart üretir; `perkRarity()` ve `perkIcon()` kart görünümünü belirler. `rerollUpgrades()` 30 coin karşılığında seçenekleri yeniler (dalga başına bir kez), `skipUpgrades()` +20 coin verip koşuya döner. Eğitimde iki eylem de kapalıdır.
+- **Duraklatma ve sonuç.** `renderPause()` dalga/kill/zincir özeti, `state.progs` tabanlı donanım çipleri ve günlük hedef ilerlemesini çizer. `runGrade()` skor, dalga, kombo ve isabetten S–D derecesi üretir; `GRADE_COL` renkleri `renderOver()` halkasında kullanılır. `state.seasonGain` sonuç ekranındaki XP dökümünü besler.
+- **ARAYÜZ ayarları.** `S.lefty` dokunmatik tuşları, joystick yarısını ve bomba/can göstergelerini aynalar. `S.hudMin` güç rozetlerini gizler, `S.aimLine` `drawAimGuide()` dikey kılavuzunu açar, `S.uiAnim` sayfa karartmasını denetler.
+- **Skinler.** `SKINS` 16 kayda çıktı; yeni `void`, `reactor`, `prism`, `wraith`, `chrono`, `zenith` koşulları `SKIN_RQ`/`SKIN_OPEN` içinde tanımlıdır.
 
 ## Füzyonlar ve kanat filosu (v9.4)
 
@@ -157,7 +173,7 @@ Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; iç
 İki anahtar kullanılır:
 
 - `ya_profile` — kalıcı ilerleme: coin, toz, rekorlar, oynanan gemiler, açılan skinler, başarımlar, gemi ağaçları, görev durumu, istatistikler, bonus kampanya yıldızları, füzyonlar, düello sayacı.
-- `ya_settings` — dil, ses, sarsıntı, parçacık/efekt kalitesi, renk körü modu, azaltılmış hareket, FPS sayacı, FPS sınırı, pil tasarrufu ve dokunmatik hassasiyet.
+- `ya_settings` — dil, ses, sarsıntı, parçacık/efekt kalitesi, renk körü modu, azaltılmış hareket, FPS sayacı, FPS sınırı, pil tasarrufu, dokunmatik hassasiyet, sol el düzeni, sade HUD, nişan çizgisi ve arayüz animasyonu.
 
 Şema yüklenirken eksik alanlar varsayılanlarla tamamlanır. Bu, eski sürümlerden gelen profillerin bozulmadan açılmasını sağlar.
 
@@ -269,7 +285,7 @@ APK, Gradle kullanılmadan elle derlenir:
 | | |
 |---|---|
 | Paket | `com.saklabann.yildizakini` |
-| Sürüm | 9.5 (versionCode 17) |
+| Sürüm | 9.7 (versionCode 18) |
 | minSdk | 21 (Android 5.0) |
 | targetSdk | 29 |
 | İzinler | Yok |
@@ -310,6 +326,8 @@ Otomatik Playwright paketi 62 kontrol içerir; son çalıştırmada **62/62** ge
 - Zincir: 10 öldürmede zincir ve en iyi değer, şarapnel mermisi, nova darbesi ve bildirimi, pencere bitince sıfırlanma.
 - Azaltılmış hareket + `fx0` + pil tasarrufunda çizim hatasız.
 - Dokunmatik derlemede joystick, dash ve yetenek tuşları çalışıyor; 360 px genişlikte HUD taşmıyor.
+- Komuta güvertesi kutucukları, hangar karuseli ve skin sayfası, yükseltme yenileme/atlama, duraklatma ve sonuç ekranı hatasız çiziliyor.
+- Sol el modunda dokunmatik tuşlar ve HUD aynalanıyor; sade HUD güç rozetlerini gizliyor; nişan çizgisi yalnızca oyun sırasında görünüyor.
 - Günlük/haftalık görev ilerlemesi ve ödül talebi doğru; ağaç satın alımları coin düşürüyor.
 - Kilitli skin/iz/patlama seçilemiyor; eski kayıt güvenli varsayılana dönüyor.
 - Oyun sonu ekranı önceki rekorla karşılaştırma yapıyor; eğitim dört adımda tamamlanıyor ve atlanabiliyor.
@@ -330,4 +348,4 @@ Otomatik Playwright paketi 62 kontrol içerir; son çalıştırmada **62/62** ge
 - Galaksi katmanları önbelleklendiği için kare başına yeniden üretim yapılmaz.
 - Normal dalgalarda kuyruk 150 kayda kadar çıkabilir; aktif tavan ve 5 spawn/kare sayesinde ekranda aynı anda tutulan düşman sayısı sınırlı kalır.
 - Çizim tek canvas üzerinde yapılır; DOM katmanı yalnızca HUD için kullanılır.
-- 240 saniyelik otopilot koşusu: dalga 22, 1.257.777 puan, 1.172 kill, 7 yükseltme, 13 Overdrive, 0 NaN, 0 konsol hatası; başsız ortalama kare süresi ~37.7 ms.
+- 240 saniyelik otopilot koşusu: dalga 21, 1.166 kill, 6 yükseltme, 15 Overdrive, 0 NaN, 0 konsol hatası; başsız ortalama kare süresi ~46.5 ms.

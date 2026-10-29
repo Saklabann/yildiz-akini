@@ -24,7 +24,7 @@ window.YA_ART={"v":"9.3","ships":{"std":{"d":"data:image/webp;base64,UklGRuAtAAB
 <script>
 'use strict';
 /* ==========================================================
-   YILDIZ AKINI v9.5 AKSİYON 4.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
+   YILDIZ AKINI v9.7 ARAYÜZ 6.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
    Hareket: ok/WASD/fare/dokunma/gamepad · Ateş: otomatik
    Shift: atılma · U: öfke · B: bomba · P: duraklat · M: ses · F: tam ekran
    ========================================================== */
@@ -568,7 +568,8 @@ const LS = {
 const defS = { music: 0.5, sfx: 0.7, shake: true, parts: 2, scan: false, fps: false,
   cblind: false, rmotion: false, lang: 'tr', mute: false, ship: 'std', diff: 'normal',
   gmode: 'classic', haptic: true, skin: 0, trail: 'classic', boom: 'classic',
-  fx: 2, fpsCap: 0, battery: false, touchSens: 1 };
+  fx: 2, fpsCap: 0, battery: false, touchSens: 1,
+  lefty: false, hudMin: false, aimLine: false, uiAnim: true };
 const defP = { coins: 0, kills: 0, deaths: 0, games: 0, bosses: 0, shots: 0, hits: 0,
   maxCombo: 0, collected: 0, playtime: 0, best: 0, bestWave: 0, board: [], ach: {}, shop: {},
   dust: 0, dustTotal: 0, chipsFound: {}, modesPlayed: {}, boards: {}, dailyLast: '',
@@ -577,7 +578,8 @@ const defP = { coins: 0, kills: 0, deaths: 0, games: 0, bosses: 0, shots: 0, hit
   tutDone: false, seasonLv: 1, seasonXp: 0, seasonClaimed: {}, badges: {}, badge: '', lastBackup: 0,
   camp: {}, campSel: 1, fusions: {}, vsWins: 0, vsBest: 0, vsPlayed: 0 };
 let S = Object.assign({}, defS, LS.get('ya_settings', {}));
-if (typeof S.skin !== 'number' || S.skin < 0 || S.skin > 9) S.skin = 0;
+if (typeof S.skin !== 'number' || S.skin < 0 || S.skin > 19) S.skin = 0;
+S.lefty = !!S.lefty; S.hudMin = !!S.hudMin; S.aimLine = !!S.aimLine; S.uiAnim = S.uiAnim !== false;
 S.fx = [0, 1, 2].includes(S.fx | 0) ? (S.fx | 0) : 2;
 S.fpsCap = [0, 30, 45, 60].includes(S.fpsCap | 0) ? (S.fpsCap | 0) : 0;
 S.battery = !!S.battery;
@@ -694,7 +696,13 @@ const SKINS = [
   { id: 'night',   c1: '#5d7099', c2: '#2c3a5c', c4: '#1b2440', c3: '#080c1c', eng: ['rgba(150,220,255,0.95)', 'rgba(60,120,255,0.6)'],  trim: '#9ef0ff' },
   { id: 'solar',   c1: '#fffbe8', c2: '#ffe9a0', c4: '#d8a030', c3: '#8a5a10', eng: ['rgba(255,246,205,0.95)', 'rgba(255,190,60,0.65)'], trim: '#ffd85f' },
   { id: 'aurora',  c1: '#edfffb', c2: '#b8ffe8', c4: '#4fe0c0', c3: '#1f8a86', eng: ['rgba(210,255,245,0.95)', 'rgba(60,230,190,0.65)'], trim: '#a9ffe8' },
-  { id: 'eclipse', c1: '#fff2e0', c2: '#ffd2a0', c4: '#b05cff', c3: '#4a1b86', eng: ['rgba(255,232,200,0.95)', 'rgba(190,110,255,0.65)'], trim: '#ffd166' }
+  { id: 'eclipse', c1: '#fff2e0', c2: '#ffd2a0', c4: '#b05cff', c3: '#4a1b86', eng: ['rgba(255,232,200,0.95)', 'rgba(190,110,255,0.65)'], trim: '#ffd166' },
+  { id: 'void',    c1: '#e8d8ff', c2: '#b48cff', c4: '#3a1a66', c3: '#12051f', eng: ['rgba(255,170,255,0.95)', 'rgba(120,60,255,0.7)'], trim: '#ff7bff' },
+  { id: 'reactor', c1: '#f4ffe0', c2: '#d8ff8a', c4: '#7fbf2f', c3: '#2f5a10', eng: ['rgba(240,255,190,0.95)', 'rgba(140,240,40,0.7)'], trim: '#c6ff5f' },
+  { id: 'prism',   c1: '#ffffff', c2: '#b8f6ff', c4: '#ff8ad8', c3: '#5a2fae', eng: ['rgba(225,255,255,0.95)', 'rgba(255,120,230,0.7)'], trim: '#ffffff' },
+  { id: 'wraith',  c1: '#e8f4ff', c2: '#b8d8ff', c4: '#6a8fc0', c3: '#243a5e', eng: ['rgba(220,245,255,0.95)', 'rgba(110,180,255,0.65)'], trim: '#d8f0ff' },
+  { id: 'chrono',  c1: '#fff6e0', c2: '#ffd8a0', c4: '#c08a3a', c3: '#6a3a10', eng: ['rgba(255,240,200,0.95)', 'rgba(255,170,60,0.7)'], trim: '#ffcf7a' },
+  { id: 'zenith',  c1: '#ffffff', c2: '#ffe9a8', c4: '#ffb020', c3: '#8a4a00', eng: ['rgba(255,250,225,0.98)', 'rgba(255,200,80,0.75)'], trim: '#fff0c0' }
 ];
 
 /* v8 gemi gelistirme agaci */
@@ -727,7 +735,8 @@ function buyTree(id) {
   toast(t('tree_done'), '#59f0a0');
 }
 /* v8 kozmetik: skin kilitleri, motor izleri, patlama efektleri */
-const SKIN_RQ = [null, 'skin_rq_kill', 'skin_rq_wave10', 'skin_rq_boss3', 'skin_rq_ships3', 'skin_rq_miss1', 'skin_rq_wave20', 'skin_rq_ach20', 'skin_rq_season6', 'skin_rq_season12'];
+const SKIN_RQ = [null, 'skin_rq_kill', 'skin_rq_wave10', 'skin_rq_boss3', 'skin_rq_ships3', 'skin_rq_miss1', 'skin_rq_wave20', 'skin_rq_ach20', 'skin_rq_season6', 'skin_rq_season12',
+  'skin_rq_combo50', 'skin_rq_wave30', 'skin_rq_fusion10', 'skin_rq_combo80', 'skin_rq_playtime10', 'skin_rq_season18'];
 const SKIN_OPEN = [
   () => true,
   () => P.kills >= 100,
@@ -738,7 +747,13 @@ const SKIN_OPEN = [
   () => P.bestWave >= 20,
   () => Object.keys(P.ach || {}).length >= 20,
   () => (P.seasonLv || 1) >= 6,
-  () => (P.seasonLv || 1) >= 12
+  () => (P.seasonLv || 1) >= 12,
+  () => (P.maxCombo || 0) >= 50,
+  () => P.bestWave >= 30,
+  () => fusionCount() >= 10,
+  () => (P.maxCombo || 0) >= 80,
+  () => (P.playtime || 0) >= 36000,
+  () => (P.seasonLv || 1) >= 18
 ];
 function skinOpen(i) { return !!(SKIN_OPEN[i] && SKIN_OPEN[i]()); }
 if (!skinOpen(S.skin | 0)) { S.skin = 0; }
@@ -892,6 +907,10 @@ function sanitizeSettings(src) {
   d.trail = TRAILS.some(x => x.id === s.trail) ? s.trail : 'classic';
   d.boom = BOOMS.some(x => x.id === s.boom) ? s.boom : 'classic';
   d.touchSens = saveNum(s.touchSens, 0.6, 1.6, 1);
+  d.lefty = !!s.lefty;
+  d.hudMin = !!s.hudMin;
+  d.aimLine = !!s.aimLine;
+  d.uiAnim = s.uiAnim !== false;
   return d;
 }
 function sanitizeEntry(e) {
@@ -1479,6 +1498,14 @@ function baseStats() {
   if (S.gmode === 'bossrush') st.coinMul *= 1.2;
   if (S.gmode === 'chaos') st.coinMul *= 1.15;
   for (const f of FUSIONS) if (fusionOwned(f.id) && (f.a === S.ship || f.b === S.ship)) f.apply(st);
+  /* v9.6: gemiye özel pasif (füzyonlardan sonra uygulanır) */
+  st.odMul = 1; st.heatMul = 1; st.invBonus = 0;
+  if (S.ship === 'std') st.odMul *= 1.15;
+  else if (S.ship === 'speed') { st.dashCd *= 0.85; st.fireCd *= 0.92; }
+  else if (S.ship === 'tank') { st.shieldStart = (st.shieldStart || 0) + 3; st.invBonus += 0.6; }
+  else if (S.ship === 'nova') st.heatMul *= 1.2;
+  else if (S.ship === 'ghost') { st.grazeR += 8; st.coinMul *= 1.1; }
+  else if (S.ship === 'titan') { st.bossDmg *= 1.12; st.bombMax += 1; }
   return st;
 }
 
@@ -1738,7 +1765,7 @@ c_life: '+1 CAN', c_score: '+500', c_missile: 'FÜZE',
   ach_camp60_n: 'Halka Fatihi', ach_camp60_d: '60 bonus görevi tamamla',
   ach_camp120_n: 'Yıldız Gezgini', ach_camp120_d: '120 bonus görevi tamamla',
   ach_camp300_n: '300 Görev', ach_camp300_d: '300 bonus görevin tamamını bitir',
-  ver_fmt: 'v9.5'
+  ver_fmt: 'v9.6'
 };
 
 const EN = {
@@ -1996,7 +2023,7 @@ c_life: '+1 LIFE', c_score: '+500', c_missile: 'MISSILES',
   ach_camp60_n: 'Chapter Breaker', ach_camp60_d: 'Complete 60 bonus missions',
   ach_camp120_n: 'Star Wanderer', ach_camp120_d: 'Complete 120 bonus missions',
   ach_camp300_n: '300 Missions', ach_camp300_d: 'Complete all 300 bonus missions',
-  ver_fmt: 'v9.5'
+  ver_fmt: 'v9.6'
 };
 /* v9.0 · 300 içerik metinleri (TR/EN) */
 const V9_TR = {
@@ -2429,6 +2456,161 @@ const V95_EN = {
 };
 Object.assign(TR, V95_TR);
 Object.assign(EN, V95_EN);
+/* v9.6 — gemi pasifleri, zincir ödülleri ve koşu istatistikleri */
+const V96_TR = {
+  pas_std: 'Aşırı Yük +%15', pas_speed: 'Atılma +%15 · Ateş +%8',
+  pas_tank: 'Kalkan +3 · Dokunulmazlık +0,6 sn', pas_nova: 'Isı kazancı +%20',
+  pas_ghost: 'Sıyırma +8 · Para +%10', pas_titan: 'Boss hasarı +%12 · Bomba +1',
+  chain_drop_fmt: 'ZİNCİR ÖDÜLÜ ×{n}',
+  pause_stats_fmt: 'DALGA {w} · {k} KİLL · EN İYİ ZİNCİR ×{c}',
+  pause_passive_fmt: 'PASİF: {v}',
+  o_power_fmt: 'ISI {h} · ZİNCİR ×{c}'
+};
+const V96_EN = {
+  pas_std: 'Overdrive +15%', pas_speed: 'Dash +15% · Fire +8%',
+  pas_tank: 'Shield +3 · Invuln +0.6s', pas_nova: 'Heat gain +20%',
+  pas_ghost: 'Graze +8 · Coins +10%', pas_titan: 'Boss damage +12% · Bomb +1',
+  chain_drop_fmt: 'CHAIN REWARD ×{n}',
+  pause_stats_fmt: 'WAVE {w} · {k} KILLS · BEST CHAIN ×{c}',
+  pause_passive_fmt: 'PASSIVE: {v}',
+  o_power_fmt: 'HEAT {h} · CHAIN ×{c}'
+};
+Object.assign(TR, V96_TR);
+Object.assign(EN, V96_EN);
+
+/* v9.7 — komuta güvertesi arayüzü, hangar 2.0, derece ve erişilebilirlik */
+const V97_TR = {
+  ver_fmt: 'v9.7',
+  menu_cta_sub: '{m} · {d} · EN İYİ {b}',
+  menu_daily: 'GÜNLÜK OPERASYON', menu_daily_ready: 'ÖDÜL HAZIR', menu_daily_done: 'TAMAM',
+  menu_daily_claimed: 'ALINDI', menu_daily_progress: '{a}/{b}',
+  menu_campaign: 'KAMPANYA', menu_tile_duel_value: '{n} galibiyet',
+  chip_ship: 'GEMİ', chip_mode: 'MOD', chip_diff: 'ZORLUK',
+  menu_tile_tut_value: 'Kontroller', menu_tile_tut_done: 'Tamamlandı',
+  menu_profile_lv: 'Sv. {n}', menu_profile_xp: '{a}/{b} XP',
+  hangar_stats: 'GEMİ İSTATİSTİKLERİ', hangar_passive: 'PASİF',
+  hangar_select: 'GEMİYİ SEÇ', hangar_selected: 'SEÇİLİ GEMİ',
+  hangar_best_fmt: 'EN İYİ {n}', hangar_skins_page: '{a}/{b}',
+  hangar_skin_locked: 'KİLİTLİ',
+  upg_reroll: 'YENİLE', upg_reroll_done: 'Bu dalgada yenilendi',
+  upg_skip: 'ATLA', upg_skip_gain: '+{n} para ile atlandı',
+  upg_reroll_fmt: 'YENİLE · {n} ⛁', upg_skip_fmt: 'ATLA · +{n} ⛁',
+  upg_pick_hint: 'Karta dokun veya 1-3 tuşlarını kullan',
+  upg_new: 'YENİ', upg_level_fmt: 'Sv. {a}/{b}',
+  rarity_common: 'YAYGIN', rarity_rare: 'NADİR', rarity_epic: 'EPİK', rarity_legend: 'EFSANE',
+  pause_build: 'KOŞU DONANIMI', pause_build_empty: 'Henüz yükseltme yok',
+  pause_mission: 'GÜNLÜK HEDEF', pause_more_fmt: '+{n} daha',
+  pause_mission_none: 'Tüm günlük hedefler alındı',
+  o_grade: 'DERECE', o_rewards: 'ÖDÜLLER', o_reward_xp: '+{n} XP',
+  o_reward_coins: '+{n} ⛁', o_reward_dust: '+{n} ✦',
+  set_tab_ui: 'ARAYÜZ',
+  set_lefty: 'Sol El Modu', set_lefty_d: 'Dokunmatik kontrolleri sola al',
+  set_hudmin: 'Sade HUD', set_hudmin_d: 'Güç rozetlerini gizle',
+  set_aim: 'Nişan Çizgisi', set_aim_d: 'Dikey nişan kılavuzu göster',
+  set_uianim: 'Arayüz Animasyonları', set_uianim_d: 'Sayfa geçişlerini yumuşat',
+  set_ui_hint: 'Dokunmatik düzen ve HUD kişiselleştirme',
+  skin_void: 'Boşluk', skin_reactor: 'Reaktör', skin_prism: 'Prizma',
+  skin_wraith: 'Hayalet', skin_chrono: 'Kronos', skin_zenith: 'Zirve',
+  skin_rq_combo50: 'Kombo 50', skin_rq_wave30: 'Dalga 30',
+  skin_rq_fusion10: '10 füzyon', skin_rq_combo80: 'Kombo 80',
+  skin_rq_playtime10: '10 saat oyna', skin_rq_season18: 'Sezon 18 ödülü'
+};
+const V97_EN = {
+  ver_fmt: 'v9.7',
+  menu_cta_sub: '{m} · {d} · BEST {b}',
+  menu_daily: 'DAILY OPERATION', menu_daily_ready: 'REWARD READY', menu_daily_done: 'DONE',
+  menu_daily_claimed: 'CLAIMED', menu_daily_progress: '{a}/{b}',
+  menu_campaign: 'CAMPAIGN', menu_tile_duel_value: '{n} wins',
+  chip_ship: 'SHIP', chip_mode: 'MODE', chip_diff: 'DIFFICULTY',
+  menu_tile_tut_value: 'Controls', menu_tile_tut_done: 'Completed',
+  menu_profile_lv: 'Lv. {n}', menu_profile_xp: '{a}/{b} XP',
+  hangar_stats: 'SHIP STATISTICS', hangar_passive: 'PASSIVE',
+  hangar_select: 'SELECT SHIP', hangar_selected: 'SELECTED SHIP',
+  hangar_best_fmt: 'BEST {n}', hangar_skins_page: '{a}/{b}',
+  hangar_skin_locked: 'LOCKED',
+  upg_reroll: 'REROLL', upg_reroll_done: 'Rerolled this wave',
+  upg_skip: 'SKIP', upg_skip_gain: 'Skipped for +{n} coins',
+  upg_reroll_fmt: 'REROLL · {n} ⛁', upg_skip_fmt: 'SKIP · +{n} ⛁',
+  upg_pick_hint: 'Tap a card or use keys 1-3',
+  upg_new: 'NEW', upg_level_fmt: 'Lv. {a}/{b}',
+  rarity_common: 'COMMON', rarity_rare: 'RARE', rarity_epic: 'EPIC', rarity_legend: 'LEGEND',
+  pause_build: 'RUN LOADOUT', pause_build_empty: 'No upgrades yet',
+  pause_mission: 'DAILY GOAL', pause_more_fmt: '+{n} more',
+  pause_mission_none: 'All daily goals claimed',
+  o_grade: 'GRADE', o_rewards: 'REWARDS', o_reward_xp: '+{n} XP',
+  o_reward_coins: '+{n} ⛁', o_reward_dust: '+{n} ✦',
+  set_tab_ui: 'INTERFACE',
+  set_lefty: 'Left-Hand Mode', set_lefty_d: 'Mirror touch controls to the left',
+  set_hudmin: 'Minimal HUD', set_hudmin_d: 'Hide power badges',
+  set_aim: 'Aim Guide', set_aim_d: 'Show a vertical aiming line',
+  set_uianim: 'Interface Animation', set_uianim_d: 'Smooth page transitions',
+  set_ui_hint: 'Touch layout and HUD personalization',
+  skin_void: 'Void', skin_reactor: 'Reactor', skin_prism: 'Prism',
+  skin_wraith: 'Wraith', skin_chrono: 'Chrono', skin_zenith: 'Zenith',
+  skin_rq_combo50: 'Combo 50', skin_rq_wave30: 'Wave 30',
+  skin_rq_fusion10: '10 fusions', skin_rq_combo80: 'Combo 80',
+  skin_rq_playtime10: 'Play 10 hours', skin_rq_season18: 'Season 18 reward'
+};
+Object.assign(TR, V97_TR);
+Object.assign(EN, V97_EN);
+
+/* v9.7: yükseltme kartları, duraklatma ve derece ekranı için ortak yardımcılar */
+const PERK_ICONS = {
+  dmg: 'flame', rate: 'bolt', speed: 'wind', regen: 'shield', bomb: 'bomb', magnet: 'magnet',
+  combow: 'clock', combos: 'chart', dash: 'dash', life: 'heart', miss: 'rocket', drone: 'ship',
+  graze: 'target', boss: 'skull', coin: 'coin', revive: 'medal', startw: 'bolt', crit: 'cross',
+  pierce: 'arrow', chain: 'flame', rage: 'bolt', dustw: 'dust', orbit: 'star', nova: 'star',
+  leech: 'heart', slowb: 'clock', thorns: 'shield', startb: 'bomb', exec: 'skull', luck: 'star',
+  multi: 'bolt', ricochet: 'arrow', homing: 'target', freeze: 'shield', burn: 'flame',
+  vampire: 'heart', bombShield: 'bomb', sideShots: 'arrow', rearShot: 'arrow',
+  lastStand: 'heart', berserk: 'flame', magnetPulse: 'magnet', overkill: 'skull',
+  sniper: 'cross', orbital: 'star', supernova: 'star', chain2: 'flame', exec2: 'skull',
+  luck2: 'star', regen2: 'shield', dash2: 'dash', startw2: 'bolt', crit2: 'cross',
+  pierce2: 'arrow', life2: 'heart', bomb2: 'bomb', speed2: 'wind', rate2: 'bolt',
+  dmg2: 'flame', coin2: 'coin', graze2: 'target', boss2: 'skull', miss2: 'rocket'
+};
+function perkIcon(id) {
+  if (PERK_ICONS[id]) return PERK_ICONS[id];
+  const s = String(id);
+  if (s.indexOf('life') === 0) return 'heart';
+  if (s.indexOf('bomb') === 0) return 'bomb';
+  if (s.indexOf('dmg') === 0) return 'flame';
+  if (s.indexOf('rate') === 0) return 'bolt';
+  if (s.indexOf('crit') === 0) return 'cross';
+  if (s.indexOf('boss') === 0) return 'skull';
+  if (s.indexOf('coin') === 0) return 'coin';
+  if (s.indexOf('miss') === 0) return 'rocket';
+  if (s.indexOf('chain') === 0) return 'flame';
+  if (s.indexOf('graze') === 0) return 'target';
+  if (s.indexOf('speed') === 0) return 'wind';
+  if (s.indexOf('dash') === 0) return 'dash';
+  if (s.indexOf('regen') === 0) return 'shield';
+  return 'star';
+}
+const RARITY = [
+  { key: 'common', col: '#9fc5dd', gem: 'star' },
+  { key: 'rare',   col: '#59e6ff', gem: 'bolt' },
+  { key: 'epic',   col: '#c9a0ff', gem: 'cross' },
+  { key: 'legend', col: '#ffd166', gem: 'trophy' }
+];
+function perkRarity(p) {
+  if (!p) return 0;
+  if (p.fusion) return 3;
+  let h = 0; const s = String(p.id || '');
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const r = h % 10;
+  if (p.max >= 3) return r < 4 ? 2 : 1;
+  if (p.max === 2) return r < 2 ? 2 : (r < 8 ? 1 : 0);
+  return r < 5 ? 2 : 1;
+}
+const GRADE_COL = { S: '#ffd166', A: '#59e6ff', B: '#8fffb0', C: '#c9b6ff', D: '#ff9a9c' };
+function runGrade() {
+  const acc = state.runShots ? state.runHits / state.runShots : 0;
+  const diffF = S.diff === 'hard' ? 1.15 : S.diff === 'easy' ? 0.85 : 1;
+  const pts = clamp(state.score / (18000 * diffF), 0, 5) * 0.45
+    + clamp(state.wave / 18, 0, 5) * 0.35 + acc * 5 * 0.2;
+  return pts >= 4.2 ? 'S' : pts >= 3.3 ? 'A' : pts >= 2.4 ? 'B' : pts >= 1.4 ? 'C' : 'D';
+}
 const DICT = { tr: TR, en: EN };
 function t(k, p) {
   const d = DICT[S.lang] || TR;
@@ -2804,11 +2986,12 @@ const state = { mode: 'menu', menuPage: 'main', score: 0, lives: 3, wave: 0, wav
   region: 0, regionBanner: 0, prevBest: 0, prevScore: 0,
   fps: 0, fpsAcc: 0, fpsN: 0, hitT: 0, fever: 0, meteorT: 22, meteorWarn: 0,
   comboPulse: 0, comboGain: 0, comboGainT: 0, scorePulse: 0, critPulse: 0,
-  heat: 0, heatPulse: 0, chain: 0, chainT: 0, chainBest: 0, chainPulse: 0, novaPulse: 0,
+  heat: 0, heatBest: 0, heatPulse: 0, chain: 0, chainT: 0, chainBest: 0, chainPulse: 0, novaPulse: 0,
   novaDepth: 0, volley: 0,
   bossDeath: null, bossBreakT: 0, bgPulse: 0,
   tut: null, setTab: 'genel', seasonPage: 0, campPage: 0, campSel: 1, campWin: null,
-  versus: null, vsPrevMode: null, fusPage: 0, callout: '', calloutCol: '#ffd166', calloutT: 0, calloutMax: 1.1 };
+  versus: null, vsPrevMode: null, fusPage: 0, callout: '', calloutCol: '#ffd166', calloutT: 0, calloutMax: 1.1,
+  hangarSel: 0, skinPage: 0, upgRerolled: false, pageFade: 0, lastMenuPage: '', seasonGain: 0 };
 let st = baseStats();
 let player = null, ufo = null;
 let enemies = [], bullets = [], ebullets = [], emissiles = [], missiles = [], beams = [],
@@ -3099,7 +3282,7 @@ function waveDanger() { return S.gmode === 'endless' && state.wave > 20 ? 1 + (s
 function addRage(v) { if (state.ultraT > 0) return; state.rage = clamp(state.rage + v * st.rageMul, 0, 1); }
 function addOverdrive(v) {
   if (state.mode !== 'playing' || state.odT > 0) return;
-  state.od = clamp(state.od + v, 0, 1);
+  state.od = clamp(state.od + v * (st.odMul || 1), 0, 1);
   if (state.od >= 1) startOverdrive();
 }
 function startOverdrive() {
@@ -3172,7 +3355,8 @@ function heatDmgMul() { return 1 + clamp(state.heat, 0, 100) * 0.002; }
 function addHeat(v, x, y) {
   if (state.mode !== 'playing') return;
   const old = heatTierIndex();
-  state.heat = clamp(state.heat + v, 0, 100);
+  state.heat = clamp(state.heat + v * (st.heatMul || 1), 0, 100);
+  state.heatBest = Math.max(state.heatBest || 0, state.heat);
   const now = heatTierIndex();
   if (now > old) {
     const h = HEAT_TIERS[now];
@@ -3226,6 +3410,13 @@ function chainKill(e) {
     state.calloutCol = '#ffd166'; state.calloutT = 1.15; state.calloutMax = 1.15;
     sfx.module(); sfx.boom();
     state.novaDepth--;
+  }
+  if (state.chain === 15 || state.chain === 30 || state.chain === 50) {
+    dropPowerup(e.x, e.y);
+    addFloat(e.x, e.y - 26, t('chain_drop_fmt', { n: state.chain }), '#ffd166');
+    state.callout = t('chain_drop_fmt', { n: state.chain });
+    state.calloutCol = '#ffd166'; state.calloutT = 1.0; state.calloutMax = 1.0;
+    sfx.power();
   }
 }
 function addCoins(n) {
@@ -3360,7 +3551,7 @@ function damageBossModule(boss, m, dmg, sx, sy) {
   addShake(5); sfx.module();
   spawnCoin(m.x, m.y);
   if (Math.random() < 0.45) dropPowerup(m.x, m.y);
-  addScore(120); addOverdrive(0.05);
+  addScore(120); addOverdrive(0.05); addHeat(12, m.x, m.y);
   if (!boss.mods.some(x => !x.dead) && !boss.armorBroken) {
     bossArmorBreak(boss);
     addFloat(boss.x, boss.y - 64, t('boss_armor_down'), '#ffd166');
@@ -3526,7 +3717,7 @@ function damagePlayer() {
   if (state.tut && state.tut.on) { p.inv = Math.max(p.inv, 0.6); return; }
   if (p.barT > 0 || p.phT > 0) { buzz(8); return; }
   if (p.shield > 0) {
-    p.shield = 0; p.inv = 1.2; p.shieldHit = 0.45;
+    p.shield = 0; p.inv = 1.2 + (st.invBonus || 0); p.shieldHit = 0.45;
     ringParticles(p.x, p.y, CC.shield); fxRing(p.x, p.y, 10, 300, 3, 0.45, CC.shield);
     fxRing(p.x, p.y, 25, 120, 2, 0.4, '#e8fff8');
     fxBurst(p.x, p.y, '#c8fff0', 28, 0.2, 'ring');
@@ -3564,7 +3755,7 @@ function damagePlayer() {
       return;
     }
     gameOver();
-  } else p.inv = 2.2;
+  } else p.inv = 2.2 + (st.invBonus || 0);
 }
 
 /* ---------- düşman fabrikası ---------- */
@@ -3894,7 +4085,7 @@ function resetRun() {
   state.hitT = 0; state.fever = 0; state.meteorT = rand(20, 34); state.meteorWarn = 0;
   state.comboPulse = 0; state.comboGain = 0; state.comboGainT = 0; state.scorePulse = 0;
   state.critPulse = 0; state.bossDeath = null; state.bossBreakT = 0; state.bgPulse = 0;
-  state.heat = 0; state.heatPulse = 0; state.chain = 0; state.chainT = 0; state.chainBest = 0;
+  state.heat = 0; state.heatBest = 0; state.heatPulse = 0; state.chain = 0; state.chainT = 0; state.chainBest = 0;
   state.chainPulse = 0; state.novaPulse = 0; state.novaDepth = 0; state.volley = 0;
   state.campaign = null; state.campLaunch = 0; state.campWin = null; state.versus = null;
   state.callout = ''; state.calloutT = 0; state.calloutMax = 1.45; state.calloutCombo = 0;
@@ -4268,11 +4459,13 @@ function gameOver() {
   P.recent.unshift({ s: state.score, w: state.wave, sh: S.ship, gm: S.gmode, dur: Math.round(state.runT), t: Date.now() });
   P.recent = P.recent.slice(0, 10);
   const bossGain = Math.max(0, P.bosses - (state.boss0 || 0));
-  seasonAddXp(Math.round(state.score / 110) + state.wave * 7 + bossGain * 30);
+  const xpGain = Math.round(state.score / 110) + state.wave * 7 + bossGain * 30;
+  state.seasonGain = xpGain;
+  seasonAddXp(xpGain);
   checkAch();
   saveP();
 }
-function openUpgrades() {
+function rollUpgradeOptions() {
   const pool = PERKS.filter(p => (state.progs[p.id] || 0) < p.max);
   const opts = [];
   while (opts.length < 3 && pool.length) opts.push(pool.splice((Math.random()*pool.length)|0, 1)[0]);
@@ -4283,11 +4476,43 @@ function openUpgrades() {
     const card = { id: 'fusion_' + f.id, max: 1, fusion: f };
     if (opts.length < 3) opts.push(card); else opts[2] = card;
   }
-  state.upg = opts;
+  return opts;
+}
+function openUpgrades() {
+  state.upg = rollUpgradeOptions();
   state.upgFocus = 0;
+  state.upgRerolled = false;
   state.mode = 'upgrade';
   UI.focus['upgrade'] = 0;
   sfx.upgrade();
+}
+function rerollUpgrades() {
+  if (state.mode !== 'upgrade') return;
+  if (state.tut && state.tut.on) { sfx.deny(); return; }
+  if (state.upgRerolled) { sfx.deny(); toast(t('upg_reroll_done'), '#ff9a9c'); return; }
+  if (P.coins < 30) { sfx.deny(); toast(t('no_coins'), '#ff7bbd'); return; }
+  P.coins -= 30;
+  state.upgRerolled = true;
+  state.upg = rollUpgradeOptions();
+  state.upgFocus = 0;
+  UI.focus['upgrade'] = 0;
+  saveP();
+  sfx.upgrade();
+  toast(t('upg_reroll') + ' · -30 ⛁', '#ffd166');
+}
+function skipUpgrades() {
+  if (state.mode !== 'upgrade') return;
+  if (state.tut && state.tut.on) { sfx.deny(); return; }
+  const gain = 20;
+  P.coins += gain;
+  saveP();
+  toast(t('upg_skip_gain', { n: gain }), '#ffd166');
+  state.upg = [];
+  state.upgRerolled = false;
+  state.mode = 'playing';
+  state.upgradesPending = false;
+  state.betweenWaves = 1.2;
+  sfx.tick();
 }
 function chooseUpgrade(i) {
   const p = state.upg[i];
@@ -5651,6 +5876,11 @@ function update(dt) {
   if (state.slowT > 0) state.slowT -= dt;
   if (state.zoomT > 0) state.zoomT -= dt;
   if (state.mode === 'over' || state.mode === 'versusEnd') state.overT += dt;
+  if (state.mode === 'menu' && state.menuPage !== state.lastMenuPage) {
+    state.lastMenuPage = state.menuPage;
+    state.pageFade = S.uiAnim ? 1 : 0;
+  }
+  if (state.pageFade > 0) state.pageFade = Math.max(0, state.pageFade - dt * 3.4);
 
   if (state.mode !== 'playing') return;
 
@@ -7711,6 +7941,28 @@ function drawShipIcon(x, y, sc, color) {
   ctx.strokeStyle = 'rgba(150,240,255,0.8)'; ctx.lineWidth = 0.8; ctx.stroke();
   ctx.fillStyle = 'rgba(120,240,255,0.95)';
   ctx.beginPath(); ctx.ellipse(0, HY * 0.42, 2.1, 3.8, 0, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+function drawAimGuide() {
+  const p = player;
+  if (!p || state.mode !== 'playing') return;
+  const top = 46;
+  if (p.y <= top + 8) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const ag = ctx.createLinearGradient(0, top, 0, p.y - 18);
+  ag.addColorStop(0, 'rgba(140,220,255,0)');
+  ag.addColorStop(0.5, 'rgba(140,220,255,0.14)');
+  ag.addColorStop(1, 'rgba(180,240,255,0.28)');
+  ctx.strokeStyle = ag; ctx.lineWidth = 1.2;
+  if (!S.rmotion) ctx.setLineDash([3, 7]);
+  ctx.beginPath(); ctx.moveTo(p.x, p.y - 18); ctx.lineTo(p.x, top); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(170,235,255,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(p.x, top - 3); ctx.lineTo(p.x + 3.4, top + 3);
+  ctx.lineTo(p.x, top + 1); ctx.lineTo(p.x - 3.4, top + 3);
+  ctx.closePath(); ctx.fill();
   ctx.restore();
 }
 function drawPlayer() {
@@ -11058,26 +11310,31 @@ function drawHUD() {
       ctx.fillText(t('fever'), W / 2, cy + 14);
     }
   }
+  const lstep = S.lefty ? -20 : 20;
+  const lx0 = S.lefty ? W - 20 : 20;
   if (!S.rmotion && fxLevel() > 0) {
-    for (let i = 0; i < state.lives; i++) glowDot(20 + i * 20, H - 22, 12, 'rgba(90,200,255,0.2)', 0.55);
+    for (let i = 0; i < state.lives; i++) glowDot(lx0 + i * lstep, H - 22, 12, 'rgba(90,200,255,0.2)', 0.55);
   }
-  for (let i = 0; i < state.lives; i++) drawShipIcon(20 + i * 20, H - 20, 0.52, st.color);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < state.lives; i++) drawShipIcon(lx0 + i * lstep, H - 20, 0.52, st.color);
+  const bbase = S.lefty ? W - 14 : 14, bdir = S.lefty ? -1 : 1;
+  ctx.textAlign = S.lefty ? 'right' : 'left'; ctx.textBaseline = 'middle';
   ctx.fillStyle = 'rgba(160,190,220,0.78)';
   ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
-  ctx.fillText(t('hud_bombs'), 14, H - 57);
+  ctx.fillText(t('hud_bombs'), bbase, H - 57);
   ctx.strokeStyle = 'rgba(255,209,102,0.35)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(14, H - 51); ctx.lineTo(43, H - 51); ctx.stroke();
-  if (!S.rmotion && state.bombs > 0) glowDot(19, H - 44, 14, 'rgba(255,196,70,0.24)', 0.6);
+  ctx.beginPath(); ctx.moveTo(bbase, H - 51); ctx.lineTo(bbase + bdir * 29, H - 51); ctx.stroke();
+  if (!S.rmotion && state.bombs > 0) glowDot(bbase + bdir * 5, H - 44, 14, 'rgba(255,196,70,0.24)', 0.6);
   for (let i = 0; i < st.bombMax; i++) {
-    const bx = 19 + i * 18, by = H - 44;
+    const bx = bbase + bdir * (5 + i * 18), by = H - 44;
     if (i < state.bombs) iconGlyph(bx, by, 6.5, 'bomb', '#ffcf5f');
     else { ctx.globalAlpha = 0.25; iconGlyph(bx, by, 6.5, 'bomb', '#8898a8'); ctx.globalAlpha = 1; }
   }
   ctx.fillStyle = state.bombs > 0 ? '#ffe4a0' : 'rgba(140,160,180,0.7)';
   ctx.font = '800 9px system-ui, "Segoe UI", sans-serif';
-  ctx.fillText('×' + state.bombs, 22 + st.bombMax * 18, H - 44);
+  ctx.fillText('×' + state.bombs, bbase + bdir * (8 + st.bombMax * 18), H - 44);
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
+  if (!S.hudMin) {
   let yB = touchDevice ? H - 228 : H - 24;
   const badges = [];
   if (p.weapon > 1) badges.push([t('p_weapon', { n: p.weapon }), CC.weapon, 'bolt']);
@@ -11119,6 +11376,7 @@ function drawHUD() {
     ctx.textAlign = 'left';
     ctx.fillText(bb[0], bx2 + 29, yB + 0.5);
     yB -= 26;
+  }
   }
   ctx.textBaseline = 'top';
   if (p.beamT > 0) {
@@ -11357,11 +11615,13 @@ function drawHUD() {
 
 /* ---------- dokunmatik kontroller ---------- */
 function touchButtons() {
+  const bx1 = S.lefty ? 58 : W - 58;
+  const bx2 = S.lefty ? 130 : W - 130;
   return [
-    { x: W - 58, y: H - 168, r: 34, act: doDash, label: '»' },
-    { x: W - 58, y: H - 88, r: 34, act: useBomb, label: 'B' },
-    { x: W - 130, y: H - 88, r: 32, act: useUltra, label: 'U' },
-    { x: W - 130, y: H - 168, r: 32, act: useAbil, label: 'E' }
+    { x: bx1, y: H - 168, r: 34, act: doDash, label: '»' },
+    { x: bx1, y: H - 88, r: 34, act: useBomb, label: 'B' },
+    { x: bx2, y: H - 88, r: 32, act: useUltra, label: 'U' },
+    { x: bx2, y: H - 168, r: 32, act: useAbil, label: 'E' }
   ];
 }
 function drawTouch() {
@@ -11528,8 +11788,19 @@ function drawHeatBar() {
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.font = '800 8px system-ui, "Segoe UI", sans-serif';
   ctx.globalAlpha = 0.82; ctx.fillStyle = h.col;
-  ctx.fillText(state.chain >= 5 ? t('hud_chain', { n: state.chain }) : t('hud_heat'), W / 2, y - 5);
+  const hLab = state.chain >= 5 ? t('hud_chain', { n: state.chain }) : t('hud_heat');
+  ctx.fillText(hLab, W / 2, y - 5);
   ctx.globalAlpha = 1;
+  if (state.chain >= 2) {
+    const tw = ctx.measureText(hLab).width;
+    const cx = W / 2 - tw / 2 - 8, cy = y - 9, rr = 5.2;
+    const k = clamp(state.chainT / 2.4, 0, 1);
+    ctx.beginPath(); ctx.arc(cx, cy, rr, 0, TAU);
+    ctx.strokeStyle = 'rgba(255,209,102,0.18)'; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, rr, -Math.PI / 2, -Math.PI / 2 + TAU * k);
+    ctx.strokeStyle = k < 0.3 ? 'rgba(255,120,120,0.9)' : '#ffd166';
+    ctx.lineWidth = 1.8; ctx.stroke();
+  }
   ctx.restore();
 }
 function drawEffects() {
@@ -11732,6 +12003,7 @@ function render() {
   drawDrones();
   drawZaps();
   if (state.mode !== 'menu') { drawOdLance(); drawPlayer(); }
+  if (S.aimLine && state.mode === 'playing') drawAimGuide();
   drawGoldenBeam();
   drawParticlesFx();
   drawBossDeathWorld();
@@ -12135,6 +12407,155 @@ function drawMenuHero(heroY) {
     ctx.restore();
   }
 }
+
+/* v9.7 komuta güvertesi yardımcıları */
+function menuChip(x, y, w, h, icon, label, value, col, item) {
+  panel(x, y, w, h, 10, {
+    c1: 'rgba(22,36,68,0.72)', c2: 'rgba(8,14,32,0.84)',
+    border: col + '3d'
+  });
+  iconGlyph(x + 15, y + h / 2, 6.4, icon, col);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(148,182,218,0.72)';
+  ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(label, x + 27, y + 9.5);
+  ctx.fillStyle = col;
+  ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(value, x + 27, y + 21.5);
+  UI.row(x, y, w, h, item);
+}
+function menuTile(x, y, w, h, icon, label, value, col, item, badge) {
+  const focus = UI.items.length === UI.fi;
+  panel(x, y, w, h, 12, {
+    c1: focus ? 'rgba(48,72,124,0.86)' : 'rgba(22,34,64,0.68)',
+    c2: focus ? 'rgba(22,34,78,0.9)' : 'rgba(8,14,32,0.82)',
+    border: focus ? col : col + '30',
+    glow: focus && !S.rmotion ? col + '66' : null
+  });
+  ctx.beginPath(); ctx.arc(x + 23, y + h / 2, 13, 0, TAU);
+  ctx.fillStyle = col + '1f'; ctx.fill();
+  ctx.strokeStyle = col + '55'; ctx.lineWidth = 1; ctx.stroke();
+  iconGlyph(x + 23, y + h / 2, 7, icon, col);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#e2f1ff';
+  ctx.font = '800 10px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(label, x + 42, y + h / 2 - 7);
+  ctx.fillStyle = 'rgba(150,184,218,0.82)';
+  ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(value, x + 42, y + h / 2 + 8, w - 54);
+  if (badge) {
+    if (!S.rmotion) glowDot(x + w - 13, y + 13, 8, '#ffd166', 0.5);
+    ctx.beginPath(); ctx.arc(x + w - 13, y + 13, 4.2, 0, TAU);
+    ctx.fillStyle = '#ffd166'; ctx.fill();
+    ctx.fillStyle = '#2a1a02'; ctx.font = '800 6px system-ui, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('!', x + w - 13, y + 13.5);
+  }
+  UI.row(x, y, w, h, item);
+}
+function menuProfile(y) {
+  const need = seasonNeed(P.seasonLv);
+  const xf = P.seasonLv >= SEASON_MAX ? 1 : clamp(P.seasonXp / need, 0, 1);
+  panel(18, y, W - 36, 46, 14, {
+    c1: 'rgba(28,34,66,0.78)', c2: 'rgba(8,12,30,0.86)',
+    border: 'rgba(255,209,102,0.24)',
+    glow: S.rmotion ? null : 'rgba(255,190,90,0.12)'
+  });
+  const b = BADGES.find(v => v.id === P.badge);
+  ctx.beginPath(); ctx.arc(42, y + 23, 15, 0, TAU);
+  const ag = ctx.createLinearGradient(27, y + 8, 57, y + 38);
+  ag.addColorStop(0, 'rgba(255,225,150,0.26)');
+  ag.addColorStop(1, 'rgba(120,70,20,0.18)');
+  ctx.fillStyle = ag; ctx.fill();
+  ctx.strokeStyle = b ? b.col + 'aa' : 'rgba(255,209,102,0.45)';
+  ctx.lineWidth = 1.2; ctx.stroke();
+  iconGlyph(42, y + 23, 8, b ? b.icon : 'star', b ? b.col : '#ffe9a8');
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(160,190,220,0.75)';
+  ctx.font = '700 7.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('season_short'), 64, y + 14);
+  ctx.fillStyle = '#ffe9a8';
+  ctx.font = '800 13px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('menu_profile_lv', { n: P.seasonLv }), 64, y + 29);
+  ctx.beginPath(); roundRect(126, y + 17, 132, 5, 2.5);
+  ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+  if (xf > 0.001) {
+    ctx.beginPath(); roundRect(126, y + 17, 132 * xf, 5, 2.5);
+    const xg = ctx.createLinearGradient(126, 0, 258, 0);
+    xg.addColorStop(0, '#ffd166'); xg.addColorStop(1, '#ff9be8');
+    ctx.fillStyle = xg; ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(190,210,232,0.8)';
+  ctx.font = '700 7.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(P.seasonLv >= SEASON_MAX ? t('season_max') : t('menu_profile_xp', { a: fmt(P.seasonXp), b: fmt(need) }), 126, y + 31);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#ffd166';
+  ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(fmt(P.coins), W - 30, y + 15);
+  ctx.fillStyle = '#c9e8ff';
+  ctx.fillText(fmt(P.dust), W - 30, y + 31);
+  iconGlyph(W - 92, y + 15, 6.2, 'coin', '#ffd166');
+  iconGlyph(W - 92, y + 31, 6.2, 'dust', '#c9e8ff');
+  UI.row(18, y, 252, 46, { act: () => { state.menuPage = 'season'; state.seasonPage = clamp(Math.floor((P.seasonLv - 1) / 5), 0, 3); sfx.tick(); } });
+  UI.row(270, y, W - 288, 46, { act: () => { state.menuPage = 'shop'; sfx.tick(); } });
+}
+function menuDaily(y) {
+  missInit();
+  const list = (P.miss && P.miss.list) || [];
+  const ready = list.filter(m => !m.claimed && m.prog >= m.goal).length;
+  const done = list.filter(m => m.claimed).length;
+  panel(18, y, W - 36, 76, 14, {
+    c1: ready ? 'rgba(58,46,16,0.78)' : 'rgba(20,32,60,0.72)',
+    c2: 'rgba(8,13,30,0.86)',
+    border: ready ? 'rgba(255,209,102,0.65)' : 'rgba(110,160,220,0.22)',
+    glow: ready && !S.rmotion ? 'rgba(255,196,70,0.22)' : null
+  });
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = ready ? '#ffe9a8' : 'rgba(160,195,228,0.9)';
+  ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('menu_daily'), 30, y + 14);
+  if (ready) {
+    ctx.textAlign = 'right'; ctx.fillStyle = '#ffd166';
+    ctx.font = '800 8px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('menu_daily_ready') + ' ' + ready, W - 30, y + 14);
+  } else {
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(150,185,218,0.8)';
+    ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(done + '/' + Math.max(3, list.length), W - 30, y + 14);
+  }
+  const colW = (W - 36 - 24) / 3;
+  list.slice(0, 3).forEach((m, i) => {
+    const x = 30 + i * (colW + 6);
+    const ok = m.prog >= m.goal, clm = m.claimed;
+    const col = clm ? 'rgba(130,160,190,0.45)' : ok ? '#ffd166' : '#8fd0ff';
+    iconGlyph(x + 8, y + 34, 6, ({ kills: 'skull', waves: 'wave', boss: 'trophy', runs: 'play', dust: 'dust', score: 'chart', upg: 'bolt', combo: 'flame', flawless: 'shield' })[m.id] || 'target', col);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = clm ? 'rgba(150,175,198,0.7)' : '#dceafa';
+    ctx.font = '800 7.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('miss_' + m.id + '_n'), x + 18, y + 31, colW - 22);
+    ctx.beginPath(); roundRect(x + 18, y + 39, colW - 24, 4, 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+    const fr = clamp(m.prog / Math.max(1, m.goal), 0, 1);
+    if (fr > 0.01) {
+      ctx.beginPath(); roundRect(x + 18, y + 39, (colW - 24) * fr, 4, 2);
+      ctx.fillStyle = col; ctx.fill();
+    }
+    ctx.fillStyle = clm ? 'rgba(140,170,195,0.7)' : ok ? '#ffe9a8' : 'rgba(160,195,225,0.82)';
+    ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(clm ? t('menu_daily_claimed') : (ok ? t('menu_daily_done') : m.prog + '/' + m.goal), x + 18, y + 51);
+    if (ok && !clm) {
+      ctx.beginPath(); ctx.arc(x + colW - 10, y + 32, 4, 0, TAU);
+      ctx.fillStyle = '#ffd166'; ctx.fill();
+    }
+  });
+  if (!list.length) {
+    ctx.fillStyle = 'rgba(150,180,210,0.7)';
+    ctx.font = '600 8px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText('—', W / 2, y + 44);
+  }
+  UI.row(18, y, W - 36, 76, {
+    act: () => { state.menuPage = 'ach'; state.achTab = 'd'; sfx.tick(); }
+  });
+}
 function renderMenu() {
   paintMenuBg();
   const page = state.menuPage;
@@ -12142,77 +12563,65 @@ function renderMenu() {
   let y = 0;
   if (page === 'main') {
     menuTitle(t('title'));
-    gradText(t('subtitle'), W / 2, 88, '700 13px system-ui, "Segoe UI", sans-serif', '#9fc5dd', '#cfe9ff', null);
-    const heroY = 134 + Math.sin(state.time * 2) * 6;
+    menuProfile(76);
+    const heroY = 180 + Math.sin(state.time * 2) * 5;
     drawMenuHero(heroY);
-    y = 196;
-    addRow(y, t('start'), null, { h: 54, cta: true, icon: 'play', sub: t('tap_start'), fs: 17 }, { act: () => startGame() }); y += 60;
-    addRow(y, t('hangar'), t('ship_' + S.ship),
-      { h: 42, icon: 'ship', col: SHIPS[S.ship].color, accent: SHIPS[S.ship].color, chev: true }, {
-        act: () => { state.menuPage = 'hangar'; sfx.tick(); }
-      }); y += 48;
-    addRow(y, t('diff_fmt', { v: t('diff_' + S.diff) }), null, { h: 42, icon: 'gauge', accent: '#ffb060' }, {
-      act: () => { const keys = Object.keys(DIFF); S.diff = keys[(keys.indexOf(S.diff) + 1) % 3]; saveS(); sfx.tick(); },
-      adjust: d => { const keys = Object.keys(DIFF); S.diff = keys[(keys.indexOf(S.diff) + d + 3) % 3]; saveS(); sfx.tick(); }
-    }); y += 48;
-    addRow(y, t('mode_fmt', { v: t('mode_' + S.gmode) }), null, { h: 42, icon: 'planet', col: '#8fd0ff', accent: '#8fd0ff' }, {
+    const cw1 = 150, cw2 = 150, cw3 = 128, cgap = 8;
+    menuChip(18, 290, cw1, 30, 'ship', t('chip_ship'), t('ship_' + S.ship), SHIPS[S.ship].color, {
+      act: () => { const ks = Object.keys(SHIPS); S.ship = ks[(ks.indexOf(S.ship) + 1) % ks.length]; saveS(); sfx.tick(); },
+      adjust: d => { const ks = Object.keys(SHIPS); S.ship = ks[(ks.indexOf(S.ship) + d + ks.length) % ks.length]; saveS(); sfx.tick(); }
+    });
+    menuChip(18 + cw1 + cgap, 290, cw2, 30, 'planet', t('chip_mode'), t('mode_' + S.gmode), '#8fd0ff', {
       act: () => { S.gmode = GMODES[(GMODES.indexOf(S.gmode) + 1) % GMODES.length]; saveS(); sfx.tick(); },
       adjust: d => { S.gmode = GMODES[(GMODES.indexOf(S.gmode) + d + GMODES.length) % GMODES.length]; saveS(); sfx.tick(); }
-    }); y += 48;
-    addRow(y, t('shop'), null, { h: 42, icon: 'bag', chev: true }, { act: () => { state.menuPage = 'shop'; sfx.tick(); } }); y += 48;
+    });
+    menuChip(18 + cw1 + cw2 + cgap * 2, 290, cw3, 30, 'gauge', t('chip_diff'), t('diff_' + S.diff), '#ffb060', {
+      act: () => { const ks = Object.keys(DIFF); S.diff = ks[(ks.indexOf(S.diff) + 1) % ks.length]; saveS(); sfx.tick(); },
+      adjust: d => { const ks = Object.keys(DIFF); S.diff = ks[(ks.indexOf(S.diff) + d + ks.length) % ks.length]; saveS(); sfx.tick(); }
+    });
+    addRow(326, t('start'), null, {
+      h: 54, cta: true, icon: 'play', fs: 17,
+      sub: t('menu_cta_sub', { m: t('mode_' + S.gmode), d: t('diff_' + S.diff), b: fmt(P.best) })
+    }, { act: () => startGame() });
     const gotN = ACHS.filter(id => P.ach[id]).length;
     const mcMain = missClaimable();
-    addRow(y, t('ach_missions'), gotN + '/' + ACHS.length + (mcMain ? '  ▲' + mcMain : ''), { h: 42, icon: 'medal', col: mcMain ? '#59f0a0' : '#ffd85f', accent: mcMain ? '#59f0a0' : '#ffd85f' }, { act: () => { state.menuPage = 'ach'; sfx.tick(); } }); y += 48;
-    const halfW = (W - 68 - 8) / 2;
-    addRow(y, t('stats'), null, { x: 34, w: halfW, h: 42, fs: 11.5, icon: 'chart', chev: true }, { act: () => { state.menuPage = 'stats'; sfx.tick(); } });
-    addRow(y, t('board'), null, { x: 34 + halfW + 8, w: halfW, h: 42, fs: 11.5, icon: 'trophy', chev: true }, { act: () => { state.menuPage = 'board'; sfx.tick(); } }); y += 48;
     const campDoneMain = Object.keys(P.camp).length;
-    addRow(y, t('camp_short'), campDoneMain + '/300', { h: 42, fs: 12, icon: 'star', col: '#ffd166', accent: '#ffd166', chev: true }, {
-      act: () => { state.menuPage = 'camp'; state.campPage = clamp(Math.floor((P.campSel - 1) / 10), 0, 29); sfx.tick(); }
-    }); y += 48;
-    addRow(y, t('settings'), null, { x: 34, w: halfW, h: 42, fs: 11.5, icon: 'gear', chev: true }, { act: () => { state.menuPage = 'settings'; sfx.tick(); } });
-    addRow(y, t('duel'), null, { x: 34 + halfW + 8, w: halfW, h: 42, fs: 11.5, icon: 'cross', accent: '#ffb060', chev: true }, { act: () => startVersus() });
-    y += 48;
-    const chips = [['coin', fmt(P.coins), '#ffd166'], ['dust', fmt(P.dust), '#c9e8ff'], ['trophy', fmt(P.best), '#9fc5dd']];
-    ctx.font = '800 12px system-ui, "Segoe UI", sans-serif';
-    const widths = chips.map(c => ctx.measureText(c[1]).width + 46);
-    const totW = widths.reduce((a, b) => a + b, 0) + 16;
-    let cx0 = W / 2 - totW / 2;
-    chips.forEach((c, i) => {
-      panel(cx0, 654, widths[i], 26, 13, {
-        c1: 'rgba(26,38,72,0.68)', c2: 'rgba(10,16,36,0.78)',
-        border: 'rgba(145,195,245,0.2)'
-      });
-      if (!S.rmotion && fxLevel() > 0) glowDot(cx0 + 16, 667, 10, c[2], 0.22);
-      iconGlyph(cx0 + 16, 667, 7, c[0], c[2]);
-      ctx.fillStyle = c[2];
-      ctx.font = '800 12px system-ui, "Segoe UI", sans-serif';
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText(c[1], cx0 + 29, 668);
-      cx0 += widths[i] + 8;
+    const tw = (W - 36 - 16) / 3, th = 50, tx0 = 18, ty0 = 390, tgap = 8;
+    const tiles = [
+      ['ship', t('hangar'), t('ship_' + S.ship), SHIPS[S.ship].color,
+        () => { state.hangarSel = Math.max(0, Object.keys(SHIPS).indexOf(S.ship)); state.skinPage = clamp(Math.floor((S.skin | 0) / 8), 0, Math.ceil(SKINS.length / 8) - 1); state.menuPage = 'hangar'; sfx.tick(); }, false],
+      ['medal', t('ach_missions'), gotN + '/' + ACHS.length, mcMain ? '#59f0a0' : '#ffd85f',
+        () => { state.menuPage = 'ach'; sfx.tick(); }, mcMain > 0],
+      ['bag', t('shop'), fmt(P.coins), '#ffd166',
+        () => { state.menuPage = 'shop'; sfx.tick(); }, false],
+      ['star', t('menu_campaign'), campDoneMain + '/300', '#ffd166',
+        () => { state.menuPage = 'camp'; state.campPage = clamp(Math.floor((P.campSel - 1) / 10), 0, 29); sfx.tick(); }, false],
+      ['chart', t('stats'), t('hud_wave', { n: P.bestWave }), '#59e6ff',
+        () => { state.menuPage = 'stats'; sfx.tick(); }, false],
+      ['gear', t('settings'), S.lang === 'tr' ? 'TÜRKÇE' : 'ENGLISH', '#c9b0ff',
+        () => { state.menuPage = 'settings'; sfx.tick(); }, false],
+      ['cross', t('duel'), t('menu_tile_duel_value', { n: P.vsWins || 0 }), '#ffb060',
+        () => startVersus(), false],
+      ['target', t('tut_title'), P.tutDone ? t('menu_tile_tut_done') : t('menu_tile_tut_value'), '#8fd0ff',
+        () => { state.menuPage = 'tut'; sfx.tick(); }, false],
+      ['trophy', t('season_title'), t('menu_profile_lv', { n: P.seasonLv }), '#ffd166',
+        () => { state.menuPage = 'season'; state.seasonPage = clamp(Math.floor((P.seasonLv - 1) / 5), 0, 3); sfx.tick(); }, false]
+    ];
+    tiles.forEach((tl, i) => {
+      const x = tx0 + (i % 3) * (tw + tgap), y = ty0 + Math.floor(i / 3) * (th + tgap);
+      menuTile(x, y, tw, th, tl[0], tl[1], tl[2], tl[3], { act: tl[4] }, tl[5]);
     });
+    menuDaily(564);
     ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = 'rgba(120,150,180,0.85)';
-    ctx.font = '600 11px system-ui, sans-serif';
-    ctx.fillText(t('ver_fmt') + '  •  ' + t('mode_' + S.gmode + '_d'), W / 2, H - 12);
-    // sezon ve yardim kisa yollari
-    panel(18, 20, 112, 28, 14, {
-      c1: 'rgba(38,30,64,0.72)', c2: 'rgba(16,12,32,0.82)',
-      border: 'rgba(255,210,120,0.38)', glow: S.rmotion ? null : 'rgba(255,190,90,0.22)'
-    });
-    const mainBadge = BADGES.find(b => b.id === P.badge);
-    iconGlyph(34, 34, 7, mainBadge ? mainBadge.icon : 'star', mainBadge ? mainBadge.col : '#ffe9a8');
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffe9a8';
-    ctx.font = '800 9.5px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('season_short') + ' ' + P.seasonLv, 47, 35);
-    UI.row(18, 20, 112, 28, { act: () => { state.menuPage = 'season'; state.seasonPage = clamp(Math.floor((P.seasonLv - 1) / 5), 0, 3); sfx.tick(); } });
-    panel(W - 56, 20, 28, 28, 14, { c1: 'rgba(22,36,62,0.72)', c2: 'rgba(10,14,30,0.82)', border: 'rgba(120,200,255,0.3)' });
+    ctx.fillStyle = 'rgba(120,150,180,0.8)';
+    ctx.font = '600 10px system-ui, sans-serif';
+    ctx.fillText(t('ver_fmt') + '  •  ' + t('mode_' + S.gmode + '_d'), W / 2, 654);
+    panel(W - 48, 30, 30, 30, 15, { c1: 'rgba(22,36,62,0.72)', c2: 'rgba(10,14,30,0.82)', border: 'rgba(120,200,255,0.3)' });
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#9fd8ff';
     ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText('?', W - 42, 35);
-    UI.row(W - 56, 20, 28, 28, { act: () => { state.menuPage = 'tut'; sfx.tick(); } });
+    ctx.fillText('?', W - 33, 45);
+    UI.row(W - 48, 30, 30, 30, { act: () => { state.menuPage = 'tut'; sfx.tick(); } });
   } else if (page === 'camp') {
     renderCampPage();
   } else if (page === 'campinfo') {
@@ -12337,68 +12746,169 @@ function renderMenu() {
     addRow(606, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
   } else if (page === 'hangar') {
     menuTitle(t('hangar'));
-    const bob = Math.sin(state.time * 2) * 5;
-    const py = 104 + bob;
-    if (!S.rmotion) glowDot(W / 2, py, 62, 'rgba(80,170,255,0.3)', 0.8);
+    const shipKeys = Object.keys(SHIPS);
+    const sel = clamp(state.hangarSel | 0, 0, shipKeys.length - 1);
+    state.hangarSel = sel;
+    const sh = SHIPS[shipKeys[sel]];
+    const selected = shipKeys[sel] === S.ship;
+    const bup = (P.shipUp && P.shipUp[shipKeys[sel]]) || {};
+    const bspd = Math.round(sh.speed * (1 + 0.06 * (bup.spd || 0)));
+    const blives = Math.min(6, sh.lives + (bup.hull || 0));
+    const bfire = sh.fireCd * (shipKeys[sel] === 'speed' ? 0.92 : 1);
+    const bbomb = sh.bombMax + (shipKeys[sel] === 'titan' ? 1 : 0) + (P.shop.bomb ? 1 : 0);
+    const bob = Math.sin(state.time * 2) * 4;
+    const py = 142 + bob;
+    // gemi seçici oklar
+    for (const side of [-1, 1]) {
+      const ax = side < 0 ? 18 : W - 52;
+      panel(ax, 116, 34, 34, 11, {
+        c1: 'rgba(24,40,74,0.72)', c2: 'rgba(8,14,32,0.84)',
+        border: 'rgba(120,200,255,0.28)'
+      });
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#bfe0ff';
+      ctx.font = '800 20px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(side < 0 ? '‹' : '›', ax + 17, 134);
+      UI.row(ax, 116, 34, 34, {
+        act: () => { state.hangarSel = (sel + side + shipKeys.length) % shipKeys.length; sfx.tick(); }
+      });
+    }
+    if (!S.rmotion) glowDot(W / 2, py, 64, 'rgba(80,170,255,0.26)', 0.8);
     ctx.save();
-    ctx.strokeStyle = 'rgba(120,200,255,0.25)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(120,200,255,0.22)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.ellipse(W / 2, py + 20, 68, 14, 0, 0, TAU); ctx.stroke();
-    ctx.strokeStyle = 'rgba(120,200,255,0.1)';
-    ctx.beginPath(); ctx.ellipse(W / 2, py + 20, 96, 20, 0, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = 'rgba(120,200,255,0.09)';
+    ctx.beginPath(); ctx.ellipse(W / 2, py + 20, 98, 20, 0, 0, TAU); ctx.stroke();
+    if (!S.rmotion) {
+      ctx.save();
+      ctx.setLineDash([3, 9]);
+      ctx.lineDashOffset = -state.time * 14;
+      ctx.strokeStyle = 'rgba(170,225,255,0.25)';
+      ctx.beginPath(); ctx.ellipse(W / 2, py + 20, 112, 24, 0, 0, TAU); ctx.stroke();
+      ctx.restore();
+    }
     ctx.restore();
     ctx.save();
     ctx.translate(W / 2, py);
-    const spin = 0.68 + 0.32 * Math.abs(Math.cos(state.time * 0.85));
+    const spin = 0.72 + 0.28 * Math.abs(Math.cos(state.time * 0.85));
     ctx.scale(1.5 * spin, 1.5);
-    drawShip(0, 0, Math.sin(state.time * 1.3) * 0.4, SHIPS[S.ship].color, true, 0);
+    drawShip(0, 0, Math.sin(state.time * 1.3) * 0.4, P.shop.palgold ? '#ffd85f' : sh.color, true, 0);
     ctx.restore();
-    const bs = SHIPS[S.ship];
-    const bup = (P.shipUp && P.shipUp[S.ship]) || {};
-    const bspd = Math.round(bs.speed * (1 + 0.06 * (bup.spd || 0)));
-    const blives = Math.min(6, bs.lives + (bup.hull || 0));
-    const bset = [
-      ['bolt', t('hud_spd') + ' ' + bspd, '#ffd166'],
-      ['flame', t('hud_rate') + ' ' + bs.fireCd.toFixed(2) + ' sn', '#ff9a5c'],
-      ['heart', t('hud_hp') + ' ' + blives, '#ff7ba6'],
-      ['bomb', t('hud_bombs') + ' ' + bs.bombMax, '#8fe0ff']
-    ];
-    const bwd = 108, bgap = 8, bx0 = (W - (4 * bwd + 3 * bgap)) / 2;
-    bset.forEach((bb, i) => {
-      const bx = bx0 + i * (bwd + bgap);
-      pill(bx, 156, bwd, 22, null, null, { fill: 'rgba(12,20,40,0.7)', border: 'rgba(120,180,240,0.25)' });
-      iconGlyph(bx + 15, 167, 7.5, bb[0], bb[2]);
-      ctx.fillStyle = bb[2]; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.font = '800 11px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(bb[1], bx + 28, 167.5);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#f2faff';
+    ctx.font = '800 20px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('ship_' + shipKeys[sel]), W / 2, 184);
+    ctx.fillStyle = sh.color;
+    ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('ship_' + shipKeys[sel] + '_d'), W / 2, 200);
+    ctx.fillStyle = 'rgba(255,209,102,0.85)';
+    ctx.font = '700 9px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_best_fmt', { n: fmt(P.shipBest[shipKeys[sel]] || 0) }), W / 2, 214);
+    // istatistik paneli
+    panel(34, 222, W - 68, 72, 14, {
+      c1: 'rgba(20,32,60,0.68)', c2: 'rgba(8,13,30,0.82)',
+      border: 'rgba(110,160,220,0.22)'
     });
-    ctx.textBaseline = 'alphabetic';
-    y = 186;
-    for (const k of Object.keys(SHIPS)) {
-      const sh = SHIPS[k], sel = k === S.ship;
-      addRow(y, t('ship_' + k), sel ? '✓' : null,
-        { h: 38, fs: 14, icon: 'ship', col: sh.color, accent: sh.color,
-          sub: t('ship_' + k + '_d') + ' · ' + t('abil_' + (sh.abil || 'overload')) + ' · ★' + fmtK(P.shipBest[k] || 0) },
-        { act: () => { S.ship = k; P.shipsPlayed[k] = true; saveS(); sfx.tick(); } });
-      y += 42;
+    const statRows = [
+      [t('hud_spd'), String(bspd), clamp(bspd / 430, 0, 1), '#ffd166'],
+      [t('hud_rate'), bfire.toFixed(2), clamp(0.21 / bfire, 0, 1), '#ff9a5c'],
+      [t('hud_hp'), String(blives), clamp(blives / 7, 0, 1), '#ff7ba6'],
+      [t('hud_bombs'), String(bbomb), clamp(bbomb / 5, 0, 1), '#8fe0ff']
+    ];
+    statRows.forEach((r, i) => {
+      const sx = 50 + (i % 2) * 200, sy = 236 + Math.floor(i / 2) * 28;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = 'rgba(158,190,220,0.88)';
+      ctx.font = '700 7.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(r[0], sx, sy);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = r[3];
+      ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(r[1], sx + 170, sy);
+      ctx.textAlign = 'left';
+      ctx.beginPath(); roundRect(sx, sy + 5, 170, 5, 2.5);
+      ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+      if (r[2] > 0.01) {
+        ctx.beginPath(); roundRect(sx, sy + 5, 170 * r[2], 5, 2.5);
+        const sg = ctx.createLinearGradient(sx, 0, sx + 170, 0);
+        sg.addColorStop(0, r[3]); sg.addColorStop(1, 'rgba(255,255,255,0.85)');
+        ctx.fillStyle = sg; ctx.fill();
+      }
+    });
+    // pasif kartı
+    panel(34, 302, W - 68, 44, 12, {
+      c1: 'rgba(52,42,16,0.6)', c2: 'rgba(18,14,6,0.78)',
+      border: 'rgba(255,209,102,0.34)'
+    });
+    iconGlyph(54, 324, 8, 'star', '#ffd166');
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(255,209,102,0.72)';
+    ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_passive'), 70, 316);
+    ctx.fillStyle = '#ffe9a8';
+    ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('pas_' + shipKeys[sel]), 70, 330, W - 120);
+    addRow(354, selected ? t('hangar_selected') : t('hangar_select'), null, {
+      h: 42, cta: !selected, icon: selected ? 'star' : 'play', center: true, fs: 14, dim: selected
+    }, {
+      act: () => {
+        if (selected) { sfx.tick(); return; }
+        S.ship = shipKeys[sel];
+        P.shipsPlayed[S.ship] = true;
+        st = baseStats(); saveS();
+        sfx.upgrade();
+        toast(t('ship_fmt', { v: t('ship_' + S.ship) }), sh.color);
+      }
+    });
+    for (let i = 0; i < shipKeys.length; i++) {
+      const dx = W / 2 + (i - (shipKeys.length - 1) / 2) * 15;
+      ctx.beginPath(); ctx.arc(dx, 410, i === sel ? 3 : 1.6, 0, TAU);
+      ctx.fillStyle = i === sel ? sh.color : 'rgba(140,180,220,0.35)'; ctx.fill();
     }
+    // skinler
+    const per = 8, pages = Math.ceil(SKINS.length / per);
+    const pg = clamp(state.skinPage | 0, 0, pages - 1);
+    state.skinPage = pg;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = 'rgba(139,163,192,0.9)';
-    ctx.font = '700 11px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('skin_pick'), 20, 446);
-    const gcw = 104, gch = 40, ggap = 10;
+    ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('skin_pick'), 36, 428);
+    if (pages > 1) {
+      for (const side of [-1, 1]) {
+        const ax = side < 0 ? W - 82 : W - 50;
+        panel(ax, 410, 26, 24, 8, {
+          c1: 'rgba(26,40,72,0.72)', c2: 'rgba(10,16,34,0.84)',
+          border: 'rgba(120,190,245,0.28)'
+        });
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#bfe0ff'; ctx.font = '800 14px system-ui, "Segoe UI", sans-serif';
+        ctx.fillText(side < 0 ? '‹' : '›', ax + 13, 422);
+        UI.row(ax, 410, 26, 24, {
+          act: () => { state.skinPage = (pg + side + pages) % pages; sfx.tick(); }
+        });
+      }
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(160,190,220,0.75)';
+      ctx.font = '700 7.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('hangar_skins_page', { a: pg + 1, b: pages }), W - 103, 422);
+    }
+    const gcw = 100, gch = 42, ggap = 8;
     const gx0 = (W - (4 * gcw + 3 * ggap)) / 2;
-    SKINS.forEach((sk, i) => {
-      const cx = gx0 + (i % 4) * (gcw + ggap);
-      const cy = 456 + Math.floor(i / 4) * (gch + 6);
-      const sel = (S.skin | 0) === i;
+    for (let idx = 0; idx < per; idx++) {
+      const i = pg * per + idx;
+      if (i >= SKINS.length) break;
+      const sk = SKINS[i];
+      const cx = gx0 + (idx % 4) * (gcw + ggap);
+      const cy = 432 + Math.floor(idx / 4) * (gch + 8);
+      const isSel = (S.skin | 0) === i;
       const op = skinOpen(i);
-      panel(cx, cy, gcw, gch, 12, {
-        c1: sel ? 'rgba(60,140,255,0.55)' : (op ? 'rgba(26,38,72,0.6)' : 'rgba(20,24,40,0.62)'),
-        c2: sel ? 'rgba(20,70,160,0.6)' : (op ? 'rgba(10,16,36,0.7)' : 'rgba(8,10,22,0.75)'),
-        border: sel ? 'rgba(140,220,255,0.9)' : (op ? 'rgba(90,120,170,0.35)' : 'rgba(80,76,110,0.3)')
+      panel(cx, cy, gcw, gch, 11, {
+        c1: isSel ? 'rgba(58,132,245,0.56)' : (op ? 'rgba(24,36,68,0.62)' : 'rgba(18,22,38,0.64)'),
+        c2: isSel ? 'rgba(18,66,150,0.62)' : (op ? 'rgba(9,15,34,0.74)' : 'rgba(7,9,20,0.8)'),
+        border: isSel ? 'rgba(150,225,255,0.9)' : (op ? 'rgba(90,120,170,0.32)' : 'rgba(80,76,110,0.28)')
       });
       ctx.save();
-      ctx.translate(cx + 20, cy + gch / 2);
+      ctx.translate(cx + 18, cy + gch / 2);
       if (!op) ctx.globalAlpha = 0.32;
       const mg = ctx.createLinearGradient(0, -9, 0, 7);
       mg.addColorStop(0, sk.c1); mg.addColorStop(0.6, sk.c4); mg.addColorStop(1, sk.c3);
@@ -12409,16 +12919,18 @@ function renderMenu() {
       ctx.strokeStyle = sk.trim || '#9ef0ff'; ctx.lineWidth = 1; ctx.stroke();
       ctx.restore();
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.font = '700 10.5px system-ui, "Segoe UI", sans-serif';
-      ctx.fillStyle = sel ? '#eaf6ff' : (op ? '#9fb6d0' : 'rgba(145,155,175,0.8)');
-      ctx.fillText(t('skin_' + sk.id), cx + 34, cy + (op ? 20.5 : 16));
+      ctx.font = '700 9.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillStyle = isSel ? '#eaf6ff' : (op ? '#9fb6d0' : 'rgba(145,155,175,0.8)');
+      ctx.fillText(t('skin_' + sk.id), cx + 32, cy + (op ? 17 : 14), gcw - 42);
       if (!op) {
-        iconGlyph(cx + gcw - 11, cy + 11, 4.4, 'lock', 'rgba(255,150,170,0.8)');
-        ctx.font = '600 7.5px system-ui, "Segoe UI", sans-serif';
+        iconGlyph(cx + gcw - 10, cy + 10, 4.2, 'lock', 'rgba(255,150,170,0.8)');
+        ctx.font = '600 6.5px system-ui, "Segoe UI", sans-serif';
         ctx.fillStyle = 'rgba(255,150,170,0.75)';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText(t(SKIN_RQ[i]), cx + 34, cy + 30);
+        ctx.fillText(t(SKIN_RQ[i]), cx + 32, cy + 31, gcw - 40);
         ctx.textBaseline = 'middle';
+      } else if (isSel) {
+        iconGlyph(cx + gcw - 10, cy + 11, 4.6, 'star', '#ffe9a8');
       }
       UI.row(cx, cy, gcw, gch, {
         act: () => {
@@ -12428,20 +12940,20 @@ function renderMenu() {
           saveS(); sfx.tick();
         }
       });
-    });
+    }
     const btw = (W - 68 - 16) / 3;
     [{ x: 34, label: t('tree'), icon: 'bolt', to: 'tree' },
      { x: 34 + btw + 8, label: t('collec'), icon: 'star', to: 'collec' },
      { x: 34 + (btw + 8) * 2, label: t('fus_title'), icon: 'cross', to: 'fusion' }].forEach(b => {
-      panel(b.x, 598, btw, 38, 12, { c1: 'rgba(30,44,80,0.65)', c2: 'rgba(12,18,40,0.8)', border: 'rgba(120,200,255,0.28)' });
-      iconGlyph(b.x + 18, 617, 7.6, b.icon, '#9fd8ff');
+      panel(b.x, 534, btw, 38, 12, { c1: 'rgba(30,44,80,0.65)', c2: 'rgba(12,18,40,0.8)', border: 'rgba(120,200,255,0.28)' });
+      iconGlyph(b.x + 18, 553, 7.6, b.icon, '#9fd8ff');
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#dceafa';
       ctx.font = '800 9.8px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(b.label, b.x + 30, 618);
-      UI.row(b.x, 598, btw, 38, { act: () => { state.menuPage = b.to; sfx.tick(); } });
+      ctx.fillText(b.label, b.x + 30, 554);
+      UI.row(b.x, 534, btw, 38, { act: () => { state.menuPage = b.to; sfx.tick(); } });
     });
-    addRow(646, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
+    addRow(584, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
   } else if (page === 'fusion') {
     renderFusionPage();
   } else if (page === 'tree') {
@@ -12593,10 +13105,11 @@ function renderMenu() {
     menuTitle(t('settings'));
     const tabs = [
       ['genel', t('set_tab_gen'), '#8fd0ff'],
+      ['ui', t('set_tab_ui'), '#c9b0ff'],
       ['perf', t('set_tab_perf'), '#ffb060'],
       ['data', t('set_tab_data'), '#59f0a0']
     ];
-    const tabW = (W - 68 - 16) / 3;
+    const tabW = (W - 68 - 24) / 4;
     tabs.forEach((tb, ti) => {
       const tx = 34 + ti * (tabW + 8), ty = 80, sel = (state.setTab || 'genel') === tb[0];
       ctx.beginPath(); roundRect(tx, ty, tabW, 28, 9);
@@ -12642,6 +13155,19 @@ function renderMenu() {
         () => { S.fps = !S.fps; saveS(); sfx.tick(); });
       addRow(492, t('tut_help'), null, { h: 44, icon: 'target', accent: '#ffd166' },
         { act: () => { state.menuPage = 'tut'; sfx.tick(); } });
+    } else if (tab === 'ui') {
+      srow(t('set_lefty'), S.lefty ? t('on') : t('off'), 'target',
+        () => { S.lefty = !S.lefty; saveS(); sfx.tick(); }, null, '#8fd0ff', t('set_lefty_d'));
+      srow(t('set_hudmin'), S.hudMin ? t('on') : t('off'), 'grid',
+        () => { S.hudMin = !S.hudMin; saveS(); sfx.tick(); }, null, '#8fd0ff', t('set_hudmin_d'));
+      srow(t('set_aim'), S.aimLine ? t('on') : t('off'), 'cross',
+        () => { S.aimLine = !S.aimLine; saveS(); sfx.tick(); }, null, '#8fd0ff', t('set_aim_d'));
+      srow(t('set_uianim'), S.uiAnim ? t('on') : t('off'), 'wind',
+        () => { S.uiAnim = !S.uiAnim; saveS(); sfx.tick(); }, null, '#8fd0ff', t('set_uianim_d'));
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = 'rgba(139,163,192,0.8)';
+      ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('set_ui_hint'), W / 2, 372);
     } else if (tab === 'perf') {
       srow(t('set_parts'), t(['parts_low', 'parts_mid', 'parts_high'][S.parts]), 'dust',
         () => { S.parts = (S.parts + 1) % 3; saveS(); sfx.tick(); },
@@ -12663,7 +13189,7 @@ function renderMenu() {
       ctx.fillStyle = 'rgba(139,163,192,0.8)';
       ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
       ctx.fillText(S.battery ? t('set_battery_d') : t('perf_hint'), W / 2, 418);
-    } else {
+    } else if (tab === 'data') {
       addRow(y, t('set_backup'), null, { h: 46, icon: 'medal', accent: '#ffd166', sub: t('set_backup_d') }, { act: backupExport }); y += 52;
       addRow(y, t('set_restore'), null, { h: 46, icon: 'dust', accent: '#8fd0ff' }, { act: backupImportClipboard }); y += 52;
       addRow(y, t('set_restore_file'), null, { h: 46, icon: 'grid', accent: '#8fd0ff' }, { act: backupImportFile }); y += 52;
@@ -12927,6 +13453,10 @@ function renderMenu() {
     }
     addRow(612, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
   }
+  if (state.pageFade > 0) {
+    ctx.fillStyle = 'rgba(4,8,20,' + (state.pageFade * 0.6).toFixed(3) + ')';
+    ctx.fillRect(0, 0, W, H);
+  }
 }
 
 /* ---------- 300 görevlik bonus kampanya ekranları ---------- */
@@ -13135,35 +13665,128 @@ function renderCampWin() {
 /* ---------- duraklat / bitiş / yükseltme ekranları ---------- */
 function renderPause() {
   paintMenuBg();
-  panel(34, 150, W - 68, 330, 20, { c1: 'rgba(22,34,66,0.75)', c2: 'rgba(8,12,28,0.85)', border: 'rgba(120,200,255,0.3)' });
+  panel(34, 112, W - 68, 430, 20, { c1: 'rgba(22,34,66,0.78)', c2: 'rgba(8,12,28,0.88)', border: 'rgba(120,200,255,0.3)' });
   UI.begin('pause');
-  gradText(t('pause_title'), W / 2, 210, '800 30px system-ui, "Segoe UI", sans-serif', '#8fe0ff', '#e8f8ff', '#3aa0ff');
+  gradText(t('pause_title'), W / 2, 162, '800 28px system-ui, "Segoe UI", sans-serif', '#8fe0ff', '#e8f8ff', '#3aa0ff');
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = 'rgba(139,163,192,0.9)';
-  ctx.font = '600 11px system-ui, "Segoe UI", sans-serif';
-  ctx.fillText(t('hint_line'), W / 2, 238);
-  addRow(260, t('m_resume'), null, { h: 48, cta: true, icon: 'play', center: true, fs: 16 }, { act: resumeGame });
-  addRow(318, state.versus ? t('vs_again') : state.campaign ? t('camp_retry') : t('m_restart'), null, { h: 46, icon: 'arrow', center: true }, { act: restartRun });
-  addRow(374, t('m_menu'), null, { h: 46, icon: 'grid', center: true }, { act: backToMenu });
+  ctx.font = '600 10.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('hint_line'), W / 2, 188);
+  addRow(206, t('m_resume'), null, { h: 46, cta: true, icon: 'play', center: true, fs: 15 }, { act: resumeGame });
+  addRow(258, state.versus ? t('vs_again') : state.campaign ? t('camp_retry') : t('m_restart'), null, { h: 44, icon: 'arrow', center: true }, { act: restartRun });
+  addRow(308, t('m_menu'), null, { h: 44, icon: 'grid', center: true }, { act: backToMenu });
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(160,205,235,0.88)';
+  ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('pause_stats_fmt', { w: state.wave, k: fmt(state.runKills), c: state.chainBest }), W / 2, 372);
+  ctx.fillStyle = 'rgba(255,209,102,0.9)';
+  ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('pause_passive_fmt', { v: t('pas_' + S.ship) }), W / 2, 386);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(139,163,192,0.9)';
+  ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('pause_build'), 46, 408);
+  const prog = Object.keys(state.progs || {}).filter(k => (state.progs[k] || 0) > 0);
+  if (!prog.length) {
+    ctx.fillStyle = 'rgba(145,170,198,0.7)';
+    ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('pause_build_empty'), 46, 428);
+  } else {
+    let bx = 46, by = 418, shown = 0;
+    ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+    for (const id of prog) {
+      if (shown >= 8) break;
+      const label = t('perk_' + id + '_n') + ' ×' + state.progs[id];
+      const cw = ctx.measureText(label).width + 30;
+      if (bx + cw > W - 46) { bx = 46; by += 24; }
+      if (by > 448) break;
+      panel(bx, by, cw, 20, 10, {
+        c1: 'rgba(26,42,78,0.7)', c2: 'rgba(10,16,36,0.82)',
+        border: 'rgba(120,180,240,0.24)'
+      });
+      iconGlyph(bx + 10, by + 10, 4.4, perkIcon(id), '#8fd0ff');
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#dceafa';
+      ctx.fillText(label, bx + 18, by + 10.5);
+      bx += cw + 6;
+      shown++;
+    }
+    if (prog.length > shown) {
+      ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = 'rgba(150,180,210,0.7)';
+      ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('pause_more_fmt', { n: prog.length - shown }), W - 46, 408);
+    }
+  }
+  missInit();
+  const ml = (P.miss && P.miss.list) || [];
+  const m = ml.find(x => !x.claimed);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(139,163,192,0.9)';
+  ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('pause_mission'), 46, 478);
+  if (m) {
+    const fr = clamp(m.prog / Math.max(1, m.goal), 0, 1);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = fr >= 1 ? '#ffd166' : 'rgba(160,195,225,0.82)';
+    ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(m.prog + '/' + m.goal, W - 46, 478);
+    ctx.beginPath(); roundRect(46, 486, W - 92, 5, 2.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+    if (fr > 0.01) {
+      ctx.beginPath(); roundRect(46, 486, (W - 92) * fr, 5, 2.5);
+      ctx.fillStyle = fr >= 1 ? '#ffd166' : '#59e6ff'; ctx.fill();
+    }
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(170,198,224,0.82)';
+    ctx.font = '600 9px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('miss_' + m.id + '_n'), 46, 504);
+  } else {
+    ctx.fillStyle = 'rgba(150,185,215,0.72)';
+    ctx.font = '600 9px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('pause_mission_none'), 46, 496);
+  }
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = 'rgba(120,150,180,0.7)';
-  ctx.font = '600 11px system-ui, sans-serif';
-  ctx.fillText(t('ver_fmt'), W / 2, 462);
-}
-function renderOver() {
-  ctx.fillStyle = 'rgba(8,4,16,0.78)'; ctx.fillRect(0, 0, W, H);
-  panel(28, 84, W - 56, 560, 22, { c1: 'rgba(30,20,52,0.72)', c2: 'rgba(8,8,22,0.88)', border: 'rgba(255,110,190,0.3)' });
+  ctx.font = '600 10px system-ui, sans-serif';
+  ctx.fillText(t('ver_fmt'), W / 2, 526);
+}function renderOver() {
+  ctx.fillStyle = 'rgba(8,4,16,0.8)'; ctx.fillRect(0, 0, W, H);
+  panel(28, 72, W - 56, 572, 22, { c1: 'rgba(30,20,52,0.74)', c2: 'rgba(8,8,22,0.9)', border: 'rgba(255,110,190,0.3)' });
   UI.begin('over');
-  gradText(state.timeUp ? t('time_up') : t('over_title'), W / 2, 148, '800 38px system-ui, "Segoe UI", sans-serif', '#ff9ec8', '#ffe9f4', '#ff2f7a');
+  gradText(state.timeUp ? t('time_up') : t('over_title'), W / 2, 118, '800 34px system-ui, "Segoe UI", sans-serif', '#ff9ec8', '#ffe9f4', '#ff2f7a');
   if (state.newRecord) {
-    pill(W / 2 - 96, 164, 192, 26, '★ ' + t('new_record') + ' ★', '#ffe9a8',
+    pill(W / 2 - 92, 132, 184, 24, '★ ' + t('new_record') + ' ★', '#ffe9a8',
       { fill: 'rgba(40,30,6,0.75)', border: 'rgba(255,209,102,0.55)' });
   }
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#f2faff';
   ctx.font = '800 30px system-ui, "Segoe UI", sans-serif';
-  ctx.fillText(fmt(state.score), W / 2, 234);
-  pill(W / 2 - 74, 248, 148, 22, t('o_mode', { v: state.campaign ? t('camp_hud', { n: state.campaign.id }) : t('mode_' + S.gmode) }), '#9fc5dd', {});
+  ctx.fillText(fmt(state.score), W / 2 + 18, 190);
+  const grade = runGrade();
+  const gcol = GRADE_COL[grade] || '#eaf6ff';
+  const gx = 78, gy = 190, gr = 33;
+  ctx.beginPath(); ctx.arc(gx, gy, gr, 0, TAU);
+  ctx.fillStyle = 'rgba(8,12,26,0.78)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(gx, gy, gr - 2, 0, TAU);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 5; ctx.stroke();
+  const gf = grade === 'S' ? 1 : grade === 'A' ? 0.82 : grade === 'B' ? 0.64 : grade === 'C' ? 0.46 : 0.28;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(gx, gy, gr - 2, -Math.PI / 2, -Math.PI / 2 + TAU * gf);
+  ctx.strokeStyle = gcol; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  if (!S.rmotion) { ctx.shadowColor = gcol; ctx.shadowBlur = 10; }
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = gcol;
+  ctx.font = '800 27px system-ui, "Segoe UI", sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(grade, gx, gy + 1);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(180,205,230,0.8)';
+  ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('o_grade'), gx, gy - 45);
+  pill(42, 232, 190, 20, t('o_mode', { v: state.campaign ? t('camp_hud', { n: state.campaign.id }) : t('mode_' + S.gmode) }), '#9fc5dd', {});
+  pill(248, 232, 190, 20, t('o_power_fmt', { h: Math.round(state.heatBest || 0), c: state.chainBest || 0 }), '#ffd166', {});
   const acc = state.runShots ? Math.round(state.runHits / state.runShots * 100) : 0;
   const mins = Math.floor(state.runT / 60), secs = Math.floor(state.runT % 60);
   const dustG = Math.max(0, P.dustTotal - state.dust0);
@@ -13177,119 +13800,177 @@ function renderOver() {
   ];
   const cw3 = (W - 56 - 28) / 2;
   cells.forEach((c, i) => {
-    const cx3 = 42 + (i % 2) * (cw3 + 10), cy3 = 288 + Math.floor(i / 2) * 56;
-    panel(cx3, cy3, cw3, 48, 12, { c1: 'rgba(26,36,66,0.55)', c2: 'rgba(10,14,32,0.7)' });
+    const cx3 = 42 + (i % 2) * (cw3 + 10), cy3 = 262 + Math.floor(i / 2) * 50;
+    panel(cx3, cy3, cw3, 44, 12, { c1: 'rgba(26,36,66,0.55)', c2: 'rgba(10,14,32,0.7)' });
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = c[1];
-    ctx.font = '800 13.5px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(c[0], cx3 + cw3 / 2, cy3 + 25);
+    ctx.font = '800 13px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(c[0], cx3 + cw3 / 2, cy3 + 23);
   });
-  addRow(474, state.campaign ? t('camp_retry') : t('m_restart'), null, { h: 50, cta: true, icon: 'play', center: true }, { act: () => { if (state.overT > 0.8) restartRun(); } });
-  addRow(536, t('m_menu'), null, { h: 46, icon: 'grid', center: true }, { act: backToMenu });
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(255,209,102,0.85)';
+  ctx.font = '800 8px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('o_rewards'), 42, 432);
+  const rw3 = (W - 56 - 28 - 16) / 3;
+  const rewards = [
+    [t('o_reward_coins', { n: fmt(state.runCoins) }), 'coin', '#ffd166'],
+    [t('o_reward_dust', { n: fmt(dustG) }), 'dust', '#c9e8ff'],
+    [t('o_reward_xp', { n: fmt(state.seasonGain || 0) }), 'star', '#c9a0ff']
+  ];
+  rewards.forEach((r, i) => {
+    const rx = 42 + i * (rw3 + 8);
+    panel(rx, 438, rw3, 40, 11, {
+      c1: 'rgba(24,34,62,0.62)', c2: 'rgba(9,13,30,0.78)',
+      border: r[2] + '33'
+    });
+    iconGlyph(rx + 17, 458, 6.4, r[1], r[2]);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = r[2];
+    ctx.font = '800 9.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(r[0], rx + 29, 458.5, rw3 - 36);
+  });
+  addRow(500, state.campaign ? t('camp_retry') : t('m_restart'), null, { h: 48, cta: true, icon: 'play', center: true }, { act: () => { if (state.overT > 0.8) restartRun(); } });
+  addRow(556, t('m_menu'), null, { h: 44, icon: 'grid', center: true }, { act: backToMenu });
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   if (state.prevBest > 0) {
     const dd = state.score - state.prevBest;
     ctx.fillStyle = dd >= 0 ? '#59f0a0' : '#ff9a9a';
-    ctx.font = '700 11.5px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('ov_prev', { n: fmt(state.prevBest), d: (dd >= 0 ? '+' : '') + fmt(dd) }), W / 2, 604);
+    ctx.font = '700 11px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('ov_prev', { n: fmt(state.prevBest), d: (dd >= 0 ? '+' : '') + fmt(dd) }), W / 2, 614);
   } else {
     ctx.fillStyle = 'rgba(160,205,235,0.85)';
-    ctx.font = '700 11.5px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('ov_first'), W / 2, 604);
+    ctx.font = '700 11px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('ov_first'), W / 2, 614);
   }
   ctx.fillStyle = 'rgba(159,240,255,' + (state.overT > 0.8 ? 0.5 + 0.4 * Math.sin(state.time * 4) : 0.25) + ')';
-  ctx.font = '600 12px system-ui, sans-serif';
-  ctx.fillText(t('again'), W / 2, 626);
-}
-function renderUpgrade() {
-  ctx.fillStyle = 'rgba(6,10,26,0.85)'; ctx.fillRect(0, 0, W, H);
+  ctx.font = '600 11.5px system-ui, sans-serif';
+  ctx.fillText(t('again'), W / 2, 632);
+}function renderUpgrade() {
+  ctx.fillStyle = 'rgba(6,10,26,0.95)'; ctx.fillRect(0, 0, W, H);
   UI.begin('upgrade');
-  gradText(t('upg_title'), W / 2, 126, '800 28px system-ui, "Segoe UI", sans-serif', '#ffe9a8', '#fff8e0', '#ffb020');
+  gradText(t('upg_title'), W / 2, 100, '800 28px system-ui, "Segoe UI", sans-serif', '#ffe9a8', '#fff8e0', '#ffb020');
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = 'rgba(139,163,192,0.9)';
-  ctx.font = '600 12.5px system-ui, "Segoe UI", sans-serif';
-  ctx.fillText(t('upg_hint'), W / 2, 152);
-  const pIcons = { dmg: 'flame', rate: 'bolt', speed: 'wind', regen: 'shield', bomb: 'bomb', magnet: 'magnet',
-    combow: 'clock', combos: 'chart', dash: 'dash', life: 'heart', miss: 'rocket', drone: 'ship',
-    graze: 'target', boss: 'skull', coin: 'coin', revive: 'medal' };
-  const cardH = 112, gap = 18;
-  let y = 178;
+  ctx.font = '600 11.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('upg_hint'), W / 2, 124);
+  const tutOn = !!(state.tut && state.tut.on);
+  if (!tutOn) {
+    ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+    const cTxt = fmt(P.coins);
+    const cwU = ctx.measureText(cTxt).width + 42;
+    panel(W - 34 - cwU, 86, cwU, 24, 12, {
+      c1: 'rgba(44,34,10,0.7)', c2: 'rgba(16,12,4,0.82)',
+      border: 'rgba(255,209,102,0.34)'
+    });
+    iconGlyph(W - 34 - cwU + 15, 98, 6.4, 'coin', '#ffd166');
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffe9a8';
+    ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(cTxt, W - 34 - cwU + 28, 98.5);
+  }
+  const cardH = 106, gap = 12;
+  let y = 150;
   state.upg.forEach((p, i) => {
     const focus = i === UI.fi;
+    const rarity = p.fusion ? RARITY[3] : RARITY[perkRarity(p)];
+    const rcol = p.fusion ? '#ffd166' : rarity.col;
+    const have = p.fusion ? 0 : (state.progs[p.id] || 0);
+    const isNew = p.fusion || have === 0;
+    panel(34, y, W - 68, cardH, 15, {
+      c1: focus ? 'rgba(40,58,102,0.86)' : 'rgba(20,30,56,0.72)',
+      c2: focus ? 'rgba(18,28,58,0.9)' : 'rgba(8,12,28,0.82)',
+      border: focus ? rcol : rcol + '44',
+      lw: focus ? 2 : 1.2,
+      glow: focus && !S.rmotion ? rcol + '55' : null
+    });
+    ctx.beginPath(); roundRect(36, y + 10, 3, cardH - 20, 1.5);
+    ctx.fillStyle = rcol; ctx.fill();
+    ctx.beginPath(); ctx.arc(66, y + 52, 19, 0, TAU);
+    ctx.fillStyle = focus ? rcol + '2a' : 'rgba(255,255,255,0.06)';
+    ctx.fill();
+    ctx.strokeStyle = focus ? rcol + 'aa' : rcol + '55'; ctx.lineWidth = 1.2; ctx.stroke();
+    iconGlyph(66, y + 52, 10, p.fusion ? p.fusion.icon : perkIcon(p.id), focus ? '#fff3d6' : rcol);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = rcol;
+    ctx.font = '800 7px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('rarity_' + rarity.key), 94, y + 19);
     if (p.fusion) {
       const f = p.fusion;
-      panel(34, y, W - 68, cardH, 16, {
-        c1: focus ? 'rgba(64,50,18,0.62)' : 'rgba(38,30,14,0.55)',
-        c2: focus ? 'rgba(38,28,8,0.78)' : 'rgba(16,12,6,0.75)',
-        border: focus ? '#ffd166' : 'rgba(255,190,90,0.3)',
-        lw: focus ? 2 : 1.2,
-        glow: focus && !S.rmotion ? 'rgba(255,209,102,0.6)' : null
-      });
-      ctx.beginPath(); ctx.arc(72, y + 56, 21, 0, TAU);
-      ctx.fillStyle = focus ? 'rgba(255,209,102,0.2)' : 'rgba(255,190,80,0.1)';
-      ctx.fill();
-      ctx.strokeStyle = focus ? 'rgba(255,209,102,0.7)' : 'rgba(255,190,90,0.35)';
-      ctx.lineWidth = 1.3; ctx.stroke();
-      iconGlyph(72, y + 56, 11, f.icon, focus ? '#ffe9a8' : f.col);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = focus ? '#fff3d6' : '#f2e6cc';
-      ctx.font = '800 17px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('fus_' + f.id + '_n'), 104, y + 34);
+      ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('fus_' + f.id + '_n'), 94, y + 37, W - 200);
       ctx.fillStyle = f.col;
-      ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('fus_pair_fmt', { a: t('ship_' + f.a), b: t('ship_' + f.b) }), 104, y + 51);
+      ctx.font = '700 8.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('fus_pair_fmt', { a: t('ship_' + f.a), b: t('ship_' + f.b) }), 94, y + 53, W - 200);
       ctx.fillStyle = 'rgba(200,185,155,0.95)';
-      ctx.font = '600 11.5px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('fus_' + f.id + '_d'), 104, y + 69);
-      for (let s2 = 0; s2 < 5; s2++) iconGlyph(112 + s2 * 17, y + 92, 5.4, 'star', TH.gold);
-      pill(W - 170, y + 10, 66, 20, t('fus_badge'), '#ffe9a8', {
+      ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('fus_' + f.id + '_d'), 94, y + 70, W - 175);
+      for (let s2 = 0; s2 < 5; s2++) iconGlyph(102 + s2 * 16, y + 89, 5, 'star', TH.gold);
+      pill(W - 118, y + 10, 38, 17, t('fus_badge'), '#ffe9a8', {
         fill: 'rgba(52,38,8,0.85)', border: 'rgba(255,209,102,0.6)',
-        fs: '800 8.5px system-ui, "Segoe UI", sans-serif'
+        fs: '800 7.5px system-ui, "Segoe UI", sans-serif'
       });
-      panel(W - 78, y + 10, 26, 26, 8, { c1: 'rgba(58,44,16,0.7)', c2: 'rgba(22,16,6,0.8)' });
-      ctx.fillStyle = focus ? '#ffd166' : '#c9a86a';
-      ctx.font = '800 13px system-ui, "Segoe UI", sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(String(i + 1), W - 65, y + 24);
-      ctx.textBaseline = 'alphabetic';
-      UI.row(34, y, W - 68, cardH, { act: () => chooseUpgrade(i) });
-      y += cardH + gap;
-      return;
+    } else {
+      ctx.fillStyle = focus ? '#fff3d6' : '#dceafa';
+      ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('perk_' + p.id + '_n'), 94, y + 37, W - 205);
+      if (isNew) {
+        pill(W - 118, y + 10, 38, 17, t('upg_new'), '#59f0a0', {
+          fill: 'rgba(14,44,30,0.85)', border: 'rgba(89,240,160,0.55)',
+          fs: '800 7.5px system-ui, "Segoe UI", sans-serif'
+        });
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      }
+      ctx.fillStyle = 'rgba(170,198,224,0.95)';
+      ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('perk_' + p.id + '_d'), 94, y + 58, W - 168);
+      for (let s2 = 0; s2 < p.max; s2++) {
+        iconGlyph(102 + s2 * 16, y + 84, 5.2, 'star', s2 < have ? rcol : 'rgba(120,150,190,0.35)');
+      }
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(150,185,215,0.85)';
+      ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('upg_level_fmt', { a: have, b: p.max }), W - 46, y + 87);
     }
-    panel(34, y, W - 68, cardH, 16, {
-      c1: focus ? 'rgba(58,74,40,0.55)' : 'rgba(24,34,62,0.55)',
-      c2: focus ? 'rgba(30,40,20,0.72)' : 'rgba(10,14,32,0.75)',
-      border: focus ? '#ffd166' : 'rgba(110,160,220,0.22)',
-      lw: focus ? 2 : 1.2,
-      glow: focus && !S.rmotion ? 'rgba(255,209,102,0.6)' : null
-    });
-    const icol = focus ? TH.gold : '#9fc5dd';
-    ctx.beginPath(); ctx.arc(72, y + 56, 21, 0, TAU);
-    ctx.fillStyle = focus ? 'rgba(255,209,102,0.16)' : 'rgba(255,255,255,0.07)';
-    ctx.fill();
-    ctx.strokeStyle = focus ? 'rgba(255,209,102,0.6)' : 'rgba(140,190,240,0.3)';
-    ctx.lineWidth = 1.3; ctx.stroke();
-    iconGlyph(72, y + 56, 11, pIcons[p.id] || 'star', icol);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = focus ? '#fff3d6' : '#dceafa';
-    ctx.font = '800 17px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('perk_' + p.id + '_n'), 104, y + 42);
-    ctx.fillStyle = 'rgba(156,186,216,0.95)';
-    ctx.font = '600 12px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('perk_' + p.id + '_d'), 104, y + 66);
-    const have = state.progs[p.id] || 0;
-    for (let s2 = 0; s2 < p.max; s2++) {
-      iconGlyph(112 + s2 * 20, y + 88, 6, 'star', s2 <= have ? TH.gold : 'rgba(120,150,190,0.35)');
-    }
-    panel(W - 78, y + 10, 26, 26, 8, { c1: 'rgba(40,58,104,0.7)', c2: 'rgba(16,24,48,0.8)' });
-    ctx.fillStyle = focus ? '#ffd166' : '#9fc5dd';
-    ctx.font = '800 13px system-ui, "Segoe UI", sans-serif';
+    panel(W - 74, y + 10, 24, 24, 8, { c1: 'rgba(40,58,104,0.72)', c2: 'rgba(16,24,48,0.82)' });
+    ctx.fillStyle = focus ? rcol : '#9fc5dd';
+    ctx.font = '800 12px system-ui, "Segoe UI", sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(String(i + 1), W - 65, y + 24);
+    ctx.fillText(String(i + 1), W - 62, y + 22.5);
     ctx.textBaseline = 'alphabetic';
     UI.row(34, y, W - 68, cardH, { act: () => chooseUpgrade(i) });
     y += cardH + gap;
   });
+  if (!tutOn) {
+    const bw = (W - 68 - 10) / 2;
+    const btn = (x, label, icon, col, act, dim) => {
+      const focus = UI.items.length === UI.fi;
+      panel(x, 510, bw, 40, 12, {
+        c1: focus ? 'rgba(38,58,104,0.9)' : 'rgba(20,30,54,0.78)',
+        c2: focus ? 'rgba(16,26,54,0.92)' : 'rgba(8,12,28,0.85)',
+        border: focus ? col : col + '3a',
+        lw: focus ? 1.8 : 1.1,
+        glow: focus && !S.rmotion ? col + '55' : null
+      });
+      iconGlyph(x + 18, 530, 6.4, icon, dim ? 'rgba(150,170,190,0.5)' : col);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = dim ? 'rgba(150,170,190,0.55)' : col;
+      ctx.font = '800 9.8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(label, x + 30, 530.5);
+      UI.row(x, 510, bw, 40, { act });
+    };
+    btn(34, state.upgRerolled ? t('upg_reroll') + ' ✓' : t('upg_reroll_fmt', { n: 30 }), 'clock', '#ffd166', rerollUpgrades, state.upgRerolled);
+    btn(34 + bw + 10, t('upg_skip_fmt', { n: 20 }), 'arrow', '#8fffb0', skipUpgrades, false);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(139,163,192,0.72)';
+    ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('upg_pick_hint'), W / 2, 570);
+  } else {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(139,163,192,0.72)';
+    ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('upg_pick_hint'), W / 2, 530);
+  }
 }
 
 
@@ -13826,7 +14507,7 @@ canvas.addEventListener('pointerdown', ev => {
     const btns = touchButtons();
     for (const b of btns)
       if (dist2(p.x, p.y, b.x, b.y) < b.r * b.r * 1.35) { b.act(); return; }
-    if (p.x < W * 0.62 && !joy.on) {
+    if ((S.lefty ? p.x > W * 0.38 : p.x < W * 0.62) && !joy.on) {
       joy.on = true; joy.id = ev.pointerId; joy.ox = p.x; joy.oy = p.y; joy.vx = 0; joy.vy = 0;
       return;
     }

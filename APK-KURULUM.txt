@@ -1,7 +1,7 @@
 YILDIZ AKINI — ANDROID KURULUMU
 ================================
 
-Sürüm      : 9.5 (versionCode 17)
+Sürüm      : 9.7 (versionCode 18)
 Dosya      : Yildiz-Akini.apk  (~0.8 MB)
 Paket      : com.saklabann.yildizakini
 Gereksinim : Android 5.0 veya üzeri
@@ -42,6 +42,9 @@ d) "Yükle" > "Aç". Yıldız Akını ikonu ana ekrana eklenir.
   sonra şarapnel, her 10 zincirde nova patlar. Hasar almak zinciri sıfırlar.
 - Ayarlardan dil, ses, sarsıntı, renk körü modu, efekt kalitesi,
   FPS sınırı, pil tasarrufu ve dokunmatik hassasiyet değiştirilebilir.
+- ARAYÜZ sekmesinde sol el modu, sade HUD, nişan çizgisi ve arayüz
+  animasyonu ayrı ayrı açılıp kapatılabilir.
+- Hangar'da 16 skin, gemi karuseli ve pasif yetenek kartı bulunur.
 - İlk açılışta kısa eğitim başlar; ATLA ile geçebilirsin.
 - Profilini Ayarlar > VERİ bölümünden yedekleyebilirsin.
 
