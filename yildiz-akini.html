@@ -24,9 +24,9 @@ window.YA_ART={"v":"9.3","ships":{"std":{"d":"data:image/webp;base64,UklGRuAtAAB
 <script>
 'use strict';
 /* ==========================================================
-   YILDIZ AKINI v9.7 ARAYÜZ 6.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
+   YILDIZ AKINI v9.8 OYNANIŞ 2.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
    Hareket: ok/WASD/fare/dokunma/gamepad · Ateş: otomatik
-   Shift: atılma · U: öfke · B: bomba · P: duraklat · M: ses · F: tam ekran
+   Shift: atılma · Boşluk: odak · U: öfke · B: bomba · P: duraklat · M: ses · F: tam ekran
    ========================================================== */
 (() => {
 const W = 480, H = 720, TAU = Math.PI * 2;
@@ -569,12 +569,14 @@ const defS = { music: 0.5, sfx: 0.7, shake: true, parts: 2, scan: false, fps: fa
   cblind: false, rmotion: false, lang: 'tr', mute: false, ship: 'std', diff: 'normal',
   gmode: 'classic', haptic: true, skin: 0, trail: 'classic', boom: 'classic',
   fx: 2, fpsCap: 0, battery: false, touchSens: 1,
-  lefty: false, hudMin: false, aimLine: false, uiAnim: true };
+  lefty: false, hudMin: false, aimLine: false, uiAnim: true,
+  asBomb: false, asAim: false, asSlow: false, asLife: false };
 const defP = { coins: 0, kills: 0, deaths: 0, games: 0, bosses: 0, shots: 0, hits: 0,
   maxCombo: 0, collected: 0, playtime: 0, best: 0, bestWave: 0, board: [], ach: {}, shop: {},
   dust: 0, dustTotal: 0, chipsFound: {}, modesPlayed: {}, boards: {}, dailyLast: '',
   shipsPlayed: {}, skinsUsed: {}, abils: 0, missClaimed: 0, miss: null, timeBest: 0,
   shipUp: {}, shipBest: {}, recent: [], bestTime: 0, perfectBest: 0, week: null, weeksClaimed: 0, lastScore: 0,
+  weeklyBest: 0, weeklyWeek: 0,
   tutDone: false, seasonLv: 1, seasonXp: 0, seasonClaimed: {}, badges: {}, badge: '', lastBackup: 0,
   camp: {}, campSel: 1, fusions: {}, vsWins: 0, vsBest: 0, vsPlayed: 0 };
 let S = Object.assign({}, defS, LS.get('ya_settings', {}));
@@ -911,6 +913,10 @@ function sanitizeSettings(src) {
   d.hudMin = !!s.hudMin;
   d.aimLine = !!s.aimLine;
   d.uiAnim = s.uiAnim !== false;
+  d.asBomb = !!s.asBomb;
+  d.asAim = !!s.asAim;
+  d.asSlow = !!s.asSlow;
+  d.asLife = !!s.asLife;
   return d;
 }
 function sanitizeEntry(e) {
@@ -937,7 +943,7 @@ function sanitizeProfile(src) {
   const s = saveObj(src), p = Object.assign({}, defP);
   const nums = ['coins','kills','deaths','games','bosses','shots','hits','maxCombo','collected','playtime',
     'best','bestWave','dust','dustTotal','abils','missClaimed','timeBest','bestTime','perfectBest',
-    'weeksClaimed','lastScore'];
+    'weeksClaimed','lastScore','weeklyBest','weeklyWeek'];
   for (const k of nums) p[k] = saveInt(s[k], 0, 1e9, defP[k] || 0);
   p.lastBackup = saveInt(s.lastBackup, 0, 1e13, 0);
   p.board = [];
@@ -1159,7 +1165,36 @@ const SHOP = [
   { id: 'chip',   cost: 8, dust: true },
   { id: 'rage',   cost: 10, dust: true }
 ];
-const GMODES = ['classic', 'endless', 'rush', 'daily', 'time', 'perfect', 'bossrush', 'onelife', 'chaos'];
+const GMODES = ['classic', 'endless', 'rush', 'daily', 'time', 'perfect', 'bossrush', 'onelife', 'chaos', 'weekly'];
+const CORE_MODES = ['classic', 'endless', 'rush', 'daily', 'time', 'perfect', 'bossrush', 'onelife', 'chaos'];
+/* v9.8 — haftalık mutatörler: her hafta tohumdan seçilir, koşuya stat olarak uygulanır */
+const WEEK_MUTATORS = [
+  { id: 'swarm',  icon: 'wave',   col: '#8fd0ff', enemySpd: 1.12, density: 1.2,
+    apply(st) { st.scoreMul *= 1.10; } },
+  { id: 'armor',  icon: 'shield', col: '#8fffb0', enemyHp: 1.25, bossHp: 1.15,
+    apply(st) { st.scoreMul *= 1.15; } },
+  { id: 'rapid',  icon: 'bolt',   col: '#ffd166',
+    apply(st) { st.fireCd *= 0.82; st.scoreMul *= 1.06; } },
+  { id: 'sniper', icon: 'cross',  col: '#ff9a9c',
+    apply(st) { st.grazeR += 8; st.scoreMul *= 1.12; } },
+  { id: 'gold',   icon: 'coin',   col: '#ffd85f', enemyHp: 1.10,
+    apply(st) { st.coinMul *= 1.5; } },
+  { id: 'elite',  icon: 'skull',  col: '#ffb060', density: 1.1, elite: 0.15,
+    apply(st) { st.scoreMul *= 1.12; } },
+  { id: 'meteor', icon: 'star',   col: '#ff9be8', meteor: true,
+    apply(st) { st.scoreMul *= 1.10; } },
+  { id: 'frenzy', icon: 'flame',  col: '#ff7b7b', enemySpd: 1.08,
+    apply(st) { st.rageMul *= 1.25; st.scoreMul *= 1.08; } },
+  { id: 'glass',  icon: 'eye',    col: '#c9b0ff',
+    apply(st) { st.speedMul *= 1.12; st.shieldStart = 0; st.scoreMul *= 1.18; } },
+  { id: 'titan',  icon: 'ship',   col: '#9fd8ff', enemyHp: 1.15, bossHp: 1.25,
+    apply(st) { st.bossDmg *= 1.15; st.scoreMul *= 1.08; } }
+];
+function weekIdx() { return Math.floor((Date.now() - Date.UTC(2024, 0, 1)) / 604800000); }
+function weekMutator() {
+  const r = mulberry32(((weekIdx() * 7919 + 17) >>> 0));
+  return WEEK_MUTATORS[Math.floor(r() * WEEK_MUTATORS.length) % WEEK_MUTATORS.length];
+}
 const ACHS = ['first', 'combo10', 'combo25', 'boss1', 'boss5', 'wave10', 'wave20',
   'flawless', 'coin100', 'kill500', 'games10', 'shopper',
   'ultra', 'guard1', 'queen', 'chips3', 'rankS', 'dust10', 'modes4', 'daily1',
@@ -1168,7 +1203,7 @@ const ACHS = ['first', 'combo10', 'combo25', 'boss1', 'boss5', 'wave10', 'wave20
   'kill2500', 'kill5000', 'wave30', 'wave40', 'wave50', 'boss15', 'boss25', 'games25',
   'combo40', 'combo60', 'score50k', 'score100k', 'coins1000', 'coins5000', 'modes9',
   'ships6', 'season10', 'season15', 'season20', 'ach40', 'ach50', 'camp150', 'camp250',
-  'perfect25', 'time30k', 'abil50', 'missions30', 'fusion5', 'duelist'];
+  'perfect25', 'time30k', 'abil50', 'missions30', 'fusion5', 'duelist', 'focus1', 'weekly1'];
 
 /* ============================================================
    v9.0 · 300 ÖZELLİK
@@ -1474,7 +1509,7 @@ function baseStats() {
   st.magnet = 0; st.comboWin = 2.5; st.comboStep = 0.1; st.graze = 1; st.grazeR = 26;
   st.bossDmg = 1; st.coinMul = 1; st.revive = false;
   st.missilesDur = 0; st.droneDur = 0; st.startWeapon = 1;
-  st.rageMul = 1; st.startChip = null;
+  st.rageMul = 1; st.startChip = null; st.scoreMul = 1;
   st.crit = 0; st.pierce = 0; st.chainR = 0; st.dustWave = 0;
   st.orbit = 0; st.nova = 0; st.leech = 0; st.bulletSlow = 0; st.thorns = 0;
   st.startBomb = false; st.exec = false; st.luckMul = 1; st.abilCdMul = 1;
@@ -1495,6 +1530,11 @@ function baseStats() {
   st.abilCdMul = 1 - 0.08 * (shu.core || 0);
   st.lives += DIFF[S.diff].lives;
   if (S.gmode === 'onelife') { st.lives = 1; st.revive = false; st.shieldStart = 0; }
+  if (S.gmode === 'weekly') {
+    const wm = weekMutator();
+    if (wm && wm.apply) wm.apply(st);
+  }
+  if (S.asLife && S.gmode !== 'onelife') st.lives = Math.min(6, st.lives + 1);
   if (S.gmode === 'bossrush') st.coinMul *= 1.2;
   if (S.gmode === 'chaos') st.coinMul *= 1.15;
   for (const f of FUSIONS) if (fusionOwned(f.id) && (f.a === S.ship || f.b === S.ship)) f.apply(st);
@@ -2554,6 +2594,90 @@ const V97_EN = {
 Object.assign(TR, V97_TR);
 Object.assign(EN, V97_EN);
 
+/* v9.8 — odak/mızrak, haftalık mutatör ve asistan paketi */
+const V98_TR = {
+  ver_fmt: 'v9.8',
+  ctrl2: 'Ateş otomatik • Shift: atılma • Boşluk: odak • U: öfke • B: bomba',
+  hint_line: 'Shift: atılma • Boşluk: odak • E: yetenek • U: öfke • B: bomba • P: duraklat',
+  hud_focus: 'ODAK', focus_ready: 'MIZRAK HAZIR', focus_charge: 'ŞARJ %{n}',
+  focus_hint: 'Boşluk / LT / ODAK tuşunu basılı tut',
+  focus_lance: 'MIZRAK!',
+  assist_badge: 'ASİST', assist_score_fmt: 'ASİST SKORU %{n}',
+  assist_saved: 'ASİST BOMBASI!',
+  set_tab_game: 'OYNANIŞ',
+  set_as_bomb: 'Oto Bomba', set_as_bomb_d: 'Ölümcül hasarda bombayı otomatik kullan',
+  set_as_aim: 'Nişan Yardımı', set_as_aim_d: 'Mermiler en yakın hedefe hafifçe yönelir',
+  set_as_slow: 'Yavaş Mermi', set_as_slow_d: 'Düşman mermileri %15 yavaşlar',
+  set_as_life: 'Yedek Can', set_as_life_d: 'Her koşuya +1 can ile başla',
+  set_as_hint: 'Her açık asistan skoru %5 azaltır (en az %80)',
+  set_as_none: 'Tümünü Kapat', assist_none_status: 'Tüm asistanlar kapalı',
+  weekly_title: 'HAFTALIK AKIN', menu_weekly: 'HAFTALIK', weekly_short: 'HAFTA {n}',
+  weekly_week_fmt: 'HAFTA {n}', weekly_mut: 'HAFTANIN MUTATÖRÜ',
+  weekly_best: 'HAFTALIK REKOR', weekly_best_fmt: '{n}', weekly_none: 'Henüz kayıt yok',
+  weekly_start: 'HAFTALIK AKINA BAŞLA', weekly_start_sub: '{v} · her hafta yeni tohum',
+  weekly_rules: 'KURALLAR', weekly_rule_1: 'Tohum her pazartesi yenilenir; tüm oyuncular aynı akını oynar.',
+  weekly_rule_2: 'Mutatör tüm koşu boyunca geçerlidir. Skor haftalık tabloya işlenir.',
+  weekly_rule_3: '5. dalgaya ulaşınca Haftalık Akıncı başarımı açılır.',
+  weekly_mode_hint: 'Mod çipinden HAFTALIK seçerek de başlayabilirsin',
+  weekly_new: 'YENİ HAFTA',
+  mode_weekly: 'Haftalık Akın', mode_s_weekly: 'HAFTALIK',
+  mode_weekly_d: 'Her hafta değişen mutatörle tohumlanmış özel akın',
+  mut_swarm_n: 'Sürü', mut_swarm_d: 'Düşmanlar %12 hızlı, dalga %20 yoğun · skor +%10',
+  mut_armor_n: 'Zırh', mut_armor_d: 'Düşman canı %25 fazla · skor +%15',
+  mut_rapid_n: 'Hızlı Ateş', mut_rapid_d: 'Ateş beklemesi %18 az · skor +%6',
+  mut_sniper_n: 'Keskin Nişancı', mut_sniper_d: 'Sıyırma alanı +8 · skor +%12',
+  mut_gold_n: 'Altın Akın', mut_gold_d: 'Para %50 fazla, düşman canı %10 fazla',
+  mut_elite_n: 'Elit Dalga', mut_elite_d: 'Elit şansı +%15, dalga %10 yoğun · skor +%12',
+  mut_meteor_n: 'Meteor Yağmuru', mut_meteor_d: 'Meteorlar çok daha sık · skor +%10',
+  mut_frenzy_n: 'Öfke', mut_frenzy_d: 'Öfke %25 hızlı, düşmanlar %8 hızlı · skor +%8',
+  mut_glass_n: 'Cam Gövde', mut_glass_d: 'Hız +%12, kalkan yok · skor +%18',
+  mut_titan_n: 'Titan', mut_titan_d: 'Düşman canı %15, boss canı %25 fazla · boss hasarı +%15',
+  ach_focus1_n: 'Mızrak Ustası', ach_focus1_d: 'İlk şarjlı mızrağı ateşle',
+  ach_weekly1_n: 'Haftalık Akıncı', ach_weekly1_d: 'Haftalık akında 5. dalgaya ulaş'
+};
+const V98_EN = {
+  ver_fmt: 'v9.8',
+  ctrl2: 'Auto-fire • Shift: dash • Space: focus • U: rage • B: bomb',
+  hint_line: 'Shift: dash • Space: focus • E: ability • U: rage • B: bomb • P: pause',
+  hud_focus: 'FOCUS', focus_ready: 'LANCE READY', focus_charge: 'CHARGE {n}%',
+  focus_hint: 'Hold Space / LT / the FOCUS button',
+  focus_lance: 'LANCE!',
+  assist_badge: 'ASSIST', assist_score_fmt: 'ASSIST SCORE {n}%',
+  assist_saved: 'ASSIST BOMB!',
+  set_tab_game: 'GAMEPLAY',
+  set_as_bomb: 'Auto Bomb', set_as_bomb_d: 'Spend a bomb automatically on a lethal hit',
+  set_as_aim: 'Aim Assist', set_as_aim_d: 'Bullets gently track the nearest target',
+  set_as_slow: 'Slow Bullets', set_as_slow_d: 'Enemy bullets are 15% slower',
+  set_as_life: 'Spare Life', set_as_life_d: 'Start every run with +1 life',
+  set_as_hint: 'Each active assist reduces score by 5% (minimum 80%)',
+  set_as_none: 'Disable All', assist_none_status: 'All assists off',
+  weekly_title: 'WEEKLY RAID', menu_weekly: 'WEEKLY', weekly_short: 'WEEK {n}',
+  weekly_week_fmt: 'WEEK {n}', weekly_mut: 'WEEKLY MUTATOR',
+  weekly_best: 'WEEKLY BEST', weekly_best_fmt: '{n}', weekly_none: 'No record yet',
+  weekly_start: 'START WEEKLY RAID', weekly_start_sub: '{v} · new seed every week',
+  weekly_rules: 'RULES', weekly_rule_1: 'The seed resets every Monday; every player gets the same raid.',
+  weekly_rule_2: 'The mutator lasts the whole run. Score goes to the weekly board.',
+  weekly_rule_3: 'Reach wave 5 to unlock the Weekly Raider achievement.',
+  weekly_mode_hint: 'You can also start it by selecting WEEKLY on the mode chip',
+  weekly_new: 'NEW WEEK',
+  mode_weekly: 'Weekly Raid', mode_s_weekly: 'WEEKLY',
+  mode_weekly_d: 'A seeded raid with a different mutator every week',
+  mut_swarm_n: 'Swarm', mut_swarm_d: 'Enemies 12% faster, waves 20% denser · score +10%',
+  mut_armor_n: 'Armor', mut_armor_d: 'Enemy HP +25% · score +15%',
+  mut_rapid_n: 'Rapid Fire', mut_rapid_d: 'Fire cooldown -18% · score +6%',
+  mut_sniper_n: 'Sniper', mut_sniper_d: 'Graze radius +8 · score +12%',
+  mut_gold_n: 'Gold Rush', mut_gold_d: 'Coins +50%, enemy HP +10%',
+  mut_elite_n: 'Elite Wave', mut_elite_d: 'Elite chance +15%, waves 10% denser · score +12%',
+  mut_meteor_n: 'Meteor Rain', mut_meteor_d: 'Meteors are much more frequent · score +10%',
+  mut_frenzy_n: 'Frenzy', mut_frenzy_d: 'Rage +25% faster, enemies 8% faster · score +8%',
+  mut_glass_n: 'Glass Hull', mut_glass_d: 'Speed +12%, no shield · score +18%',
+  mut_titan_n: 'Titan', mut_titan_d: 'Enemy HP +15%, boss HP +25% · boss damage +15%',
+  ach_focus1_n: 'Lance Master', ach_focus1_d: 'Fire your first charged lance',
+  ach_weekly1_n: 'Weekly Raider', ach_weekly1_d: 'Reach wave 5 in a weekly raid'
+};
+Object.assign(TR, V98_TR);
+Object.assign(EN, V98_EN);
+
 /* v9.7: yükseltme kartları, duraklatma ve derece ekranı için ortak yardımcılar */
 const PERK_ICONS = {
   dmg: 'flame', rate: 'bolt', speed: 'wind', regen: 'shield', bomb: 'bomb', magnet: 'magnet',
@@ -2684,6 +2808,8 @@ const sfx = {
   rank()   { tone(880, 0.09, 'triangle', 0.05, 1180); },
   overdrive() { tone(180, 0.45, 'sawtooth', 0.09, 1250); noise(0.5, 0.12, 2400);
              setTimeout(() => tone(1400, 0.22, 'triangle', 0.06, 2100), 90); },
+  lance()  { tone(1240, 0.16, 'sawtooth', 0.06, 280); noise(0.18, 0.07, 2600);
+             setTimeout(() => tone(620, 0.2, 'triangle', 0.05, 110), 55); },
   module() { noise(0.3, 0.11, 900); tone(420, 0.16, 'square', 0.06, 160); }
 };
 /* ---------- phonk motoru (prosedürel) ---------- */
@@ -2987,6 +3113,7 @@ const state = { mode: 'menu', menuPage: 'main', score: 0, lives: 3, wave: 0, wav
   fps: 0, fpsAcc: 0, fpsN: 0, hitT: 0, fever: 0, meteorT: 22, meteorWarn: 0,
   comboPulse: 0, comboGain: 0, comboGainT: 0, scorePulse: 0, critPulse: 0,
   heat: 0, heatBest: 0, heatPulse: 0, chain: 0, chainT: 0, chainBest: 0, chainPulse: 0, novaPulse: 0,
+  touchFocus: false, focusHoldId: -1, padFocus: false,
   novaDepth: 0, volley: 0,
   bossDeath: null, bossBreakT: 0, bgPulse: 0,
   tut: null, setTab: 'genel', seasonPage: 0, campPage: 0, campSel: 1, campWin: null,
@@ -3047,7 +3174,7 @@ function checkAch() {
     ['games25', P.games >= 25], ['combo40', P.maxCombo >= 40], ['combo60', P.maxCombo >= 60],
     ['score50k', P.best >= 50000], ['score100k', P.best >= 100000],
     ['coins1000', P.collected >= 1000], ['coins5000', P.collected >= 5000],
-    ['modes9', GMODES.every(m => P.modesPlayed[m])],
+    ['modes9', CORE_MODES.every(m => P.modesPlayed[m])],
     ['ships6', Object.keys(SHIPS).every(s => P.shipsPlayed[s])],
     ['season10', P.seasonLv >= 10], ['season15', P.seasonLv >= 15], ['season20', P.seasonLv >= 20],
     ['camp150', campDone >= 150], ['camp250', campDone >= 250],
@@ -3273,7 +3400,11 @@ function updateBossDeath(e, gdt) {
 }
 
 /* ---------- puan / kombo / para ---------- */
-function addScore(v) { state.score += Math.round(v); }
+function assistCount() {
+  return (S.asBomb ? 1 : 0) + (S.asAim ? 1 : 0) + (S.asSlow ? 1 : 0) + (S.asLife ? 1 : 0);
+}
+function assistScoreMul() { return Math.max(0.8, 1 - assistCount() * 0.05); }
+function addScore(v) { state.score += Math.round(v * (st && st.scoreMul || 1) * assistScoreMul()); }
 function comboMult() { return Math.min(5, 1 + state.combo * st.comboStep); }
 const RANKS = ['D', 'C', 'B', 'A', 'S'];
 const RANK_AT = [4, 8, 14, 22, 30];
@@ -3724,6 +3855,12 @@ function damagePlayer() {
     sfx.hit(); addShake(4); addRage(0.03); buzz(25);
     return;
   }
+  if (S.asBomb && state.lives <= 1 && state.bombs > 0 && state.bombCd <= 0) {
+    useBomb();
+    p.inv = Math.max(p.inv, 1.5);
+    addFloat(p.x, p.y - 34, t('assist_saved'), '#8fffb0');
+    return;
+  }
   state.lives--;
   breakCombo();
   state.heat = Math.max(0, state.heat - 30);
@@ -3762,7 +3899,8 @@ function damagePlayer() {
 function mkEnemy(s) {
   const dm = DIFF[S.diff], type = s.type;
   const elite = !!s.elite;
-  const hpMul = dm.hp * (elite ? 3 : 1) * waveDanger();
+  const wm = S.gmode === 'weekly' ? weekMutator() : null;
+  const hpMul = dm.hp * (elite ? 3 : 1) * waveDanger() * (wm && wm.enemyHp ? wm.enemyHp : 1);
   const e = { type, x: s.x, y: s.y == null ? -30 : s.y, t: 0, flash: 0, inv: 0, dead: false, elite };
   if (type === 'scout')
     Object.assign(e, { r: 14, hp: 1*hpMul, score: 100, vy: rand(70,95)*dm.spd, x0: s.x, amp: rand(20,55), seed: rand(0,TAU) });
@@ -3881,7 +4019,8 @@ function mkPlayer() {
     abilT: 0, ovT: 0, barT: 0, phT: 0, snT: 0,
     muzzle: 0, droneA: 0, wingT: [0, 0, 0], missileSide: 1, laserTick: 0, grazeTick: 0,
     moveMag: 0, shieldHit: 0, hurtFx: 0, leakT: 0, exhaustT: 0,
-    critT: 0, chill: 0, beamT: 0, beamTick: 0 };
+    critT: 0, chill: 0, beamT: 0, beamTick: 0,
+    focus: 0, focusOn: false, focusReady: false, focusTick: 0 };
 }
 function mkUfo() {
   const dir = Math.random() < 0.5 ? 1 : -1;
@@ -4092,6 +4231,18 @@ function resetRun() {
   state.campBossKills = 0; state.campFlawless = 0; state.campHurt = false; state.campStartLives = 0;
   state.campEnemySpd = 1; state.campDensity = 1; state.campBossHp = 1; state.campElite = 0;
   state.campBulletR = 1; state.campMeteor = false;
+  state.touchFocus = false; state.focusHoldId = -1; state.padFocus = false;
+  if (S.gmode === 'weekly') {
+    const wm = weekMutator();
+    if (wm) {
+      state.campEnemySpd = wm.enemySpd || 1;
+      state.campDensity = wm.density || 1;
+      state.campBossHp = wm.bossHp || 1;
+      state.campElite = wm.elite || 0;
+      state.campMeteor = !!wm.meteor;
+      if (wm.meteor) state.meteorT = rand(9, 15);
+    }
+  }
   bursts = [];
   state.timeUp = false; state.region = 0; state.regionBanner = 0;
   state.killN = 0; state.novaDepth = 0;
@@ -4100,6 +4251,7 @@ function resetRun() {
 }
 function startGame() {
   audio();
+  state.vsPrevMode = null;
   const campId = state.campLaunch | 0;
   if (campId) {
     state.campReturnMode = state.campReturnMode || S.gmode;
@@ -4111,6 +4263,8 @@ function startGame() {
   if (S.gmode === 'daily') {
     const d = new Date();
     Math.random = mulberry32(d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate());
+  } else if (S.gmode === 'weekly') {
+    Math.random = mulberry32(((weekIdx() * 7919 + 17) >>> 0));
   } else Math.random = RNG0;
   resetRun();
   if (campId) applyCampaign(campId);
@@ -4119,7 +4273,7 @@ function startGame() {
   state.mode = 'playing';
   P.modesPlayed[S.gmode] = true;
   if (['classic', 'endless', 'rush', 'daily', 'time', 'perfect'].every(m => P.modesPlayed[m])) unlockAch('modes4');
-  if (GMODES.every(m => P.modesPlayed[m])) unlockAch('modes9');
+  if (CORE_MODES.every(m => P.modesPlayed[m])) unlockAch('modes9');
   if (S.gmode === 'daily') {
     const ds = new Date().toDateString();
     if (P.dailyLast !== ds) {
@@ -4408,8 +4562,8 @@ function renderTutorialDone() {
   ctx.fillText(t('ver_fmt'), W / 2, 478);
 }
 
-function pauseGame() { if (state.mode === 'playing') { state.mode = 'paused'; UI.focus['pause'] = 0; } }
-function resumeGame() { if (state.mode === 'paused') state.mode = 'playing'; }
+function pauseGame() { if (state.mode === 'playing') { state.mode = 'paused'; UI.focus['pause'] = 0; state.touchFocus = false; state.focusHoldId = -1; } }
+function resumeGame() { if (state.mode === 'paused') { state.mode = 'playing'; state.touchFocus = false; state.padFocus = false; } }
 function backToMenu() {
   Math.random = RNG0;
   state.tut = null;
@@ -4454,6 +4608,12 @@ function gameOver() {
   if (S.gmode === 'perfect') {
     P.perfectBest = Math.max(P.perfectBest || 0, state.wave);
     if (state.wave >= 10) unlockAch('perfect10');
+  }
+  if (S.gmode === 'weekly') {
+    const wk = weekIdx();
+    if ((P.weeklyWeek | 0) !== wk) { P.weeklyWeek = wk; P.weeklyBest = 0; }
+    P.weeklyBest = Math.max(P.weeklyBest || 0, state.score);
+    if (state.wave >= 5) unlockAch('weekly1');
   }
   if (!Array.isArray(P.recent)) P.recent = [];
   P.recent.unshift({ s: state.score, w: state.wave, sh: S.ship, gm: S.gmode, dur: Math.round(state.runT), t: Date.now() });
@@ -4588,9 +4748,10 @@ function fireWeapon(gdt) {
   const low = state.lives <= 1;
   p.cool = st.fireCd * st.rateMul * heatFireMul() * (p.rapid > 0 ? 0.6 : 1) * (ult ? 0.62 : 1) * (ov ? 0.5 : 1) * (od ? 0.46 : 1) *
     (low && st.berserk ? Math.max(0.55, 1 - st.berserk) : 1);
-  const spd = st.bulletSp * (ov ? 1.12 : 1) * (od ? 1.15 : 1),
-    dmg = st.dmg * heatDmgMul() * (ult ? 1.6 : 1) * (ov ? 1.25 : 1) * (od ? 1.5 : 1) * (low ? 1 + (st.lastStand || 0) : 1),
+  const spd = st.bulletSp * (ov ? 1.12 : 1) * (od ? 1.15 : 1) * (p.focusOn ? 1.18 : 1),
+    dmg = st.dmg * heatDmgMul() * (ult ? 1.6 : 1) * (ov ? 1.25 : 1) * (od ? 1.5 : 1) * (low ? 1 + (st.lastStand || 0) : 1) * (p.focusOn ? 1.12 : 1),
     prc = (st.pierce || 0) + (ov ? 1 : 0) + (od ? 2 : 0);
+  const spread = p.focusOn ? 0.45 : 1;
   const mk = (dx, dy, vx, lead, dirY, dmul) => {
     const cr = p.phT > 0 || (st.crit > 0 && Math.random() < st.crit) || (p.critT > 0 && Math.random() < 0.25);
     let bx = p.x + dx, by = p.y + dy, bvx = vx || 0, bvy = (dirY == null ? -1 : dirY) * spd;
@@ -4603,18 +4764,19 @@ function fireWeapon(gdt) {
     }
     bullets.push({ x: bx, y: by, vx: bvx, vy: bvy, r: (state.fever > 0.5 ? 3.6 : 3) * (state.campBulletR || 1) * (od ? 1.18 : 1),
       dmg: dmg * (cr ? 2 : 1) * (dmul || 1), crit: cr, pierce: prc, w: 'cannon',
-      homing: st.homing || 0, ricochet: st.ricochet || 0,
+      homing: (st.homing || 0) + (S.asAim ? 0.6 : 0), turn: (S.asAim && !st.homing) ? 2.4 : 0,
+      ricochet: st.ricochet || 0,
       freeze: st.freeze || 0, burn: st.burn || 0,
       c: cr ? '#ffe066' : (od ? (Math.random() < 0.34 ? '#ffd166' : Math.random() < 0.5 ? '#8ff3ff' : '#ff9be8') : (state.fever > 0.5 ? '#ff9be8' : st.color)), dead: false });
     state.runShots++; P.shots++;
   };
   if (p.weapon === 1) mk(0, -16, 0, true);
   else if (p.weapon === 2) { mk(-7, -12, 0, true); mk(7, -12, 0, true); }
-  else { mk(0, -18, 0, true); mk(-9, -10, -110); mk(9, -10, 110); }
+  else { mk(0, -18, 0, true); mk(-9, -10, -110 * spread); mk(9, -10, 110 * spread); }
   if (st.multi) {
     for (let k = 0; k < st.multi; k++) {
-      mk(-10 - k * 4, -8, -90 - k * 45, true);
-      mk(10 + k * 4, -8, 90 + k * 45, true);
+      mk(-10 - k * 4, -8, (-90 - k * 45) * spread, true);
+      mk(10 + k * 4, -8, (90 + k * 45) * spread, true);
     }
   }
   if (st.sideShots) { mk(-15, 0, -260); mk(15, 0, 260); }
@@ -4625,6 +4787,20 @@ function fireWeapon(gdt) {
     mk(-17, -2, -240, false, null, 0.55);
     mk(17, -2, 240, false, null, 0.55);
     fxBurst(p.x, p.y - 8, '#ffd166', 8, 0.1, 'ring');
+  }
+  if (p.focusReady) {
+    p.focusReady = false; p.focus = 0;
+    const ld = dmg * 4.2;
+    bullets.push({ x: p.x, y: p.y - 20, vx: 0, vy: -spd * 1.65, r: 6.5, dmg: ld,
+      crit: false, pierce: 8, w: 'lance', homing: 0, turn: 0, ricochet: 0,
+      freeze: 0, burn: 0, c: '#8ff3ff', dead: false });
+    state.runShots++; P.shots++;
+    state.focusShots = (state.focusShots || 0) + 1;
+    addFloat(p.x, p.y - 36, t('focus_lance'), '#8ff3ff');
+    fxRing(p.x, p.y - 6, 8, 520, 4, 0.4, '#8ff3ff');
+    fxBurst(p.x, p.y - 18, '#bff7ff', 12, 0.14, 'star');
+    sfx.lance(); addShake(3);
+    unlockAch('focus1');
   }
   p.muzzle = 0.06;
   if (Math.random() < 0.4) sfx.shoot();
@@ -4906,6 +5082,28 @@ function updatePlayer(gdt) {
   if (p.chill > 0) p.chill -= gdt;
   if (p.shieldHit > 0) p.shieldHit -= gdt;
   if (p.beamT > 0) p.beamT = Math.max(0, p.beamT - gdt);
+  /* v9.8: odak modu — yavaşlar, isabeti daraltır ve mızrak şarj eder */
+  const wantFocus = !!(KEYS[' '] || state.touchFocus || state.padFocus) && !p.dashT;
+  p.focusOn = wantFocus && state.mode === 'playing';
+  if (p.focusOn) {
+    if (!p.focusReady) {
+      p.focus = Math.min(1, (p.focus || 0) + gdt / 2.2);
+      if (p.focus >= 1) {
+        p.focusReady = true;
+        addFloat(p.x, p.y - 40, t('focus_ready'), '#fff0a8');
+        fxRing(p.x, p.y, 10, 420, 3, 0.55, '#8ff3ff');
+        sfx.power();
+      }
+    }
+    p.focusTick = (p.focusTick || 0) - gdt;
+    if (p.focusTick <= 0) {
+      p.focusTick = 0.16;
+      tone(420 + (p.focus || 0) * 620, 0.035, 'triangle', 0.01, 520 + (p.focus || 0) * 820);
+    }
+  } else {
+    if (!p.focusReady) p.focus = Math.max(0, (p.focus || 0) - gdt * 2.4);
+    p.focusTick = 0;
+  }
   if (p.hurtFx > 0) {
     p.hurtFx -= gdt;
     p.leakT = (p.leakT || 0) - gdt;
@@ -4952,8 +5150,9 @@ function updatePlayer(gdt) {
   else if (padMove) { ax = padMove.x; ay = padMove.y; analog = true; }
   const mag = Math.hypot(ax, ay);
   const chillMul = p.chill > 0 ? 0.72 : 1;
+  const focusMul = p.focusOn ? 0.52 : 1;
   if (mag > 0.05) {
-    const sp = st.speed * st.speedMul * chillMul;
+    const sp = st.speed * st.speedMul * chillMul * focusMul;
     p.x += ax * sp * gdt; p.y += ay * sp * gdt;
     p.tilt = clamp(p.tilt + ax * gdt * 4, -1, 1);
     const l = mag || 1;
@@ -4961,7 +5160,7 @@ function updatePlayer(gdt) {
   } else if (!analog && ((state.time - pointer.last < 1.2) || pointer.down)) {
     const dx = pointer.x - p.x, dy = pointer.y - p.y, d = Math.hypot(dx, dy);
     if (d > 2) {
-      const sp = Math.min(480, d * 10) * chillMul;
+      const sp = Math.min(480, d * 10) * chillMul * focusMul;
       p.x += (dx/d) * sp * gdt; p.y += (dy/d) * sp * gdt;
       p.tilt = clamp(p.tilt + (dx/Math.max(d,1)) * gdt * 4, -1, 1);
       p.lastDir = { x: dx/d, y: dy/d };
@@ -5513,7 +5712,7 @@ function collideBullets(gdt) {
         let d = want - cur;
         while (d > Math.PI) d -= TAU;
         while (d < -Math.PI) d += TAU;
-        const na = cur + clamp(d, -4.5 * gdt, 4.5 * gdt);
+        const na = cur + clamp(d, -(b.turn || 4.5) * gdt, (b.turn || 4.5) * gdt);
         b.vx = Math.cos(na) * bs; b.vy = Math.sin(na) * bs;
       }
     }
@@ -5621,7 +5820,7 @@ function collideBullets(gdt) {
     if (hitted) m.dead = true;
   }
   // düşman mermileri & sıyırma
-  const bsl = 1 - (st.bulletSlow || 0);
+  const bsl = Math.max(0.55, 1 - (st.bulletSlow || 0) - (S.asSlow ? 0.15 : 0));
   for (const b of ebullets) {
     if (b.dead) continue;
     b.x += b.vx*gdt*bsl; b.y += b.vy*gdt*bsl;
@@ -8087,6 +8286,32 @@ function drawPlayer() {
     shieldHit: p.shieldHit > 0 ? clamp(p.shieldHit / 0.45, 0, 1) : 0
   });
   ctx.globalAlpha = 1;
+  if (p.focus > 0.02 || p.focusReady) {
+    const fr = p.focusReady ? 1 : p.focus;
+    const rr = 31 + (p.focusReady ? Math.sin(state.time * 8) * 1.4 : 0);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(130,220,255,0.16)'; ctx.lineWidth = 3.2;
+    ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = p.focusReady ? '#fff0a8' : '#8ff3ff';
+    ctx.lineWidth = p.focusReady ? 2.8 : 2.2;
+    if (!S.rmotion) { ctx.shadowColor = p.focusReady ? 'rgba(255,230,120,0.8)' : 'rgba(120,230,255,0.7)'; ctx.shadowBlur = 7; }
+    ctx.beginPath(); ctx.arc(p.x, p.y, rr, -Math.PI / 2, -Math.PI / 2 + TAU * fr); ctx.stroke();
+    ctx.shadowBlur = 0;
+    if (p.focusReady) {
+      ctx.fillStyle = 'rgba(255,246,190,0.95)';
+      for (let i = 0; i < 4; i++) {
+        const a = state.time * 2.2 + i * TAU / 4;
+        circle(p.x + Math.cos(a) * (rr + 4), p.y + Math.sin(a) * (rr + 4), 1.3);
+      }
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.font = '800 8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillStyle = '#fff0a8';
+      ctx.fillText(t('focus_ready'), p.x, p.y - rr - 5);
+      ctx.textBaseline = 'top';
+    }
+    ctx.restore();
+  }
   if (p.hurtFx > 0) {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -10701,7 +10926,22 @@ function drawBulletsFx() {
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
-    if (b.w === 'drone') {
+    if (b.w === 'lance') {
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(ang + Math.PI / 2);
+      const lg = ctx.createLinearGradient(0, -46, 0, 18);
+      lg.addColorStop(0, 'rgba(140,240,255,0)');
+      lg.addColorStop(0.35, 'rgba(140,240,255,0.32)');
+      lg.addColorStop(0.8, 'rgba(210,252,255,0.85)');
+      lg.addColorStop(1, 'rgba(255,255,255,0.98)');
+      ctx.fillStyle = lg;
+      ctx.beginPath(); ctx.ellipse(0, 0, b.r * 1.5, b.r * 5.4, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.moveTo(0, -b.r * 5.8); ctx.lineTo(0, b.r * 1.6); ctx.stroke();
+      ctx.fillStyle = '#f2ffff'; circle(0, -b.r * 0.4, b.r * 0.72);
+      ctx.strokeStyle = 'rgba(150,240,255,0.7)'; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.arc(0, 0, b.r * 1.9, 0.4, Math.PI - 0.4); ctx.stroke();
+      ctx.restore();
+    } else if (b.w === 'drone') {
       ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(ang + Math.PI / 2);
       ctx.fillStyle = 'rgba(120,225,255,0.28)'; circle(0, 0, b.r * 3);
       ctx.fillStyle = '#bff7ff';
@@ -11021,6 +11261,11 @@ function drawHUD() {
   ctx.fillStyle = 'rgba(151,177,205,0.9)';
   ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
   ctx.fillText(t('best_fmt', { n: fmt(P.best) }), W - 15, 42);
+  if (assistCount() > 0) {
+    pill(W - 12 - 66, 50, 66, 16, t('assist_badge') + ' ' + assistCount(), '#8fffb0',
+      { fs: '800 8px system-ui, "Segoe UI", sans-serif', fill: 'rgba(10,26,22,0.82)', border: 'rgba(90,240,170,0.38)' });
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  }
   const vsHudOn = !!(state.versus && state.versus.active);
   if (!vsHudOn) {
   const tLeft = Math.max(0, 90 - state.runT);
@@ -11076,12 +11321,22 @@ function drawHUD() {
     for (const k of [0.25, 0.5, 0.75]) ctx.fillRect(W / 2 - pbw / 2 + pbw * k - 0.5, pby, 1, pbh);
   }
   }
-  if (state.mod && !vsHudOn) {
+  if (state.mod && !vsHudOn && S.gmode !== 'weekly') {
     const mlab = { ast: 'mod_ast', gold: 'mod_gold', fog: 'mod_fog', rush: 'mod_rush', horde: 'mod_horde' }[state.mod] || 'mod_ast';
     const mCol = state.mod === 'gold' ? TH.gold : (state.mod === 'rush' || state.mod === 'horde') ? '#ff9a5c' : '#d8c6a8';
     ctx.font = '800 10px system-ui, "Segoe UI", sans-serif';
     const mwP = ctx.measureText(t(mlab)).width + 22;
     pill(W / 2 - mwP / 2, 41, mwP, 18, t(mlab), mCol, { fs: '800 10px system-ui, "Segoe UI", sans-serif' });
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  }
+  if (S.gmode === 'weekly' && !vsHudOn) {
+    const wm = weekMutator();
+    const wlab = t('mut_' + wm.id + '_n');
+    ctx.font = '800 9.5px system-ui, "Segoe UI", sans-serif';
+    const wwP = ctx.measureText(wlab).width + 26;
+    pill(W / 2 - wwP / 2, 41, wwP, 18, wlab, wm.col,
+      { fs: '800 9.5px system-ui, "Segoe UI", sans-serif', border: wm.col + '66' });
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   }
   if (S.gmode === 'endless' && state.wave > 20) {
     ctx.textAlign = 'center';
@@ -11621,7 +11876,8 @@ function touchButtons() {
     { x: bx1, y: H - 168, r: 34, act: doDash, label: '»' },
     { x: bx1, y: H - 88, r: 34, act: useBomb, label: 'B' },
     { x: bx2, y: H - 88, r: 32, act: useUltra, label: 'U' },
-    { x: bx2, y: H - 168, r: 32, act: useAbil, label: 'E' }
+    { x: bx2, y: H - 168, r: 32, act: useAbil, label: 'E' },
+    { x: bx1, y: H - 248, r: 30, hold: true, label: 'F' }
   ];
 }
 function drawTouch() {
@@ -11670,8 +11926,8 @@ function drawTouch() {
   }
   const btns = touchButtons();
   const abilDef = ABIL[(SHIPS[S.ship] || {}).abil] || ABIL.overload;
-  const bicons = ['dash', 'bomb', 'bolt', abilDef.icon];
-  const caps = [t('hud_dash'), t('hud_bombs'), t('ultra_n'), 'E'];
+  const bicons = ['dash', 'bomb', 'bolt', abilDef.icon, 'cross'];
+  const caps = [t('hud_dash'), t('hud_bombs'), t('ultra_n'), 'E', t('hud_focus')];
   for (let bi = 0; bi < btns.length; bi++) {
     const b = btns[bi];
     const icoCol = bi === 1 ? '#ffcf5f' : (bi === 2 ? '#ffd166' : (bi === 3 ? abilDef.col : '#cfefff'));
@@ -11687,6 +11943,10 @@ function drawTouch() {
       active = state.ultraT > 0;
       prog = active ? clamp(state.ultraT / 6, 0, 1) : clamp(state.rage, 0, 1);
       ready = state.rage >= 1 || active;
+    } else if (bi === 4) {
+      active = !!(player && player.focusOn);
+      prog = player ? (player.focusReady ? 1 : clamp(player.focus || 0, 0, 1)) : 0;
+      ready = !!(player && (player.focusReady || player.focus > 0.02));
     } else {
       const full = abilDef.cd * (st.abilCdMul || 1);
       active = !!(player && (player.abilT > 0 || player.barT > 0 || player.phT > 0 || player.ovT > 0));
@@ -12556,6 +12816,69 @@ function menuDaily(y) {
     act: () => { state.menuPage = 'ach'; state.achTab = 'd'; sfx.tick(); }
   });
 }
+function renderWeeklyPage() {
+  menuTitle(t('weekly_title'));
+  const wk = weekIdx(), wm = weekMutator();
+  const best = (P.weeklyWeek | 0) === wk ? (P.weeklyBest || 0) : 0;
+  panel(34, 84, W - 68, 138, 18, {
+    c1: 'rgba(42,28,60,0.76)', c2: 'rgba(10,10,28,0.88)',
+    border: 'rgba(255,155,232,0.38)', glow: S.rmotion ? null : 'rgba(255,120,220,0.18)'
+  });
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#ffd6f4';
+  ctx.font = '800 10px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_week_fmt', { n: wk % 1000 }), 52, 112);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '800 26px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(String(wk % 1000).padStart(2, '0'), 52, 144);
+  ctx.fillStyle = 'rgba(190,210,235,0.82)';
+  ctx.font = '600 9px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_new'), 52, 162);
+  iconGlyph(110, 132, 18, wm.icon, wm.col);
+  ctx.fillStyle = 'rgba(160,190,220,0.8)';
+  ctx.font = '800 8px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_mut'), 148, 108);
+  ctx.fillStyle = wm.col;
+  ctx.font = '800 17px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('mut_' + wm.id + '_n'), 148, 130);
+  const parts = t('mut_' + wm.id + '_d').split(' · ');
+  ctx.fillStyle = 'rgba(205,222,242,0.9)';
+  ctx.font = '600 9px system-ui, "Segoe UI", sans-serif';
+  parts.forEach((ln, i) => ctx.fillText(ln, 148, 148 + i * 13, W - 180));
+  panel(34, 236, W - 68, 104, 16, {
+    c1: 'rgba(22,34,64,0.68)', c2: 'rgba(8,14,32,0.84)',
+    border: 'rgba(120,190,255,0.26)'
+  });
+  ctx.fillStyle = 'rgba(150,185,220,0.82)';
+  ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_best'), 52, 262);
+  ctx.fillStyle = best ? '#ffe9a8' : 'rgba(150,180,210,0.7)';
+  ctx.font = '800 24px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(best ? fmt(best) : t('weekly_none'), 52, 292);
+  ctx.fillStyle = 'rgba(160,190,220,0.78)';
+  ctx.font = '600 9px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_rule_2'), 52, 316, W - 104);
+  addRow(360, t('weekly_start'), null, {
+    h: 56, cta: true, icon: 'play', fs: 15,
+    sub: t('weekly_start_sub', { v: t('mut_' + wm.id + '_n') })
+  }, { act: () => { S.gmode = 'weekly'; saveS(); startGame(); } });
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = 'rgba(180,205,230,0.8)';
+  ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_mode_hint'), W / 2, 440);
+  panel(34, 462, W - 68, 72, 14, {
+    c1: 'rgba(20,30,58,0.62)', c2: 'rgba(8,13,30,0.8)',
+    border: 'rgba(120,180,240,0.2)'
+  });
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,209,102,0.92)';
+  ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
+  ctx.fillText(t('weekly_rules'), 50, 484);
+  ctx.fillStyle = 'rgba(190,210,232,0.82)';
+  ctx.font = '600 8.5px system-ui, "Segoe UI", sans-serif';
+  [t('weekly_rule_1'), t('weekly_rule_3')].forEach((ln, i) => ctx.fillText(ln, 50, 500 + i * 14, W - 100));
+  addRow(606, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
+}
 function renderMenu() {
   paintMenuBg();
   const page = state.menuPage;
@@ -12566,18 +12889,21 @@ function renderMenu() {
     menuProfile(76);
     const heroY = 180 + Math.sin(state.time * 2) * 5;
     drawMenuHero(heroY);
-    const cw1 = 150, cw2 = 150, cw3 = 128, cgap = 8;
-    menuChip(18, 290, cw1, 30, 'ship', t('chip_ship'), t('ship_' + S.ship), SHIPS[S.ship].color, {
+    const cw = (W - 36 - 18) / 4, cgap = 6;
+    menuChip(18, 290, cw, 30, 'ship', t('chip_ship'), t('ship_' + S.ship), SHIPS[S.ship].color, {
       act: () => { const ks = Object.keys(SHIPS); S.ship = ks[(ks.indexOf(S.ship) + 1) % ks.length]; saveS(); sfx.tick(); },
       adjust: d => { const ks = Object.keys(SHIPS); S.ship = ks[(ks.indexOf(S.ship) + d + ks.length) % ks.length]; saveS(); sfx.tick(); }
     });
-    menuChip(18 + cw1 + cgap, 290, cw2, 30, 'planet', t('chip_mode'), t('mode_' + S.gmode), '#8fd0ff', {
+    menuChip(18 + cw + cgap, 290, cw, 30, 'planet', t('chip_mode'), t('mode_' + S.gmode), S.gmode === 'weekly' ? '#ff9be8' : '#8fd0ff', {
       act: () => { S.gmode = GMODES[(GMODES.indexOf(S.gmode) + 1) % GMODES.length]; saveS(); sfx.tick(); },
       adjust: d => { S.gmode = GMODES[(GMODES.indexOf(S.gmode) + d + GMODES.length) % GMODES.length]; saveS(); sfx.tick(); }
     });
-    menuChip(18 + cw1 + cw2 + cgap * 2, 290, cw3, 30, 'gauge', t('chip_diff'), t('diff_' + S.diff), '#ffb060', {
+    menuChip(18 + (cw + cgap) * 2, 290, cw, 30, 'gauge', t('chip_diff'), t('diff_' + S.diff), '#ffb060', {
       act: () => { const ks = Object.keys(DIFF); S.diff = ks[(ks.indexOf(S.diff) + 1) % ks.length]; saveS(); sfx.tick(); },
       adjust: d => { const ks = Object.keys(DIFF); S.diff = ks[(ks.indexOf(S.diff) + d + ks.length) % ks.length]; saveS(); sfx.tick(); }
+    });
+    menuChip(18 + (cw + cgap) * 3, 290, cw, 30, 'trophy', t('menu_weekly'), t('weekly_short', { n: weekIdx() % 1000 }), '#ff9be8', {
+      act: () => { state.menuPage = 'weekly'; sfx.tick(); }
     });
     addRow(326, t('start'), null, {
       h: 54, cta: true, icon: 'play', fs: 17,
@@ -12626,6 +12952,8 @@ function renderMenu() {
     renderCampPage();
   } else if (page === 'campinfo') {
     renderCampInfo();
+  } else if (page === 'weekly') {
+    renderWeeklyPage();
   } else if (page === 'tut') {
     menuTitle(t('tut_title'));
     ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
@@ -13106,10 +13434,11 @@ function renderMenu() {
     const tabs = [
       ['genel', t('set_tab_gen'), '#8fd0ff'],
       ['ui', t('set_tab_ui'), '#c9b0ff'],
+      ['game', t('set_tab_game'), '#59f0a0'],
       ['perf', t('set_tab_perf'), '#ffb060'],
       ['data', t('set_tab_data'), '#59f0a0']
     ];
-    const tabW = (W - 68 - 24) / 4;
+    const tabW = (W - 68 - 32) / 5;
     tabs.forEach((tb, ti) => {
       const tx = 34 + ti * (tabW + 8), ty = 80, sel = (state.setTab || 'genel') === tb[0];
       ctx.beginPath(); roundRect(tx, ty, tabW, 28, 9);
@@ -13168,6 +13497,24 @@ function renderMenu() {
       ctx.fillStyle = 'rgba(139,163,192,0.8)';
       ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
       ctx.fillText(t('set_ui_hint'), W / 2, 372);
+    } else if (tab === 'game') {
+      srow(t('set_as_bomb'), S.asBomb ? t('on') : t('off'), 'bomb',
+        () => { S.asBomb = !S.asBomb; saveS(); sfx.tick(); }, null, '#ffcf5f', t('set_as_bomb_d'));
+      srow(t('set_as_aim'), S.asAim ? t('on') : t('off'), 'target',
+        () => { S.asAim = !S.asAim; saveS(); sfx.tick(); }, null, '#8fd0ff', t('set_as_aim_d'));
+      srow(t('set_as_slow'), S.asSlow ? t('on') : t('off'), 'clock',
+        () => { S.asSlow = !S.asSlow; saveS(); sfx.tick(); }, null, '#c9b0ff', t('set_as_slow_d'));
+      srow(t('set_as_life'), S.asLife ? t('on') : t('off'), 'heart',
+        () => { S.asLife = !S.asLife; saveS(); sfx.tick(); }, null, '#59f0a0', t('set_as_life_d'));
+      addRow(340, t('set_as_none'), null, { h: 38, icon: 'cross', accent: '#8fd0ff' },
+        { act: () => { S.asBomb = false; S.asAim = false; S.asSlow = false; S.asLife = false; saveS(); sfx.tick(); } });
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = assistCount() ? '#ffd166' : 'rgba(139,163,192,0.8)';
+      ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(assistCount() ? t('assist_score_fmt', { n: Math.round(assistScoreMul() * 100) }) : t('assist_none_status'), W / 2, 400);
+      ctx.fillStyle = 'rgba(139,163,192,0.8)';
+      ctx.font = '600 10px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('set_as_hint'), W / 2, 418);
     } else if (tab === 'perf') {
       srow(t('set_parts'), t(['parts_low', 'parts_mid', 'parts_high'][S.parts]), 'dust',
         () => { S.parts = (S.parts + 1) % 3; saveS(); sfx.tick(); },
@@ -13370,7 +13717,7 @@ function renderMenu() {
       ctx.fillText(t('recent_empty'), W / 2, 534);
     } else {
       const gmCol = { classic: '#59e6ff', endless: '#8fffb0', rush: '#ff9a5c', daily: '#ffd166',
-        time: '#9d7bff', perfect: '#ff9be8', bossrush: '#ff8a5c', onelife: '#ff6b7a', chaos: '#c9b6ff' };
+        time: '#9d7bff', perfect: '#ff9be8', bossrush: '#ff8a5c', onelife: '#ff6b7a', chaos: '#c9b6ff', weekly: '#ff9be8' };
       const max = Math.max.apply(null, rec.map(r => r.s).concat([1]));
       const n = rec.length, gap = 6;
       const bw = Math.min(26, (W - 104 - (n - 1) * gap) / n);
@@ -14506,7 +14853,11 @@ canvas.addEventListener('pointerdown', ev => {
     pointer.down = true;
     const btns = touchButtons();
     for (const b of btns)
-      if (dist2(p.x, p.y, b.x, b.y) < b.r * b.r * 1.35) { b.act(); return; }
+      if (dist2(p.x, p.y, b.x, b.y) < b.r * b.r * 1.35) {
+        if (b.hold) { state.touchFocus = true; state.focusHoldId = ev.pointerId; }
+        else b.act();
+        return;
+      }
     if ((S.lefty ? p.x > W * 0.38 : p.x < W * 0.62) && !joy.on) {
       joy.on = true; joy.id = ev.pointerId; joy.ox = p.x; joy.oy = p.y; joy.vx = 0; joy.vy = 0;
       return;
@@ -14519,10 +14870,12 @@ canvas.addEventListener('pointerdown', ev => {
 });
 window.addEventListener('pointerup', ev => {
   pointer.down = false;
+  if (state.focusHoldId === ev.pointerId) { state.touchFocus = false; state.focusHoldId = -1; }
   if (joy.on && ev.pointerId === joy.id) { joy.on = false; joy.id = -1; joy.vx = 0; joy.vy = 0; }
 });
 window.addEventListener('pointercancel', () => {
   pointer.down = false;
+  state.touchFocus = false; state.focusHoldId = -1;
   joy.on = false; joy.vx = 0; joy.vy = 0;
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
@@ -14536,12 +14889,13 @@ function toggleFullscreen() {
 function pollPad() {
   if (!navigator.getGamepads) return;
   const pad = navigator.getGamepads()[0];
-  if (!pad) { padMove = null; return; }
+  if (!pad) { padMove = null; state.padFocus = false; return; }
   const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
   padMove = Math.hypot(ax, ay) > 0.2 ? { x: ax, y: ay } : null;
   const b = pad.buttons;
   const pressed = i => !!(b[i] && b[i].pressed);
   const just = i => pressed(i) && !padPrev[i];
+  state.padFocus = pressed(6) || pressed(7);
   if (state.mode === 'playing') {
     if (state.bossDeath) {
       if (just(0) || just(1) || just(5) || just(9)) skipBossDeath();

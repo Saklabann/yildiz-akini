@@ -6,10 +6,10 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 
 - [x] Tek dosyalık HTML5 çekirdek
 - [x] 6 gemi ve 6 aktif yetenek
-- [x] 9 oyun modu: Klasik, Sonsuz, Hızlı Akın, Günlük, Zaman Yarışı, Kusursuz, Boss Akını, Tek Can, Kaos
+- [x] 10 oyun modu: Klasik, Sonsuz, Hızlı Akın, Günlük, Zaman Yarışı, Kusursuz, Boss Akını, Tek Can, Kaos, Haftalık Akın
 - [x] Gemi bazlı 11 düğümlük yükseltme ağacı
 - [x] Günlük ve haftalık görevler
-- [x] 66 başarım ve istatistik paneli
+- [x] 68 başarım ve istatistik paneli
 - [x] 9 galaksi bölgesi
 - [x] Kozmetik koleksiyonu: 16 skin, 3 iz, 2 patlama, 7 rozet
 - [x] Etkileşimli eğitim ve 20 seviyelik sezon
@@ -36,16 +36,19 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] v9.7 duraklatma/sonuç ekranları, S–D derece halkası ve ödül dökümü
 - [x] v9.7 ARAYÜZ ayarları: sol el modu, sade HUD, nişan çizgisi, animasyon
 - [x] v9.7 altı yeni skin (toplam 16)
-- [x] Çevrimdışı Android APK (v9.7 / versionCode 18)
+- [x] v9.8 odak modu, şarjlı delici mızrak ve ODAK dokunmatik tuşu
+- [x] v9.8 Haftalık Akın: deterministik tohum, 10 mutatör, ayrı haftalık rekor
+- [x] v9.8 asistan paketi: oto bomba, nişan yardımı, yavaş mermi, yedek can
+- [x] v9.8 iki yeni başarım (toplam 68) ve 326 kayıtlık özellik defteri
+- [x] Çevrimdışı Android APK (v9.8 / versionCode 19)
 
 ## v10 — Planlanan
 
 ### Oynanış
 
-- [ ] Odak modu: yavaş hareket + dar lazer
-- [ ] Şarjlı atış ve silah evrimleri
+- [ ] Silah evrimleri ve ikinci odak katmanı
 - [ ] Ara boss'lar ve bölüm ortası karşılaşmaları
-- [ ] Haftalık mutatör modu (ters kontrol, hızlı düşman, sadece lazer)
+- [ ] Haftalık mutatör havuzunu genişletme (ters kontrol, sadece lazer)
 - [ ] Düelloda zorluk seçimi ve rakip kişilikleri
 
 ### İçerik ve tekrar oynanabilirlik
@@ -58,7 +61,7 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 
 ### Erişilebilirlik ve platform
 
-- [ ] Yardım modu (hasar yarısı, ekstra can)
+- [ ] Asistan istatistikleri ve asistan bazlı ayrı rekorlar
 - [ ] Kontrol tuşlarını yeniden atama
 - [ ] Oyun içi ekran okuyucu ipuçları
 

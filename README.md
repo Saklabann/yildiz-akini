@@ -8,7 +8,7 @@
 
 Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, reklam veya hesap gerekmez.
 
-[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v9.7-67e8f9?style=flat-square)](CHANGELOG.md)
+[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v9.8-67e8f9?style=flat-square)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/HTML5-tek%20dosya-e34f26?style=flat-square&logo=html5&logoColor=white)](yildiz-akini.html)
 [![Canvas](https://img.shields.io/badge/Canvas-2D-38bdf8?style=flat-square)](yildiz-akini.html)
 [![Android](https://img.shields.io/badge/Android-5.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)](Yildiz-Akini.apk)
@@ -18,21 +18,24 @@ Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, rek
 
 </div>
 
-![Yıldız Akını v9.7 kapak görseli](docs/kapak.png)
+![Yıldız Akını v9.8 kapak görseli](docs/kapak.png)
 
 ## Oyun nedir?
 
 **Yıldız Akını**, tek bir HTML dosyasında çalışan dikey bir neon uzay savaşı oyunudur. Ateş otomatiktir; sen sadece konumlanır, kaçar ve doğru anda patlarsın. Dalgalar ilerledikçe düşmanlar sertleşir; her beş dalgada bir boss, her üç dalgada bir yükseltme ve 4, 9, 14, 19... dalgalarında 50 düşmanlık akın gelir.
 
-v9.7 **Arayüz 6.0**, oyunun tüm ekranlarını yeniden düzenler: komuta güvertesi biçimli ana menü, gemi karuseli ve sayfalı skin galerisiyle **Hangar 2.0**, nadirlik renkli kartlar, yenileme ve atlama düğmeleriyle **Yükseltme 2.0**, koşu özeti ve günlük hedef içeren duraklatma ekranı, S–D derece halkası ve ödül dökümüyle sonuç ekranı. Sol el düzeni, sade HUD, nişan çizgisi ve arayüz animasyonu ayarları da bu sürümde. v9.5'in aksiyon ısısı, öldürme zinciri, şarapnel/nova ve bloom katmanı; v9.4'ün 15 füzyonu, kanat filosu, düellosu ve altın ışını; v9.3'ün Overdrive'ı ve boss modülleri aynen çalışmaya devam eder.
+v9.8 **Oynanış 2.0**, savaşa üç yeni katman ekler: **odak modu** (Boşluk/LT/ODAK tuşunu basılı tutunca gemi yavaşlar, nişan daralır ve 2.2 saniyede dolan şarj **delici mızrak** olarak ateşlenir), her pazartesi tohumu yenilenen ve 10 mutatörden birini uygulayan **Haftalık Akın**, ve skoru en fazla %20 kısıtlayan dört maddelik **asistan paketi**. v9.7'nin komuta güvertesi, Hangar 2.0, Yükseltme 2.0 ve erişilebilirlik ayarları; v9.5'in aksiyon ısısı, öldürme zinciri, şarapnel/nova ve bloom katmanı; v9.4'ün 15 füzyonu, kanat filosu, düellosu ve altın ışını aynen çalışmaya devam eder.
 
 Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma anında indirilen bir dosya vardır: gemi, düşman, boss ve bölge sanatı HTML'in içine gömülüdür; müzik ve efektler Web Audio API ile anlık üretilir. Tek dosyayı kopyaladığında tüm sanat da yanında gelir.
 
-## v9.7'nin öne çıkanları
+## v9.8'in öne çıkanları
 
 | Alan | İçerik |
 |---|---|
-| **Komuta güvertesi** | Ana menü; sezon şeridi, gemi vitrini, gemi/mod/zorluk çipleri, büyük BAŞLA düğmesi, 3×3 kutucuk ızgarası ve günlük operasyon kartıyla tek ekranda toplanır. |
+| **Odak ve mızrak** | Boşluk, gamepad LT/RT veya dokunmatik ODAK tuşu basılıyken gemi %48 yavaşlar, yayılım %55 daralır, hasar %12 ve mermi hızı %18 artar. 2.2 saniyede dolan şarj, 4.2× hasarlı ve 8 düşman delen bir mızrak olarak otomatik ateşlenir; HUD'da şarj halkası ve "MIZRAK HAZIR" bildirimi görünür. |
+| **Haftalık Akın** | Her pazartesi yenilenen tohum (`mulberry32(weekIdx()*7919+17)`) ve 10 mutatörden biri (Sürü, Zırh, Hızlı Ateş, Keskin Nişancı, Altın Akın, Elit Dalga, Meteor Yağmuru, Öfke, Cam Gövde, Titan). Ayrı haftalık rekor, haftalık tablo ve ana menüde HAFTA çipi. |
+| **Asistan paketi** | OYNANIŞ sekmesinde dört isteğe bağlı yardım: Oto Bomba (ölümcül hasarda bombayı harcar), Nişan Yardımı (mermiler en yakın hedefe hafifçe yönelir), Yavaş Mermi (%15) ve Yedek Can (+1). Her açık asistan skoru %5 azaltır, taban %80'dir. |
+| **Komuta güvertesi** | Ana menü; sezon şeridi, gemi vitrini, dört gemi/mod/zorluk/hafta çipi, büyük BAŞLA düğmesi, 3×3 kutucuk ızgarası ve günlük operasyon kartıyla tek ekranda toplanır. |
 | **Hangar 2.0** | Gemi karuseli, canlı hız/ateş/can/bomba çubukları, pasif yetenek kartı, sayfalı 16 skin galerisi ve geliştirme ağacı/koleksiyon/füzyon kısayolları. |
 | **Yükseltme 2.0** | Nadirlik renkli kartlar, kademe pipleri, NEW rozetleri; 30 coin'e yenileme ve +20 coin ile atlama. |
 | **Duraklatma ve sonuç** | Duraklatmada dalga/kill/zincir özeti, donanım çipleri ve günlük hedef; sonuçta S/A/B/C/D derece halkası, para/toz/sezon XP dökümü. |
@@ -41,7 +44,7 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 | **Aksiyon ısısı** | 0–100 arası bir metre, beş kademe (SOĞUK · ISINIYOR · HIZLI · ÖFKELİ · KAOS). Isı yükseldikçe ateş hızı %22'ye, hasar %20'ye kadar artar; kademe atlayışı ekran bandı, halka ve sesle duyurulur. Zincir sürerken ısı 1.7/sn, zincir boşken 3.4/sn soğur. Hasar almak ısıyı 30 puan düşürür ve zinciri sıfırlar. |
 | **Öldürme zinciri** | Her öldürme 2.4 saniyelik pencereyi yeniler. 6 zincirden sonra her öldürme 2–4 şarapnel mermisi saçar; her 10 zincirde 92–172 px yarıçaplı nova patlar. Nova zinciri derinleştirir ama sonsuz döngüye girmez (en fazla 2 iç içe tetikleme). |
 | **Görsel katman** | 120 × 180 çözünürlüklü bloom tamponu (en fazla 48 ışık lekesi), şarapnel yıldız patlamaları, nova halkaları, ısı ve zincir HUD'u. Tümü `fxLevel()`, parçacık bütçesi, `fpsCap`, pil tasarrufu ve azaltılmış hareket ayarlarına bağlıdır. |
-| **300+ entegre özellik** | 63 koşu yükseltmesi · 37 düşman (17 temel + 20 varyant) · 11 boss (5 temel + 6 varyant) · 9 mod · 9 galaksi bölgesi · 66 başarım · 15 güçlendirme · 6 gemi · 15 füzyon · 16 skin · 3 çip · 7 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi — canlı sayım **324** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
+| **300+ entegre özellik** | 63 koşu yükseltmesi · 37 düşman (17 temel + 20 varyant) · 11 boss (5 temel + 6 varyant) · 10 mod · 9 galaksi bölgesi · 68 başarım · 15 güçlendirme · 6 gemi · 15 füzyon · 16 skin · 3 çip · 7 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi — canlı sayım **327** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
 | **15 gemi füzyonu** | Altı geminin tüm ikili eşleşmeleri (C(6,2) = 15). 6. dalgadan sonra yükseltme kartlarında çıkar, profiline kalıcı yazılır ve çiftteki iki gemiden biriyle uçarken etkindir. |
 | **Kanat filosu** | Füzyon sayısına bağlı 0–3 kalıcı eskort. 1 füzyonda bir, 3'te iki, 5'te üç kanat uçar; en yakın düşmana 560 px içinde otomatik ateş eder. |
 | **Çevrimdışı düello** | 60 saniyelik 1v1: sen ve yapay zekâ rakip aynı dalgada avlanır. En çok avlayan kazanır; galibiyet coin, toz ve "Düellocu" başarımı verir. |
@@ -67,6 +70,8 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 | <img src="docs/screens/hangar.jpg" width="230" alt="Hangar"> | <img src="docs/screens/agac.jpg" width="230" alt="Yükseltme ağacı"> | <img src="docs/screens/gorevler.jpg" width="230" alt="Günlük ve haftalık görevler"> |
 | **Başarımlar** | **İstatistikler** | **Koleksiyon** |
 | <img src="docs/screens/basarimlar.jpg" width="230" alt="Başarımlar"> | <img src="docs/screens/istatistik.jpg" width="230" alt="İstatistikler"> | <img src="docs/screens/koleksiyon.jpg" width="230" alt="Koleksiyon"> |
+| **Haftalık Akın** | **Odak ve mızrak** | **Oynanış asistanları** |
+| <img src="docs/screens/haftalik.jpg" width="230" alt="Haftalık mutatör ve rekor ekranı"> | <img src="docs/screens/odak.jpg" width="230" alt="Odak şarjı ve delici mızrak"> | <img src="docs/screens/ayarlar-oynanis.jpg" width="230" alt="Asistan paketi ayarları"> |
 
 ### Bonus kampanya ve koşu sonucu
 
@@ -84,7 +89,7 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 
 ### Android · APK
 
-[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **9.7** (versionCode 18)
+[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **9.8** (versionCode 19)
 
 - Tam ekran, portre, ikonlu ve çevrimdışı.
 - APK **internet izni istemez**; hiçbir veri cihazdan çıkmaz.
@@ -110,6 +115,7 @@ Dosyayı indirip çift tıklaman yeterli. Kurulum, sunucu veya internet bağlant
 | **Boss Akını** | Sadece boss savaşları; her dalgada boss, her 2 dalgada yükseltme. |
 | **Tek Can** | Tek canla başla; yeniden canlanma ve başlangıç kalkanı yok. |
 | **Kaos** | Her dalgada rastgele hız, yoğunluk, boss canı ve elit modifikasyonları. |
+| **Haftalık Akın** | Her pazartesi yenilenen tohum ve 10 mutatörden biri; ayrı haftalık rekor ve tablo. |
 | **Hızlı Akın** | 2 dalgada bir yükseltme; tempolu, kısa koşu. |
 
 ## Gemiler ve füzyonlar
@@ -176,6 +182,7 @@ Ana menüdeki **BONUS KAMPANYA** satırı 300 görevlik isteğe bağlı bir kamp
 | **WASD / Ok tuşları / Fare / Dokunma / Gamepad** | Hareket |
 | **Otomatik** | Ateş |
 | **Shift** | Dash |
+| **Boşluk / Gamepad LT·RT / ODAK tuşu** | Odak: yavaşla, nişanı daralt, mızrak şarj et |
 | **E** | Gemi yeteneği |
 | **B** | Bomba |
 | **U** | Öfke (rage) |
@@ -212,7 +219,7 @@ Ayrıntılı adımlar: [APK-KURULUM.txt](APK-KURULUM.txt)
 | **Ses** | Web Audio API ile phonk esintili prosedürel müzik: 808 bas, cowbell melodi, trap davulları, plak cızırtısı |
 | **Kayıt** | `localStorage` (`ya_profile`, `ya_settings`) |
 | **Dosya boyutu** | HTML ~1.4 MB · APK ~0.8 MB (gömülü WebP sanat dahil) |
-| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v9.7 (versionCode 18) · minSdk 21 · targetSdk 29 |
+| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v9.8 (versionCode 19) · minSdk 21 · targetSdk 29 |
 | **Ağ** | Hiçbir ağ isteği yok; APK'da `INTERNET` izni yok |
 | **Derleme** | Gradle'sız: `aapt2` + `javac` + `d8` + `jarsigner` |
 
@@ -246,7 +253,7 @@ Depo özeldir ve tüm hakları saklıdır. Kullanım koşulları için [LICENSE]
 
 ## Yol haritası
 
-v9.7 ile komuta güvertesi menüsü, Hangar 2.0, Yükseltme 2.0, derece/ödül ekranı ve ARAYÜZ ayarları tamamlandı; v9.5'in aksiyon ısısı/zinciri ve v9.4'ün füzyon, kanat, düello ve altın ışını korunuyor. Sonraki sürümlerde odak/şarjlı atış, yardım modu ve haftalık mutatör modu değerlendirilecek.
+v9.8 ile odak/şarjlı mızrak, haftalık mutatör modu ve asistan paketi oyuna eklendi; v9.7'nin komuta güvertesi, Hangar 2.0, Yükseltme 2.0 ve ARAYÜZ ayarları korunuyor. Sonraki sürümlerde yeni mutatörler, asistan istatistikleri ve sezon genişlemesi değerlendirilecek.
 
 Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
@@ -254,7 +261,10 @@ Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
 **Yıldız Akını** (Star Rush) is a single-file, offline neon space shooter built with HTML5 Canvas and Web Audio. It ships as both a standalone HTML game and a tiny Android APK.
 
-- **300+ integrated features**: 63 run perks, 37 enemies (17 base + 20 variants), 11 bosses (5 base + 6 variants), 9 modes, 9 regions, 66 achievements, 15 power-ups, 6 ships, 15 fusions, 16 skins, 3 chips, 7 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types and 8 campaign goals — 324 live entries
+- **300+ integrated features**: 63 run perks, 37 enemies (17 base + 20 variants), 11 bosses (5 base + 6 variants), 10 modes, 9 regions, 68 achievements, 15 power-ups, 6 ships, 15 fusions, 16 skins, 3 chips, 7 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types and 8 campaign goals — 327 live entries
+- **Gameplay 2.0**: hold Space / LT / the FOCUS button to slow the ship, tighten the spread and charge a piercing lance (2.2 s, 4.2× damage, pierces 8 enemies)
+- **Weekly Raid**: a deterministic weekly seed and one of 10 mutators (Swarm, Armor, Rapid Fire, Sniper, Gold Rush, Elite Wave, Meteor Rain, Frenzy, Glass Hull, Titan), with a separate weekly best and board
+- **Assist pack**: Auto Bomb, Aim Assist, Slow Bullets and Spare Life; each active assist costs 5% score with an 80% floor
 - **UI 6.0**: command-deck main menu, Hangar 2.0 carousel with stat bars and a paged 16-skin gallery, rarity-colored upgrade cards with reroll/skip, a pause build summary, and an S–D grade ring with a reward breakdown on the results screen
 - Left-hand layout, minimal HUD, aim guide and interface-animation toggles in the new UI settings tab
 - Six new skins (void, reactor, prism, wraith, chrono, zenith), 16 total
@@ -272,8 +282,8 @@ Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 - Boss waves arrive with 8–28 escorts; the wave does not end until escorts are cleared
 - Embedded art pack: Kenney Space Shooter Redux ships/enemies/bosses, nine NASA region backdrops and an ambientCG metal texture, all inlined as WebP
 - 300-mission bonus campaign: 5 chapters × 60 missions, all open, first-clear rewards only
-- 9 modes including Boss Rush, One Life and Chaos
-- Daily and weekly missions, 66 achievements, detailed stats
+- 10 modes including Boss Rush, One Life, Chaos and Weekly Raid
+- Daily and weekly missions, 68 achievements, detailed stats
 - Skippable 4-step tutorial and a 20-level season with badges
 - Validated profile backup export/import
 - A 50-enemy surge every 4th wave, with V formations, divers, rushers, tanks and elites

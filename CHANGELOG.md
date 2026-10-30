@@ -2,6 +2,31 @@
 
 Tüm önemli değişiklikler bu dosyada tutulur. Biçim, [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) temel alınarak hazırlanmıştır; sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
+## [9.8.0] - 2026-10-30
+
+### Eklendi
+
+- **Odak modu ve şarjlı mızrak.** Boşluk, gamepad LT/RT veya dokunmatik ODAK tuşu basılı tutulunca gemi %48 yavaşlar, yayılım %55 daralır, hasar %12 ve mermi hızı %18 artar. 2.2 saniyede dolan şarj, 4.2× hasarlı, 8 düşman delen bir mızrak olarak otomatik ateşlenir. Gemi çevresinde şarj halkası, hazır olduğunda "MIZRAK HAZIR" bildirimi ve özel ses efekti vardır.
+- **Haftalık Akın.** Onuncu oyun modu; her pazartesi yenilenen `mulberry32(weekIdx()*7919+17)` tohumu ve 10 mutatörden biriyle oynanır: Sürü, Zırh, Hızlı Ateş, Keskin Nişancı, Altın Akın, Elit Dalga, Meteor Yağmuru, Öfke, Cam Gövde ve Titan. Ayrı haftalık rekor, haftalık tablo ve ana menüde HAFTA çipi bulunur.
+- **Asistan paketi.** OYNANIŞ sekmesinde dört isteğe bağlı yardım: Oto Bomba (ölümcül hasarda bombayı otomatik harcar), Nişan Yardımı (mermiler en yakın hedefe hafifçe yönelir), Yavaş Mermi (düşman mermileri %15 yavaşlar) ve Yedek Can (+1). Her açık asistan skoru %5 azaltır; taban %80'dir.
+- **İki yeni başarım.** `Mızrak Ustası` (ilk şarjlı mızrağı ateşle) ve `Haftalık Akıncı` (haftalık akında 5. dalgaya ulaş); toplam 68.
+
+### Değişti
+
+- Ana menü çip satırı dört eşit çipe bölündü: gemi, mod, zorluk ve haftalık. Haftalık çip doğrudan Haftalık Akın sayfasını açar.
+- Ayarlar beş sekmeye çıktı (GENEL · ARAYÜZ · OYNANIŞ · PERFORMANS · VERİ); asistanlar OYNANIŞ sekmesinde toplandı.
+- Dokunmatik HUD'a beşinci tuş olarak ODAK eklendi; gamepad LT/RT odak tuşu olarak eşlendi.
+- `defS` içine `asBomb`, `asAim`, `asSlow`, `asLife`; profil şemasına `weeklyBest` ve `weeklyWeek` eklendi. `sanitizeSettings` ve kayıt yükleme yolu bu anahtarları doğrular.
+- `GMODES` 10, `CORE_MODES` 9 kayda ayrıldı; `modes9` başarımı yalnızca ilk dokuz modu ister.
+- Sürüm `v9.8` (versionCode 19). README, teknik doküman, yol haritası, kurulum dosyası ve özellik defteri 327 kayda güncellendi.
+
+### Düzeltildi
+
+- Bitmemiş bir düello sonrası `vsPrevMode` değerinin bir sonraki koşunun modunu ezmesi engellendi; `startGame()` bu alanı temizler.
+- Dört çipli ana menüde Haftalık çipinin ekran dışına taşması giderildi; çipler eşit genişliğe alındı.
+- Asistan ayarlarındaki "Tüm asistanlar kapalı" satırı eylem düğmesi olarak "Tümünü Kapat" yapıldı; durum metni ayrı anahtara taşındı.
+- Playwright paketi 80/80 geçti. 240 saniyelik otopilot 22 dalga, 1.316 kill, 3/6/9/12/15/18/21 yükseltmeleri, 0–3 boss, 4/9/14/19 akınları, 0 NaN ve 0 hata ile tamamlandı. Haftalık + dört asistan koşusu 10 dalga, 440 kill, mızrak ve haftalık rekor doğrulamasıyla geçti.
+
 ## [9.7.0] - 2026-10-29
 
 ### Eklendi

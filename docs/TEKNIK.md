@@ -48,10 +48,10 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 | `TREE` | Gemi başına 4 dal, 11 düğüm ve artan coin maliyeti |
 | `PERKS` | 63 koşu içi yükseltme |
 | `SHOP` | 7 kalıcı mağaza ürünü |
-| `GMODES` | 9 oyun modu |
+| `GMODES` | 10 oyun modu (9 çekirdek + Haftalık Akın) |
 | `REGIONS` | 9 bölge paleti |
 | `DIFF` | 3 zorluk |
-| `ACHS` | 66 başarım |
+| `ACHS` | 68 başarım |
 | `ENEMY_BASE` + `ENEMY_VARIANTS` | 17 temel + 20 varyant = 37 düşman |
 | `BOSS_BASE` + `BOSS_VARIANTS` | 5 temel + 6 varyant = 11 boss |
 | `POWER_CATALOG` | 15 güçlendirme (altın ışın dahil) |
@@ -61,16 +61,16 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 
 ## 300+ özellik
 
-v9.7'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
+v9.8'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
 
 | Kategori | Adet |
 |---|---:|
 | Koşu yükseltmeleri (`PERKS`) | 63 |
 | Düşmanlar (17 temel + 20 varyant) | 37 |
 | Boss'lar (5 temel + 6 varyant) | 11 |
-| Oyun modları (`GMODES`) | 9 |
+| Oyun modları (`GMODES`) | 10 |
 | Galaksi bölgeleri (`REGIONS`) | 9 |
-| Başarımlar (`ACHS`) | 66 |
+| Başarımlar (`ACHS`) | 68 |
 | Güçlendirmeler (`POWER_CATALOG`) | 15 |
 | Gemiler (`SHIPS`) | 6 |
 | Füzyonlar (`FUSIONS`) | 15 |
@@ -85,7 +85,7 @@ v9.7'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Zorluklar (`DIFF`) | 3 |
 | Görev türleri (`MISS_POOL`) | 9 |
 | Kampanya hedefleri (`CAMP_GOALS`) | 8 |
-| **Toplam** | **324** |
+| **Toplam** | **327** |
 
 Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; içerik sekmesi olmadığı için çalışma zamanında ayrı bir katalog nesnesi tutulmaz. Belgede ve pazarlama metinlerinde güvenli alt sınır olarak "300+" kullanılır.
 
@@ -127,6 +127,13 @@ Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; iç
 - `addOverdrive()` `st.odMul`, `addHeat()` `st.heatMul`, hasar sonrası dokunulmazlık `st.invBonus` çarpanlarını kullanır.
 - 15/30/50 zincirde `dropPowerup()` güçlendirme bırakır ve `ZİNCİR ÖDÜLÜ ×n` bildirimi çıkar.
 - Boss modülü yıkımı 12 ısı ve 0.05 Overdrive; zırh kırılması ek 0.12 Overdrive ekler.
+
+## Oynanış 2.0 (v9.8)
+
+- **Odak modu.** `state.touchFocus`, `state.padFocus` ve klavye `Space` aynı `player.focusOn` bayrağını besler. Odak açıkken hız `×0.52`, yayılım `×0.45`, hasar `×1.12` ve mermi hızı `×1.18` olur. `player.focus` 2.2 saniyede dolar; dolduğunda `fireWeapon()` otomatik olarak `w: 'lance'` mermisi üretir: `4.2×` hasar, `pierce: 8`, `r: 6.5`, `vy ≈ −1246`. Ateşleme sonrası şarj sıfırlanır ve `focusShots` sayacı artar.
+- **Haftalık Akın.** `GMODES` onuncu kaydı `weekly`'dir; `CORE_MODES` dokuz çekirdek modu tutar ve `modes9` başarımı yalnızca bunları ister. `startGame()` haftalık modda `Math.random`'ı `mulberry32((weekIdx() * 7919 + 17) >>> 0)` ile değiştirir. `WEEK_MUTATORS` on kayıt içerir: `swarm`, `armor`, `rapid`, `sniper`, `gold`, `elite`, `meteor`, `frenzy`, `glass`, `titan`. `weekMutator()` hafta indeksine göre deterministik seçim yapar; `P.weeklyBest` ve `P.weeklyWeek` ayrı saklanır, hafta değişince rekor sıfırlanır.
+- **Asistan paketi.** `S.asBomb`, `S.asAim`, `S.asSlow`, `S.asLife` dört isteğe bağlı yardımı açar. `assistCount()` ve `assistScoreMul()` skor çarpanını `max(0.8, 1 − 0.05 × n)` olarak hesaplar. Oto bomba ölümcül hasarda bombayı harcar ve 1.5 sn dokunulmazlık verir; nişan yardımı mermilere `homing: 0.6`, `turn: 2.4` ekler; yavaş mermi düşman mermisi hızını `×0.85` yapar; yedek can başlangıç canını +1 artırır. Ayarların beşinci sekmesi `game` bu dört anahtarı ve "Tümünü Kapat" eylemini gösterir.
+- **Başarımlar.** `focus1` (ilk mızrak) ve `weekly1` (haftalık akında 5. dalga) eklendi; toplam 68.
 
 ## Arayüz 6.0 (v9.7)
 
@@ -172,8 +179,8 @@ Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; iç
 
 İki anahtar kullanılır:
 
-- `ya_profile` — kalıcı ilerleme: coin, toz, rekorlar, oynanan gemiler, açılan skinler, başarımlar, gemi ağaçları, görev durumu, istatistikler, bonus kampanya yıldızları, füzyonlar, düello sayacı.
-- `ya_settings` — dil, ses, sarsıntı, parçacık/efekt kalitesi, renk körü modu, azaltılmış hareket, FPS sayacı, FPS sınırı, pil tasarrufu, dokunmatik hassasiyet, sol el düzeni, sade HUD, nişan çizgisi ve arayüz animasyonu.
+- `ya_profile` — kalıcı ilerleme: coin, toz, rekorlar, haftalık rekor (`weeklyBest`/`weeklyWeek`), oynanan gemiler, açılan skinler, başarımlar, gemi ağaçları, görev durumu, istatistikler, bonus kampanya yıldızları, füzyonlar, düello sayacı.
+- `ya_settings` — dil, ses, sarsıntı, parçacık/efekt kalitesi, renk körü modu, azaltılmış hareket, FPS sayacı, FPS sınırı, pil tasarrufu, dokunmatik hassasiyet, sol el düzeni, sade HUD, nişan çizgisi, arayüz animasyonu ve dört oynanış asistanı (`asBomb`, `asAim`, `asSlow`, `asLife`).
 
 Şema yüklenirken eksik alanlar varsayılanlarla tamamlanır. Bu, eski sürümlerden gelen profillerin bozulmadan açılmasını sağlar.
 
@@ -285,7 +292,7 @@ APK, Gradle kullanılmadan elle derlenir:
 | | |
 |---|---|
 | Paket | `com.saklabann.yildizakini` |
-| Sürüm | 9.7 (versionCode 18) |
+| Sürüm | 9.8 (versionCode 19) |
 | minSdk | 21 (Android 5.0) |
 | targetSdk | 29 |
 | İzinler | Yok |
@@ -310,10 +317,10 @@ Ardından `http://127.0.0.1:8127/yildiz-akini.html` adresini aç.
 
 ## Test kontrol listesi
 
-Otomatik Playwright paketi 62 kontrol içerir; son çalıştırmada **62/62** geçti.
+Otomatik Playwright paketi 80 kontrol içerir; son çalıştırmada **80/80** geçti.
 
 - Menü açılışı, 480 × 720 mantıksal alan ve canvas backing store doğru.
-- 15 füzyon, 15 benzersiz gemi çifti ve 66 başarım sayımı tutarlı.
+- 15 füzyon, 15 benzersiz gemi çifti ve 68 başarım sayımı tutarlı.
 - TR/EN anahtar ve yer tutucu pariteleri tam.
 - Boss tam olarak her 5. dalgada; akın 4, 9, 14, 19, 24. dalgalarda ve tam 50 düşmanla geliyor.
 - Boss dalgaları koruma taşıyor; yükseltme her 3. dalgada açılıyor; tüm dalga kuyrukları dolu.
@@ -336,6 +343,10 @@ Otomatik Playwright paketi 62 kontrol içerir; son çalıştırmada **62/62** ge
 - 30/45/60 FPS ve pil tasarrufu modlarında çizim hatasız.
 - `300 İÇERİK` sekmesi yok; özellik dizileri hâlâ tam.
 - Konsolda hata veya uyarı yok.
+- Odak modu: hız ≈×0.52, şarj 2.2 sn, mızrak 4.2× hasar ve 8 delme; bırakınca şarj sıfırlanıyor.
+- Haftalık Akın: tohum ve mutatör deterministik, haftalık rekor ayrı, hafta değişince sıfırlanıyor; `modes9` yalnızca 9 çekirdek modu istiyor.
+- Asistanlar: skor çarpanı 1/0.95/0.80, yedek can +1, nişan yardımı, yavaş mermi, oto bomba ve ayarların OYNANIŞ sekmesi doğru.
+- Dokunmatik ODAK tuşu basılı tutunca şarj ediyor, bırakınca temizleniyor; gamepad LT/RT aynı davranışı veriyor.
 
 ## Performans notları
 

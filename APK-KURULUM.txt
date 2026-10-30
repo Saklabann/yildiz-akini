@@ -1,7 +1,7 @@
 YILDIZ AKINI — ANDROID KURULUMU
 ================================
 
-Sürüm      : 9.7 (versionCode 18)
+Sürüm      : 9.8 (versionCode 19)
 Dosya      : Yildiz-Akini.apk  (~0.8 MB)
 Paket      : com.saklabann.yildizakini
 Gereksinim : Android 5.0 veya üzeri
@@ -32,7 +32,9 @@ d) "Yükle" > "Aç". Yıldız Akını ikonu ana ekrana eklenir.
 - Oyun dikey ve tam ekran açılır; ekran kapanmaz.
 - Hareket: ekranın sol yarısına parmağını koy ve sürükle.
 - Ateş: otomatik. Sen sadece kaçmaya odaklan.
-- Sağ alttaki butonlar: bomba, dash ve gemi yeteneği.
+- ODAK: sağdaki F tuşunu basılı tut (veya gamepad LT/RT). Gemi yavaşlar,
+  nişan daralır; 2.2 saniyede dolan şarj delici mızrak olarak ateşlenir.
+- Sağ alttaki butonlar: bomba, dash, gemi yeteneği ve odak.
 - 4, 9, 14, 19... dalgalarında tam 50 düşmanlık akın gelir; bomba ve öfkeyi
   bu dalgalara sakla.
 - Normal dalgalar çok kalabalıktır (dalga ortasında takviye gelir).
@@ -44,6 +46,8 @@ d) "Yükle" > "Aç". Yıldız Akını ikonu ana ekrana eklenir.
   FPS sınırı, pil tasarrufu ve dokunmatik hassasiyet değiştirilebilir.
 - ARAYÜZ sekmesinde sol el modu, sade HUD, nişan çizgisi ve arayüz
   animasyonu ayrı ayrı açılıp kapatılabilir.
+- OYNANIŞ sekmesinde dört asistan (oto bomba, nişan yardımı, yavaş mermi,
+  yedek can) açılabilir; her açık asistan skoru %5 azaltır (taban %80).
 - Hangar'da 16 skin, gemi karuseli ve pasif yetenek kartı bulunur.
 - İlk açılışta kısa eğitim başlar; ATLA ile geçebilirsin.
 - Profilini Ayarlar > VERİ bölümünden yedekleyebilirsin.
@@ -68,14 +72,22 @@ sekmesi yoktur; 300+ özellik oyunun mevcut ekranlarına dağıtılmıştır.
   düşmanları biçer.
 
 
-6) GÜNCELLEME
+6) HAFTALIK AKIN
+----------------
+Ana menüdeki HAFTA çipi veya mod çipinden Haftalık Akın seçilir. Her pazartesi
+tohum yenilenir ve 10 mutatörden biri uygulanır (Sürü, Zırh, Hızlı Ateş,
+Keskin Nişancı, Altın Akın, Elit Dalga, Meteor Yağmuru, Öfke, Cam Gövde,
+Titan). Haftalık rekor ayrı tutulur; hafta değişince sıfırlanır.
+
+
+7) GÜNCELLEME
 -------------
 Yeni APK'yı aynı paket adı ve imzayla üzerine kurabilirsin. Kayıtlar
 (coin, başarımlar, rekorlar, füzyonlar) korunur. APK'yı kaldırırsan yerel
 kayıtlar da silinir.
 
 
-7) SORUN GİDERME
+8) SORUN GİDERME
 ----------------
 - "Uygulama yüklenmedi": Eski bir sürüm farklı imzayla kurulu olabilir.
   Önce eski Yıldız Akını'nı kaldır, sonra yükle. (Kayıtlar silinir.)
