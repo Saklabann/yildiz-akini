@@ -24,7 +24,7 @@ window.YA_ART={"v":"9.3","ships":{"std":{"d":"data:image/webp;base64,UklGRuAtAAB
 <script>
 'use strict';
 /* ==========================================================
-   YILDIZ AKINI v9.8 OYNANIŞ 2.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
+   YILDIZ AKINI v9.9 EVRİM — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
    Hareket: ok/WASD/fare/dokunma/gamepad · Ateş: otomatik
    Shift: atılma · Boşluk: odak · U: öfke · B: bomba · P: duraklat · M: ses · F: tam ekran
    ========================================================== */
@@ -687,6 +687,20 @@ function wingSlots() {
   return [[-49, 12], [49, 12], [0, -45]];
 }
 
+/* v9.9: üç evrim yolu — Fırtına, Ray ve Nova. Her yol üç kademe.
+   Evrim koşuya özeldir; 6. dalgada yol seçilir, 12 ve 18de kademe yükselir. */
+const EVOLUTIONS = [
+  { id: 'storm', col: '#c78bff', icon: 'bolt', max: 3 },
+  { id: 'rail',  col: '#8ff3ff', icon: 'arrow', max: 3 },
+  { id: 'nova',  col: '#ffb060', icon: 'star', max: 3 }
+];
+function evoById(id) { return EVOLUTIONS.find(e => e.id === id) || null; }
+const EVO_TIERS = EVOLUTIONS.reduce((n, e) => n + (e.max || 0), 0);
+function evoName(e) { return t('evo_' + e.id + '_n'); }
+function evoRoman(n) { return ['', 'I', 'II', 'III'][clamp(n | 0, 0, 3)]; }
+function evoTier() { return state.evo ? (state.evo.tier | 0) : 0; }
+function evoActive(id) { return !!(state.evo && state.evo.id === id); }
+
 /* v5 gemi skinleri: govde renkleri + motor isigi */
 const SKINS = [
   { id: 'default', c1: '#ffffff', c2: '#eaf6ff', c4: '#8fc0ea', c3: '#4a76b4', eng: ['rgba(190,245,255,0.95)', 'rgba(90,190,255,0.55)'], trim: null },
@@ -1203,7 +1217,8 @@ const ACHS = ['first', 'combo10', 'combo25', 'boss1', 'boss5', 'wave10', 'wave20
   'kill2500', 'kill5000', 'wave30', 'wave40', 'wave50', 'boss15', 'boss25', 'games25',
   'combo40', 'combo60', 'score50k', 'score100k', 'coins1000', 'coins5000', 'modes9',
   'ships6', 'season10', 'season15', 'season20', 'ach40', 'ach50', 'camp150', 'camp250',
-  'perfect25', 'time30k', 'abil50', 'missions30', 'fusion5', 'duelist', 'focus1', 'weekly1'];
+  'perfect25', 'time30k', 'abil50', 'missions30', 'fusion5', 'duelist', 'focus1', 'weekly1',
+  'evo1', 'evo3'];
 
 /* ============================================================
    v9.0 · 300 ÖZELLİK
@@ -2678,6 +2693,50 @@ const V98_EN = {
 Object.assign(TR, V98_TR);
 Object.assign(EN, V98_EN);
 
+/* v9.9: evrim yolları, kartları ve başarımları */
+const V99_TR = {
+  ver_fmt: 'v9.9',
+  rarity_evo: 'EVRİM', upg_evo_tier_fmt: 'KADEME {a}/{b}',
+  evo_storm_n: 'Fırtına Yolu', evo_storm_d: 'Mermiler yakındaki düşmanlara zincir yıldırım atlar',
+  evo_rail_n: 'Ray Yolu', evo_rail_d: 'Düzenli aralıklarla delen hiper hız ray mermisi',
+  evo_nova_n: 'Nova Yolu', evo_nova_d: 'İsabet eden mermiler çevreye patlayıcı hasar verir',
+  evo_storm_t1_d: 'Her isabet 2 düşmana yıldırım atlar',
+  evo_storm_t2_d: '3 düşmana atlar; hasar ve menzil artar',
+  evo_storm_t3_d: '4 düşmana atlar; her 10 öldürmede yıldırım novasi',
+  evo_rail_t1_d: 'Her 5 salvo bir 2.2× hasarlı, 7 delici ray',
+  evo_rail_t2_d: 'Her 4 salvo bir 3× hasarlı, 10 delici ray',
+  evo_rail_t3_d: 'Her 3 salvo çift ray; 3.6× hasar, 13 delme',
+  evo_nova_t1_d: 'İsabetlerde 44 yarıçaplı patlama',
+  evo_nova_t2_d: 'Patlama 58 yarıçap, daha fazla hasar',
+  evo_nova_t3_d: 'Patlama 72 yarıçap, yakıcı hasar',
+  evo_chosen_fmt: '{v} · Kademe {n}',
+  evo_pause: 'EVRİM',
+  ach_evo1_n: 'Evrimci', ach_evo1_d: 'İlk evrim yolunu seç',
+  ach_evo3_n: 'Son Kademe', ach_evo3_d: 'Bir evrimi 3. kademeye çıkar'
+};
+const V99_EN = {
+  ver_fmt: 'v9.9',
+  rarity_evo: 'EVOLUTION', upg_evo_tier_fmt: 'TIER {a}/{b}',
+  evo_storm_n: 'Storm Path', evo_storm_d: 'Bullets arc chain lightning to nearby enemies',
+  evo_rail_n: 'Rail Path', evo_rail_d: 'Periodic hyper-velocity piercing rail shots',
+  evo_nova_n: 'Nova Path', evo_nova_d: 'Bullet impacts deal explosive area damage',
+  evo_storm_t1_d: 'Each hit arcs to 2 enemies',
+  evo_storm_t2_d: 'Arcs to 3 enemies; damage and range up',
+  evo_storm_t3_d: 'Arcs to 4 enemies; lightning nova every 10 kills',
+  evo_rail_t1_d: 'Every 5th volley: 2.2× damage, 7-pierce rail',
+  evo_rail_t2_d: 'Every 4th volley: 3× damage, 10-pierce rail',
+  evo_rail_t3_d: 'Every 3rd volley: twin rails, 3.6× damage, 13 pierce',
+  evo_nova_t1_d: 'Impacts explode in a 44 radius',
+  evo_nova_t2_d: '58 radius explosions with more damage',
+  evo_nova_t3_d: '72 radius explosions that set enemies burning',
+  evo_chosen_fmt: '{v} · Tier {n}',
+  evo_pause: 'EVOLUTION',
+  ach_evo1_n: 'Evolver', ach_evo1_d: 'Choose your first evolution path',
+  ach_evo3_n: 'Final Tier', ach_evo3_d: 'Raise an evolution to tier 3'
+};
+Object.assign(TR, V99_TR);
+Object.assign(EN, V99_EN);
+
 /* v9.7: yükseltme kartları, duraklatma ve derece ekranı için ortak yardımcılar */
 const PERK_ICONS = {
   dmg: 'flame', rate: 'bolt', speed: 'wind', regen: 'shield', bomb: 'bomb', magnet: 'magnet',
@@ -3115,6 +3174,7 @@ const state = { mode: 'menu', menuPage: 'main', score: 0, lives: 3, wave: 0, wav
   heat: 0, heatBest: 0, heatPulse: 0, chain: 0, chainT: 0, chainBest: 0, chainPulse: 0, novaPulse: 0,
   touchFocus: false, focusHoldId: -1, padFocus: false,
   novaDepth: 0, volley: 0,
+  evo: null, evoZapCd: 0, evoNovaCd: 0, evoNovaDepth: 0, evoStormDepth: 0, evoStormN: 0, evoKillN: 0,
   bossDeath: null, bossBreakT: 0, bgPulse: 0,
   tut: null, setTab: 'genel', seasonPage: 0, campPage: 0, campSel: 1, campWin: null,
   versus: null, vsPrevMode: null, fusPage: 0, callout: '', calloutCol: '#ffd166', calloutT: 0, calloutMax: 1.1,
@@ -3641,6 +3701,68 @@ function novaBlast(x, y) {
   for (const r of rocks) if (!r.dead && dist2(r.x, r.y, x, y) < R*R) hurtRock(r, 2);
   state.novaDepth--;
 }
+/* ---------- v9.9 evrim mekanikleri ---------- */
+function stormChain(x, y, dmg, skip) {
+  const tier = evoActive('storm') ? evoTier() : 0;
+  if (!tier || (state.evoZapCd || 0) > 0) return;
+  state.evoZapCd = 0.14;
+  const n = 1 + tier, range = 120 + tier * 30, mul = 0.26 + tier * 0.11;
+  let sx = x, sy = y, arcs = 0;
+  const hitSet = new Set();
+  for (let k = 0; k < n; k++) {
+    let best = null, bd = range * range;
+    for (const o of enemies) {
+      if (o.dead || o.dying || o === skip || hitSet.has(o)) continue;
+      const d = dist2(o.x, o.y, sx, sy);
+      if (d < bd) { bd = d; best = o; }
+    }
+    if (!best) break;
+    hitSet.add(best);
+    state.zaps.push({ x1: sx, y1: sy, x2: best.x, y2: best.y, life: 0.14, max: 0.14, col: '#c78bff' });
+    fxBurst(best.x, best.y, '#c78bff', 4, 0.12, 'star');
+    hurtEnemy(best, dmg * mul, best.x, best.y, true);
+    sx = best.x; sy = best.y; arcs++;
+  }
+  if (arcs) { sfx.zap(); buzz(6); }
+}
+function stormNova(x, y) {
+  if (!evoActive('storm') || evoTier() < 3) return;
+  if ((state.evoStormDepth || 0) > 0) return;
+  state.evoStormDepth = 1;
+  const R = 230, dmg = st.dmg * 2.2;
+  const targets = [];
+  for (const o of enemies) {
+    if (o.dead || o.dying || targets.length >= 8) continue;
+    if (dist2(o.x, o.y, x, y) < R * R) targets.push(o);
+  }
+  for (const o of targets) {
+    state.zaps.push({ x1: x, y1: y, x2: o.x, y2: o.y, life: 0.2, max: 0.2, col: '#d8a8ff' });
+    fxBurst(o.x, o.y, '#c78bff', 6, 0.16, 'star');
+    hurtEnemy(o, dmg, o.x, o.y, true);
+  }
+  fxRing(x, y, 12, 520, 5, 0.5, '#c78bff');
+  addShake(4); sfx.zap(); buzz(20);
+  state.evoStormDepth = 0;
+}
+function evoNovaBlast(x, y, dmg, tier) {
+  if ((state.evoNovaDepth || 0) > 1) return;
+  state.evoNovaDepth = (state.evoNovaDepth || 0) + 1;
+  const R = 30 + tier * 14;
+  fxRing(x, y, 5, 240 + tier * 70, 3, 0.26, '#ffb060');
+  if (tier >= 3) fxRing(x, y, 9, 420, 4, 0.4, '#ff8a5c');
+  for (const o of enemies.slice()) {
+    if (o.dead || o.dying || o.type === 'boss' || o.type === 'guard') continue;
+    if (dist2(o.x, o.y, x, y) < R * R) {
+      hurtEnemy(o, dmg * (0.24 + tier * 0.1), x, y, true);
+      if (tier >= 3 && !o.dead) {
+        o.burnT = Math.max(o.burnT || 0, 1.6);
+        o.burnDps = Math.max(o.burnDps || 0, dmg * 0.18);
+      }
+    }
+  }
+  for (const r of rocks) if (!r.dead && dist2(r.x, r.y, x, y) < R * R) hurtRock(r, dmg * 0.4);
+  state.evoNovaDepth--;
+}
 /* ---------- hasar ---------- */
 function hurtEnemy(e, dmg, sx, sy, quiet, byRival) {
   /* v9.0.1: ölüm animasyonundaki boss ikinci bir isabetle anında silinip
@@ -3723,6 +3845,10 @@ function killEnemy(e) {
   if (P.kills >= 500) unlockAch('kill500');
   if (P.kills >= 1500) unlockAch('kill1500');
   if (st.nova && state.killN % (st.nova >= 2 ? 5 : 6) === 0) novaBlast(e.x, e.y);
+  if (evoActive('storm') && evoTier() >= 3) {
+    state.evoKillN = (state.evoKillN || 0) + 1;
+    if (state.evoKillN % 10 === 0) stormNova(e.x, e.y);
+  }
   if (st.leech && state.killN % 40 === 0 && state.lives < 6) {
     state.lives++;
     addFloat(e.x, e.y - 24, '+1 ♥', '#ff8fa8');
@@ -3773,6 +3899,7 @@ function killEnemy(e) {
     sfx.bigboom(); slow(0.3, 0.9); zoom(1.06, 1.0);
     state.hitT = 0.12;
     dropPowerup(e.x - 42, e.y, 'weapon'); dropPowerup(e.x, e.y, 'shield'); dropPowerup(e.x + 42, e.y, 'rapid');
+    if (state.lives < 6) dropPowerup(e.x, e.y + 34, 'life');
     for (let i = 0; i < 5; i++) spawnCoin(e.x + rand(-40,40), e.y + rand(-20,20));
     spawnCrate(e.x, e.y);
     dropChip(e.x - 60, e.y);
@@ -3790,6 +3917,7 @@ function killEnemy(e) {
     state.hitT = 0.1;
     dropChip(e.x, e.y);
     dropPowerup(e.x - 30, e.y, 'shield'); dropPowerup(e.x + 30, e.y, 'rapid');
+    if (state.lives < 6 && Math.random() < 0.3 * st.luckMul) dropPowerup(e.x, e.y + 24, 'life');
     for (let i = 0; i < 4; i++) spawnCoin(e.x + rand(-30,30), e.y);
     addDust(1);
     addRage(0.15);
@@ -3813,6 +3941,9 @@ function killEnemy(e) {
     sfx.boom();
     if (e.elite) dropPowerup(e.x, e.y);
     else if (Math.random() < (0.15 + (e.type === 'tank' ? 0.2 : 0) + (e.type === 'mine' ? 0.1 : 0)) * st.luckMul) dropPowerup(e.x, e.y);
+    /* v9.9: can damlası — düşmanlardan seyrek, tank/healer/elitlerden daha sık. */
+    const lifeChance = 0.025 + (e.type === 'tank' ? 0.035 : 0) + (e.type === 'healer' ? 0.05 : 0) + (e.elite ? 0.15 : 0);
+    if (state.lives < 6 && Math.random() < lifeChance * st.luckMul) dropPowerup(e.x, e.y, 'life');
     if (Math.random() < 0.4 * st.coinMul) { spawnCoin(e.x, e.y); if (state.mod === 'gold') spawnCoin(e.x + rand(-16, 16), e.y); }
   }
 }
@@ -4212,6 +4343,7 @@ function resetRun() {
   state.score = 0; state.lives = Math.min(6, st.lives); state.wave = 0; state.waveDone = true; state.waveDamage = false;
   state.spawnQueue = []; state.spawnTimer = 0; state.betweenWaves = 0.8;
   state.upgradesPending = false; state.upg = []; state.upgFocus = 0;
+  state.evo = null; state.evoZapCd = 0; state.evoNovaCd = 0; state.evoNovaDepth = 0; state.evoStormDepth = 0; state.evoStormN = 0; state.evoKillN = 0;
   state.waveBanner = 0; state.clearText = ''; state.clearT = 0; state.mod = null;
   state.combo = 0; state.comboT = 0; state.shake = 0; state.runT = 0; state.overT = 0;
   state.runCoins = 0; state.runKills = 0; state.runShots = 0; state.runHits = 0; state.runCombo = 0;
@@ -4626,9 +4758,31 @@ function gameOver() {
   saveP();
 }
 function rollUpgradeOptions() {
+  const ev = state.evo;
+  /* v9.9: 6. dalgada üç evrim yolu zorunlu seçim olarak sunulur.
+     Atlanırsa sonraki ekranlarda tek kart olarak geri gelir. */
+  if (!ev && state.wave >= 6) {
+    if (state.wave === 6) {
+      return EVOLUTIONS.map(e => ({ id: 'evo_' + e.id, max: 3, evo: e, tier: 1 }));
+    }
+    const pool0 = PERKS.filter(p => (state.progs[p.id] || 0) < p.max);
+    const opts0 = [];
+    while (opts0.length < 3 && pool0.length) opts0.push(pool0.splice((Math.random()*pool0.length)|0, 1)[0]);
+    const e0 = EVOLUTIONS[Math.floor(state.wave / 3) % EVOLUTIONS.length];
+    const card = { id: 'evo_' + e0.id, max: 3, evo: e0, tier: 1 };
+    if (opts0.length) opts0[0] = card; else opts0.push(card);
+    return opts0;
+  }
   const pool = PERKS.filter(p => (state.progs[p.id] || 0) < p.max);
   const opts = [];
   while (opts.length < 3 && pool.length) opts.push(pool.splice((Math.random()*pool.length)|0, 1)[0]);
+  /* Kademe yükseltmesi: 12. dalgada II, 18. dalgada III. Füzyon yerine geçer. */
+  const nextTier = ev ? (ev.tier | 0) + 1 : 0;
+  if (ev && nextTier <= 3 && state.wave >= nextTier * 6) {
+    const card = { id: 'evo_' + ev.id, max: 3, evo: evoById(ev.id), tier: nextTier };
+    if (opts.length) opts[0] = card; else opts.push(card);
+    return opts;
+  }
   const fp = fusionPoolFor(S.ship);
   const fChance = 0.5 + Math.min(0.25, state.wave * 0.012);
   if (state.wave >= 6 && fp.length && Math.random() < fChance) {
@@ -4677,6 +4831,26 @@ function skipUpgrades() {
 function chooseUpgrade(i) {
   const p = state.upg[i];
   if (!p) return;
+  if (p.evo) {
+    const e = p.evo, tier = clamp(p.tier | 0, 1, 3);
+    if (!state.evo || state.evo.id !== e.id) state.evo = { id: e.id, tier: tier };
+    else state.evo.tier = Math.max(state.evo.tier | 0, tier);
+    unlockAch('evo1');
+    if (state.evo.tier >= 3) unlockAch('evo3');
+    const line = t('evo_chosen_fmt', { v: evoName(e), n: state.evo.tier });
+    if (player) {
+      addFloat(player.x, player.y - 30, line, e.col);
+      fxRing(player.x, player.y - 8, 12, 460, 4, 0.5, e.col);
+      fxBurst(player.x, player.y - 10, e.col, 16, 0.2, 'star');
+    }
+    toast(line, e.col);
+    state.mode = 'playing';
+    state.upgradesPending = false;
+    state.betweenWaves = 1.6;
+    missAdd('upg', 1);
+    sfx.rank(); sfx.upgrade();
+    return;
+  }
   if (p.fusion) {
     if (fusionOwned(p.fusion.id)) { state.mode = 'playing'; state.upgradesPending = false; state.betweenWaves = 1.2; return; }
     const wc0 = wingCount();
@@ -4752,6 +4926,8 @@ function fireWeapon(gdt) {
     dmg = st.dmg * heatDmgMul() * (ult ? 1.6 : 1) * (ov ? 1.25 : 1) * (od ? 1.5 : 1) * (low ? 1 + (st.lastStand || 0) : 1) * (p.focusOn ? 1.12 : 1),
     prc = (st.pierce || 0) + (ov ? 1 : 0) + (od ? 2 : 0);
   const spread = p.focusOn ? 0.45 : 1;
+  const evoN = evoActive('nova') ? evoTier() : 0;
+  const evoS = evoActive('storm') ? evoTier() : 0;
   const mk = (dx, dy, vx, lead, dirY, dmul) => {
     const cr = p.phT > 0 || (st.crit > 0 && Math.random() < st.crit) || (p.critT > 0 && Math.random() < 0.25);
     let bx = p.x + dx, by = p.y + dy, bvx = vx || 0, bvy = (dirY == null ? -1 : dirY) * spd;
@@ -4767,6 +4943,7 @@ function fireWeapon(gdt) {
       homing: (st.homing || 0) + (S.asAim ? 0.6 : 0), turn: (S.asAim && !st.homing) ? 2.4 : 0,
       ricochet: st.ricochet || 0,
       freeze: st.freeze || 0, burn: st.burn || 0,
+      nova: evoN, storm: evoS,
       c: cr ? '#ffe066' : (od ? (Math.random() < 0.34 ? '#ffd166' : Math.random() < 0.5 ? '#8ff3ff' : '#ff9be8') : (state.fever > 0.5 ? '#ff9be8' : st.color)), dead: false });
     state.runShots++; P.shots++;
   };
@@ -4787,6 +4964,23 @@ function fireWeapon(gdt) {
     mk(-17, -2, -240, false, null, 0.55);
     mk(17, -2, 240, false, null, 0.55);
     fxBurst(p.x, p.y - 8, '#ffd166', 8, 0.1, 'ring');
+  }
+  if (evoActive('rail')) {
+    const rt = evoTier();
+    p.railN = (p.railN || 0) + 1;
+    const every = rt >= 3 ? 3 : rt === 2 ? 4 : 5;
+    if (p.railN % every === 0) {
+      const rshot = ox => {
+        bullets.push({ x: p.x + ox, y: p.y - 18, vx: 0, vy: -spd * 1.9, r: 3.6,
+          dmg: dmg * [0, 2.2, 3.0, 3.6][rt], crit: false, pierce: 4 + rt * 3, w: 'rail',
+          homing: 0, turn: 0, ricochet: 0, freeze: 0, burn: 0, nova: 0, storm: 0,
+          c: '#8ff3ff', dead: false });
+        state.runShots++; P.shots++;
+      };
+      if (rt >= 3) { rshot(-9); rshot(9); } else rshot(0);
+      fxRing(p.x, p.y - 14, 5, 300, 2.5, 0.22, '#8ff3ff');
+      sfx.zap();
+    }
   }
   if (p.focusReady) {
     p.focusReady = false; p.focus = 0;
@@ -5745,6 +5939,11 @@ function collideBullets(gdt) {
         if (md) damageBossModule(e, md, b.dmg * (st.bossDmg || 1), b.x, b.y);
         else if (b.rival) hurtEnemy(e, b.dmg, b.x, b.y, false, true);
         else hurtEnemy(e, b.dmg * (e.type === 'boss' ? (st.bossDmg || 1) : 1), b.x, b.y);
+        if (b.storm) stormChain(b.x, b.y, b.dmg, e);
+        if (b.nova && (state.evoNovaCd || 0) <= 0) {
+          state.evoNovaCd = 0.16;
+          evoNovaBlast(b.x, b.y, b.dmg, b.nova);
+        }
         hit = true;
         if (b.ricochet > 0) {
           b.ricochet--; b.dmg *= 0.8;
@@ -6074,6 +6273,8 @@ function update(dt) {
   if (state.bossBreakT > 0) state.bossBreakT = Math.max(0, state.bossBreakT - dt);
   if (state.slowT > 0) state.slowT -= dt;
   if (state.zoomT > 0) state.zoomT -= dt;
+  if (state.evoZapCd > 0) state.evoZapCd = Math.max(0, state.evoZapCd - dt);
+  if (state.evoNovaCd > 0) state.evoNovaCd = Math.max(0, state.evoNovaCd - dt);
   if (state.mode === 'over' || state.mode === 'versusEnd') state.overT += dt;
   if (state.mode === 'menu' && state.menuPage !== state.lastMenuPage) {
     state.lastMenuPage = state.menuPage;
@@ -10477,6 +10678,7 @@ function drawZaps() {
     ctx.globalCompositeOperation = 'lighter';
     for (const z of state.zaps) {
       const a = clamp(z.life / z.max, 0, 1);
+      const zc = z.col || '#c78bff';
       ctx.globalAlpha = a;
       const nx = z.y2 - z.y1, ny = -(z.x2 - z.x1), nl = Math.hypot(nx, ny) || 1;
       const pts = [];
@@ -10484,15 +10686,17 @@ function drawZaps() {
         const k = i / 5, j = i === 0 || i === 5 ? 0 : Math.sin(i * 2.7 + state.time * 70) * 8;
         pts.push([z.x1 + (z.x2 - z.x1) * k + nx / nl * j, z.y1 + (z.y2 - z.y1) * k + ny / nl * j]);
       }
-      ctx.strokeStyle = 'rgba(185,120,255,0.35)'; ctx.lineWidth = 8;
+      ctx.strokeStyle = zc; ctx.globalAlpha = a * 0.35; ctx.lineWidth = 8;
       ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
-      ctx.strokeStyle = '#c78bff'; ctx.lineWidth = 2.5;
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = zc; ctx.lineWidth = 2.5;
       ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
       ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
       const b = pts[2];
-      ctx.strokeStyle = 'rgba(220,180,255,0.8)'; ctx.lineWidth = 1;
+      ctx.strokeStyle = zc; ctx.globalAlpha = a * 0.8; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] + nx / nl * 13, b[1] + ny / nl * 13 - 7); ctx.stroke();
+      ctx.globalAlpha = a;
       ctx.fillStyle = '#e9d4ff'; circle(z.x2, z.y2, 2.6);
     }
     ctx.globalAlpha = 1;
@@ -10940,6 +11144,20 @@ function drawBulletsFx() {
       ctx.fillStyle = '#f2ffff'; circle(0, -b.r * 0.4, b.r * 0.72);
       ctx.strokeStyle = 'rgba(150,240,255,0.7)'; ctx.lineWidth = 0.9;
       ctx.beginPath(); ctx.arc(0, 0, b.r * 1.9, 0.4, Math.PI - 0.4); ctx.stroke();
+      ctx.restore();
+    } else if (b.w === 'rail') {
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(ang + Math.PI / 2);
+      const rg = ctx.createLinearGradient(0, -62, 0, 14);
+      rg.addColorStop(0, 'rgba(140,243,255,0)');
+      rg.addColorStop(0.38, 'rgba(140,243,255,0.38)');
+      rg.addColorStop(1, 'rgba(255,255,255,0.96)');
+      ctx.fillStyle = rg;
+      ctx.fillRect(-b.r * 0.45, -60, b.r * 0.9, 74);
+      ctx.globalAlpha = 0.34;
+      ctx.fillStyle = '#8ff3ff';
+      ctx.beginPath(); ctx.ellipse(0, 0, b.r * 2.2, b.r * 7, 0, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#f2ffff'; circle(0, 0, b.r * 0.7);
       ctx.restore();
     } else if (b.w === 'drone') {
       ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(ang + Math.PI / 2);
@@ -11592,6 +11810,10 @@ function drawHUD() {
   if (!S.hudMin) {
   let yB = touchDevice ? H - 228 : H - 24;
   const badges = [];
+  if (state.evo) {
+    const e = evoById(state.evo.id);
+    if (e) badges.push([evoName(e) + ' ' + evoRoman(state.evo.tier), e.col, e.icon]);
+  }
   if (p.weapon > 1) badges.push([t('p_weapon', { n: p.weapon }), CC.weapon, 'bolt']);
   if (p.rapid > 0) badges.push([t('p_rapid') + ' ' + p.rapid.toFixed(1), CC.rapid, 'bolt']);
   if (p.shield > 0) badges.push([t('p_shield') + ' ' + p.shield.toFixed(1), CC.shield, 'shield']);
@@ -14034,16 +14256,22 @@ function renderPause() {
   ctx.font = '800 8.5px system-ui, "Segoe UI", sans-serif';
   ctx.fillText(t('pause_build'), 46, 408);
   const prog = Object.keys(state.progs || {}).filter(k => (state.progs[k] || 0) > 0);
-  if (!prog.length) {
+  const buildRows = [];
+  if (state.evo) {
+    const e = evoById(state.evo.id);
+    if (e) buildRows.push({ label: evoName(e) + ' ' + evoRoman(state.evo.tier), icon: e.icon, col: e.col });
+  }
+  for (const id of prog) buildRows.push({ label: t('perk_' + id + '_n') + ' ×' + state.progs[id], icon: perkIcon(id), col: '#8fd0ff' });
+  if (!buildRows.length) {
     ctx.fillStyle = 'rgba(145,170,198,0.7)';
     ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
     ctx.fillText(t('pause_build_empty'), 46, 428);
   } else {
     let bx = 46, by = 418, shown = 0;
     ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
-    for (const id of prog) {
+    for (const row of buildRows) {
       if (shown >= 8) break;
-      const label = t('perk_' + id + '_n') + ' ×' + state.progs[id];
+      const label = row.label;
       const cw = ctx.measureText(label).width + 30;
       if (bx + cw > W - 46) { bx = 46; by += 24; }
       if (by > 448) break;
@@ -14051,18 +14279,18 @@ function renderPause() {
         c1: 'rgba(26,42,78,0.7)', c2: 'rgba(10,16,36,0.82)',
         border: 'rgba(120,180,240,0.24)'
       });
-      iconGlyph(bx + 10, by + 10, 4.4, perkIcon(id), '#8fd0ff');
+      iconGlyph(bx + 10, by + 10, 4.4, row.icon, row.col);
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#dceafa';
       ctx.fillText(label, bx + 18, by + 10.5);
       bx += cw + 6;
       shown++;
     }
-    if (prog.length > shown) {
+    if (buildRows.length > shown) {
       ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = 'rgba(150,180,210,0.7)';
       ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('pause_more_fmt', { n: prog.length - shown }), W - 46, 408);
+      ctx.fillText(t('pause_more_fmt', { n: buildRows.length - shown }), W - 46, 408);
     }
   }
   missInit();
@@ -14219,10 +14447,10 @@ function renderPause() {
   let y = 150;
   state.upg.forEach((p, i) => {
     const focus = i === UI.fi;
-    const rarity = p.fusion ? RARITY[3] : RARITY[perkRarity(p)];
-    const rcol = p.fusion ? '#ffd166' : rarity.col;
-    const have = p.fusion ? 0 : (state.progs[p.id] || 0);
-    const isNew = p.fusion || have === 0;
+    const rarity = p.evo ? { key: 'evo' } : p.fusion ? RARITY[3] : RARITY[perkRarity(p)];
+    const rcol = p.evo ? p.evo.col : p.fusion ? '#ffd166' : rarity.col;
+    const have = p.evo ? 0 : p.fusion ? 0 : (state.progs[p.id] || 0);
+    const isNew = p.evo || p.fusion || have === 0;
     panel(34, y, W - 68, cardH, 15, {
       c1: focus ? 'rgba(40,58,102,0.86)' : 'rgba(20,30,56,0.72)',
       c2: focus ? 'rgba(18,28,58,0.9)' : 'rgba(8,12,28,0.82)',
@@ -14236,12 +14464,30 @@ function renderPause() {
     ctx.fillStyle = focus ? rcol + '2a' : 'rgba(255,255,255,0.06)';
     ctx.fill();
     ctx.strokeStyle = focus ? rcol + 'aa' : rcol + '55'; ctx.lineWidth = 1.2; ctx.stroke();
-    iconGlyph(66, y + 52, 10, p.fusion ? p.fusion.icon : perkIcon(p.id), focus ? '#fff3d6' : rcol);
+    iconGlyph(66, y + 52, 10, p.evo ? p.evo.icon : p.fusion ? p.fusion.icon : perkIcon(p.id), focus ? '#fff3d6' : rcol);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = rcol;
     ctx.font = '800 7px system-ui, "Segoe UI", sans-serif';
     ctx.fillText(t('rarity_' + rarity.key), 94, y + 19);
-    if (p.fusion) {
+    if (p.evo) {
+      const e = p.evo;
+      ctx.fillStyle = focus ? '#fff3d6' : '#f2e6ff';
+      ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(evoName(e), 94, y + 37, W - 205);
+      pill(W - 126, y + 10, 46, 17, t('rarity_evo'), e.col, {
+        fill: 'rgba(38,20,60,0.85)', border: e.col + '88',
+        fs: '800 7px system-ui, "Segoe UI", sans-serif'
+      });
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = 'rgba(200,185,225,0.95)';
+      ctx.font = '600 9.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('evo_' + e.id + '_t' + p.tier + '_d'), 94, y + 58, W - 168);
+      for (let s2 = 0; s2 < 3; s2++) iconGlyph(102 + s2 * 16, y + 84, 5.2, 'star', s2 < p.tier ? e.col : 'rgba(140,120,170,0.35)');
+      ctx.textAlign = 'right';
+      ctx.fillStyle = e.col;
+      ctx.font = '700 8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('upg_evo_tier_fmt', { a: p.tier, b: 3 }), W - 46, y + 87);
+    } else if (p.fusion) {
       const f = p.fusion;
       ctx.fillStyle = focus ? '#fff3d6' : '#f2e6cc';
       ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';

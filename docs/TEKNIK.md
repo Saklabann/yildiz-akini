@@ -51,7 +51,8 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 | `GMODES` | 10 oyun modu (9 çekirdek + Haftalık Akın) |
 | `REGIONS` | 9 bölge paleti |
 | `DIFF` | 3 zorluk |
-| `ACHS` | 68 başarım |
+| `ACHS` | 70 başarım |
+| `EVOLUTIONS` | 3 silah evrimi yolu × 3 kademe = 9 kademe |
 | `ENEMY_BASE` + `ENEMY_VARIANTS` | 17 temel + 20 varyant = 37 düşman |
 | `BOSS_BASE` + `BOSS_VARIANTS` | 5 temel + 6 varyant = 11 boss |
 | `POWER_CATALOG` | 15 güçlendirme (altın ışın dahil) |
@@ -61,7 +62,7 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 
 ## 300+ özellik
 
-v9.8'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
+v9.9'da 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
 
 | Kategori | Adet |
 |---|---:|
@@ -70,7 +71,7 @@ v9.8'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Boss'lar (5 temel + 6 varyant) | 11 |
 | Oyun modları (`GMODES`) | 10 |
 | Galaksi bölgeleri (`REGIONS`) | 9 |
-| Başarımlar (`ACHS`) | 68 |
+| Başarımlar (`ACHS`) | 70 |
 | Güçlendirmeler (`POWER_CATALOG`) | 15 |
 | Gemiler (`SHIPS`) | 6 |
 | Füzyonlar (`FUSIONS`) | 15 |
@@ -85,7 +86,9 @@ v9.8'de 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Zorluklar (`DIFF`) | 3 |
 | Görev türleri (`MISS_POOL`) | 9 |
 | Kampanya hedefleri (`CAMP_GOALS`) | 8 |
-| **Toplam** | **327** |
+| Silah evrimi kademeleri (`EVO_TIERS`) | 9 |
+| Can damlası | 1 |
+| **Toplam** | **339** |
 
 Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; içerik sekmesi olmadığı için çalışma zamanında ayrı bir katalog nesnesi tutulmaz. Belgede ve pazarlama metinlerinde güvenli alt sınır olarak "300+" kullanılır.
 
@@ -134,6 +137,25 @@ Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; iç
 - **Haftalık Akın.** `GMODES` onuncu kaydı `weekly`'dir; `CORE_MODES` dokuz çekirdek modu tutar ve `modes9` başarımı yalnızca bunları ister. `startGame()` haftalık modda `Math.random`'ı `mulberry32((weekIdx() * 7919 + 17) >>> 0)` ile değiştirir. `WEEK_MUTATORS` on kayıt içerir: `swarm`, `armor`, `rapid`, `sniper`, `gold`, `elite`, `meteor`, `frenzy`, `glass`, `titan`. `weekMutator()` hafta indeksine göre deterministik seçim yapar; `P.weeklyBest` ve `P.weeklyWeek` ayrı saklanır, hafta değişince rekor sıfırlanır.
 - **Asistan paketi.** `S.asBomb`, `S.asAim`, `S.asSlow`, `S.asLife` dört isteğe bağlı yardımı açar. `assistCount()` ve `assistScoreMul()` skor çarpanını `max(0.8, 1 − 0.05 × n)` olarak hesaplar. Oto bomba ölümcül hasarda bombayı harcar ve 1.5 sn dokunulmazlık verir; nişan yardımı mermilere `homing: 0.6`, `turn: 2.4` ekler; yavaş mermi düşman mermisi hızını `×0.85` yapar; yedek can başlangıç canını +1 artırır. Ayarların beşinci sekmesi `game` bu dört anahtarı ve "Tümünü Kapat" eylemini gösterir.
 - **Başarımlar.** `focus1` (ilk mızrak) ve `weekly1` (haftalık akında 5. dalga) eklendi; toplam 68.
+
+## Silah evrimleri (v9.9)
+
+`EVOLUTIONS` üç yolu tanımlar: `storm` (Fırtına), `rail` (Ray) ve `nova` (Nova). Her yolun `max: 3` kademesi vardır; `EVO_TIERS` toplamı 9'dur. Koşu durumu yalnızca `state.evo = { id, tier }` ile tutulur ve `resetRun()` tarafından temizlenir; kalıcı profile yazılmaz.
+
+- **Zorunlu seçim.** `rollUpgradeOptions()` dalga 6'da `state.evo` boşsa slot 0–2'yi üç yolun 1. kademe kartlarıyla doldurur. Oyuncu atlarsa sonraki yükseltme ekranlarında dönen tek yol kartı slot 0'a gelir.
+- **Kademe zamanları.** 2. kademe dalga ≥ 12, 3. kademe dalga ≥ 18 olduğunda sunulur; evrim kartı yine slot 0'ı alır. `chooseUpgrade()` `p.evo` dalını `p.fusion` dalından önce işler; seçim `evo1`, 3. kademe `evo3` başarımını açar.
+- **Fırtına.** İsabette `stormChain(x, y, dmg, skip)` en yakın 2/3/4 düşmana sıçrar; hasar ve menzil kademeyle artar. 0.14 sn bekleme ve vurulan düşmanı atlama koruması vardır. 3. kademede `stormNova()` her 10 öldürmede yıldırım novası tetikler; iç içe tetikleme `state.evoStormDepth` ile sınırlanır.
+- **Ray.** Atış sayacı her 5/4/3 salvoda bir tam delici ray üretir: 2.2×/3.0×/3.6× hasar, 7/10/13 delme. 3. kademe çift ray çizer. Ray görseli beyaz-sıcak çekirdek ve renkli halo ile çizilir.
+- **Nova.** Mermi çarpması 44/58/72 px yarıçaplı patlama üretir; 3. kademede yanma hasarı eklenir. Patlama `evoNovaBlast()` içinde `state.evoNovaDepth` ile korunur.
+- **Geri bildirim.** HUD'da evrim rozeti (yol rengi + kademe pipleri), duraklatma ekranında yapı çipi bulunur. Fırtına zincirleri renkli, ray ve nova patlamaları kademeye göre parlaklık kazanır. Tüm efektler `fxLevel()` ve parçacık bütçesine uyar.
+- **Başarımlar.** `evo1` (ilk evrim) ve `evo3` (3. kademe) eklendi; toplam 70, özellik defteri 339.
+
+## Can damlası (v9.9)
+
+- **Düşmanlar.** Öldürülen her normal düşman için taban `%2.5` can damlası şansı vardır; tanklarda `+%3.5`, healer'larda `+%5`, elitlerde `+%15` eklenir. Şans `st.luckMul` ile çarpılır.
+- **Korumalar ve boss'lar.** Koruma düşmanları `%30` şansla, her boss ölümü garantili olarak bir can damlası bırakır.
+- **Sınır.** Can 6'daysa damla üretilmez. Damla `kind: 'life'` güçlendirmesidir; toplandığında `state.lives` en fazla 6 olacak şekilde +1 artar ve `p_life` bildirimi çıkar.
+- **Görsel.** Kalp ikonlu, pembe (`CC.life`) halkalı standart güçlendirme damlası; mıknatıs ve manyetik çekim kurallarına uyar.
 
 ## Arayüz 6.0 (v9.7)
 
@@ -292,7 +314,7 @@ APK, Gradle kullanılmadan elle derlenir:
 | | |
 |---|---|
 | Paket | `com.saklabann.yildizakini` |
-| Sürüm | 9.8 (versionCode 19) |
+| Sürüm | 9.9 (versionCode 20) |
 | minSdk | 21 (Android 5.0) |
 | targetSdk | 29 |
 | İzinler | Yok |
@@ -317,10 +339,10 @@ Ardından `http://127.0.0.1:8127/yildiz-akini.html` adresini aç.
 
 ## Test kontrol listesi
 
-Otomatik Playwright paketi 80 kontrol içerir; son çalıştırmada **80/80** geçti.
+Otomatik Playwright paketi 91 kontrol içerir; son çalıştırmada **91/91** geçti.
 
 - Menü açılışı, 480 × 720 mantıksal alan ve canvas backing store doğru.
-- 15 füzyon, 15 benzersiz gemi çifti ve 68 başarım sayımı tutarlı.
+- 15 füzyon, 15 benzersiz gemi çifti, 3 evrim yolu, 9 evrim kademesi ve 70 başarım sayımı tutarlı.
 - TR/EN anahtar ve yer tutucu pariteleri tam.
 - Boss tam olarak her 5. dalgada; akın 4, 9, 14, 19, 24. dalgalarda ve tam 50 düşmanla geliyor.
 - Boss dalgaları koruma taşıyor; yükseltme her 3. dalgada açılıyor; tüm dalga kuyrukları dolu.
@@ -331,6 +353,8 @@ Otomatik Playwright paketi 80 kontrol içerir; son çalıştırmada **80/80** ge
 - Altın ışın kolondaki düşmanlara hasar veriyor ve süresi bitince kapanıyor.
 - Isı: kademe ve tamponlar (ateş hızı < 1, hasar > 1), kademe bildirimi, zamanla soğuma, hasarda 30 puan düşüş ve zincir sıfırlama.
 - Zincir: 10 öldürmede zincir ve en iyi değer, şarapnel mermisi, nova darbesi ve bildirimi, pencere bitince sıfırlanma.
+- Evrim: dalga 6'da üç yol kartı, seçim sonrası `state.evo`, dalga 12/18 kademe teklifleri, Fırtına zinciri, Ray delme sayısı ve Nova patlama yarıçapı doğru; `evo1`/`evo3` başarımları açılıyor.
+- Can damlası: boss ölümünde ve düşman öldürmede `life` damlası üretiliyor; toplandığında can +1 ve 6 üst sınırı korunuyor.
 - Azaltılmış hareket + `fx0` + pil tasarrufunda çizim hatasız.
 - Dokunmatik derlemede joystick, dash ve yetenek tuşları çalışıyor; 360 px genişlikte HUD taşmıyor.
 - Komuta güvertesi kutucukları, hangar karuseli ve skin sayfası, yükseltme yenileme/atlama, duraklatma ve sonuç ekranı hatasız çiziliyor.

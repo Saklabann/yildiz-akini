@@ -2,6 +2,28 @@
 
 Tüm önemli değişiklikler bu dosyada tutulur. Biçim, [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) temel alınarak hazırlanmıştır; sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
+## [9.9.0] - 2026-10-30
+
+### Eklendi
+
+- **Silah evrimleri.** Üç yol ve her yolda üç kademe: **Fırtına** (`storm`) isabetlerde en yakın 2/3/4 düşmana zincir yıldırımı sıçratır, hasar ve menzil kademeyle artar; 3. kademede her 10 öldürme yıldırım novası tetikler. **Ray** (`rail`) her 5/4/3 salvoda 2.2×/3.0×/3.6× hasarlı, 7/10/13 düşman delen tam ray ateşler; 3. kademe çift ray çıkarır. **Nova** (`nova`) mermi çarpmalarını 44/58/72 px yarıçaplı patlamaya çevirir; 3. kademede yanma hasarı ekler.
+- **Evrim akışı.** Dalga 6'daki yükseltme ekranı üç yolun 1. kademe kartlarını zorunlu olarak sunar. Oyuncu atlarsa sonraki ekranlarda dönen tek yol kartı slot 0'a gelir. 2. kademe dalga 12, 3. kademe dalga 18'de açılır; evrim kartı slot 0'ı alır.
+- **Evrim HUD'u.** Oyun içi rozet yol rengini ve kademe piplerini gösterir; duraklatma ekranına yapı çipi eklendi. Fırtına zincirleri renkli, ray beyaz-sıcak çekirdekli, nova patlamaları kademeye göre parlak çizilir.
+- **Can damlası.** Düşmanlardan seyrek (taban %2.5; tanklarda +%3.5, healer'larda +%5, elitlerde +%15), koruma düşmanlarından %30, her boss'tan garantili bir can damlar. Can 6'da doluysa damla üretilmez; toplanan kalp +1 can verir.
+- **İki yeni başarım.** `evo1` (ilk evrimi seç) ve `evo3` (bir yolu 3. kademeye çıkar); toplam 70.
+
+### Değişti
+
+- Koşu durumu `state.evo = { id, tier }` ile tutulur; `resetRun()` tarafından temizlenir ve profile yazılmaz.
+- `EVOLUTIONS` 3 kayıt, `EVO_TIERS` 9 kademe; özellik defteri 339 kayda, başarım sayısı 70'e çıktı.
+- Sürüm `v9.9` (versionCode 20). README, teknik doküman, yol haritası, kurulum dosyası ve özellik defteri v9.9 için yenilendi; evrim ekran görüntüleri ve kapak yeniden üretildi.
+
+### Düzeltildi
+
+- Evrim seçimi `chooseUpgrade()` içinde füzyon dalından önce işlenir; aynı kartın füzyon olarak yorumlanması engellendi.
+- Fırtına zinciri 0.14 sn bekleme ve vurulan düşmanı atlama korumasıyla sınırlandı; iç içe nova tetiklemeleri `evoStormDepth` / `evoNovaDepth` sayaçlarıyla durduruldu.
+- Evrim test paketi 20/20, Playwright paketi 91/91 geçti. 240 saniyelik otopilot 22 dalga, 1.340.879 skor, 1.249 kill, 3/6/9/12/15/18/21 yükseltmeleri, 0–3 boss, 4/9/14/19 akınları, 0 NaN ve 0 hata ile tamamlandı.
+
 ## [9.8.0] - 2026-10-30
 
 ### Eklendi

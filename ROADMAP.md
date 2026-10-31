@@ -9,7 +9,7 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] 10 oyun modu: Klasik, Sonsuz, Hızlı Akın, Günlük, Zaman Yarışı, Kusursuz, Boss Akını, Tek Can, Kaos, Haftalık Akın
 - [x] Gemi bazlı 11 düğümlük yükseltme ağacı
 - [x] Günlük ve haftalık görevler
-- [x] 68 başarım ve istatistik paneli
+- [x] 70 başarım ve istatistik paneli
 - [x] 9 galaksi bölgesi
 - [x] Kozmetik koleksiyonu: 16 skin, 3 iz, 2 patlama, 7 rozet
 - [x] Etkileşimli eğitim ve 20 seviyelik sezon
@@ -39,14 +39,17 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] v9.8 odak modu, şarjlı delici mızrak ve ODAK dokunmatik tuşu
 - [x] v9.8 Haftalık Akın: deterministik tohum, 10 mutatör, ayrı haftalık rekor
 - [x] v9.8 asistan paketi: oto bomba, nişan yardımı, yavaş mermi, yedek can
-- [x] v9.8 iki yeni başarım (toplam 68) ve 326 kayıtlık özellik defteri
-- [x] Çevrimdışı Android APK (v9.8 / versionCode 19)
+- [x] v9.8 iki yeni başarım (toplam 68) ve 327 kayıtlık özellik defteri
+- [x] v9.9 Fırtına/Ray/Nova silah evrimleri: 3 yol × 3 kademe, dalga 6 zorunlu seçim
+- [x] v9.9 evrim HUD rozeti, duraklatma yapı çipi ve iki yeni başarım (toplam 70)
+- [x] v9.9 339 kayıtlık özellik defteri ve evrim test paketi (20/20)
+- [x] Çevrimdışı Android APK (v9.9 / versionCode 20)
 
 ## v10 — Planlanan
 
 ### Oynanış
 
-- [ ] Silah evrimleri ve ikinci odak katmanı
+- [ ] İkinci evrim katmanı ve yollar arası melez kademeler
 - [ ] Ara boss'lar ve bölüm ortası karşılaşmaları
 - [ ] Haftalık mutatör havuzunu genişletme (ters kontrol, sadece lazer)
 - [ ] Düelloda zorluk seçimi ve rakip kişilikleri
