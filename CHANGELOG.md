@@ -2,6 +2,34 @@
 
 Tüm önemli değişiklikler bu dosyada tutulur. Biçim, [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) temel alınarak hazırlanmıştır; sürüm numaraları [Semantic Versioning](https://semver.org/lang/tr/) izler.
 
+## [10.0.0] - 2026-11-05
+
+### Eklendi
+
+- **Yığınlanan yükseltmeler.** 63 koşu yükseltmesinin tamamı `max: 99` ile birikir. Daha önce üzerine yazan diriliş, başlangıç silahı, yan/arka atış, kalkan, infaz ve emme gibi özellikler artık sayaç ya da iyileşen değer olarak toplanır; güçlendirme topları süre ve kalkan üst üste bindirir, kalkan sandıkları +12 verir, diriliş `state.reviveUsed` sayacıyla birden fazla kez kullanılabilir.
+- **Vuruş paketi.** 20 yeni yığınlanabilir isabet özelliği: bölünen mermi, şok başlığı, zırh kırıcı, kafa vuruşu, zehir, yıldırım sıçraması, ağır mermi, ikiz namlu, çapraz ateş, sekmeli mermi, kinetik yük, kritik gücü, delme ustası, ölüm dalgası, aşırı yük, vuruş emme, güdümlü uç, zırh delen, buz ısırığı ve zincir gücü. Toplam koşu yükseltmesi 83.
+- **İsabet geri bildirimi.** Kafa vuruşu altın yıldız patlaması, ağır mermi şok halkası ve sarsıntısı, zehir yeşili kıvılcımı, kıymık izleri, zırh kırığı ve zehir yığın sayaçları eklendi.
+- **Gemi imza pasifleri.** Denge overdrive zinciri, Şimşek dash şok dalgası, Kale 10 saniyelik reaktif kalkan, Nova her 8. atışta mini nova, Hayalet faz yankısı, Titan +2 füze ve +%25 füze hasarı.
+- **Yetenek düğümü.** Beşinci ağaç düğümü `abil` 10 seviyeye çıkarıldı; taban maliyet 400/900/1800 coin, sonrası 1.8× artar. Seviye başına Overload +0.5 sn, Blink +30 px/+1 hasar, Barrier +0.6 sn/+1 kalkan, Supernova +0.15 sn/+1 hasar, Phase +0.5 sn/yankı ve Salvo +1 füze.
+- **Hangar 2.0 kartları.** Gemi kartlarında imza pasifi ve yetenek seviyesi gösterilir; yükseltme ağacı 2 sütunlu ızgaraya ve gemiye özel aura katmanına kavuştu.
+- **11 yeni güçlendirme.** Aşırı Sürüş, Yoğun Atış, Delici Uç, Hücum, Hayalet Faz, Şok Dalgası, Para Yağmuru, Çift Puan, Onarım, Cephane ve Nova. Düşüş tablosu %50 klasik / %32 yeni / %18 nadir olarak dengelendi; süreli olanlar HUD rozeti taşır.
+- **10 yeni elit varyant.** Zehirli Bombacı, Altın Dokuyucu, Kalkanlı İzci, Şarjlı Hücumcu, Bölünen İzci, Bombardıman Tankı, Oynak Nişancı, Buz Hayaleti, Çağırıcı Kalkan ve Keskin Tank; toplam 30 varyant.
+- **13 yeni başarım.** Güç toplama (50/200/400), elit avı (10/50/100), overdrive, hücum, hayalet, şok dalgası ve üç yetenek hedefi; toplam 83. Elit sayacı `P.eliteKills` olarak kalıcı kayda eklendi.
+- **Mağaza paketi.** 15 yeni kalıcı ürün: güçlendirilmiş gövde, çevik itki, onaran kalkan, keskin nişangâh, şans yıldızı, hazine pusulası, cephane sandığı, delici çekirdek, güdüm çipi, yarış bilgisayarı, yedek kapsül, kalkan hücresi, bomba siperi, sıyırma ustası ve mıknatıs nabzı. Toplam 22 ürün, sayfa başına 8 kartlık 2 sütunlu vitrin ve ‹ › sayfalama.
+
+### Değişti
+
+- `PERKS` 83, `ACHS` 83, `ENEMY_VARIANTS` 30, `SHOP` 22, `POWER_CATALOG` 26 kayda çıktı; özellik defteri 408 kayıt.
+- `TREE` düğümleri 10 seviyeye kadar yükseltilebilir; liste dışı maliyetler 1.8× büyür, kayıt temizliği 0–10 aralığını korur.
+- `state.scoreBoostT` puanı ikiye katlar; `p.pierceT`, `p.frenzyT`, `state.kinStreak/kinTimer` yeni süre sayaçlarıdır.
+- APK, Android SDK bulunmadığı için mevcut imzalı paketin yeniden paketlenmesiyle üretildi; `versionName` 9.9 ve `versionCode` 20 metadata olarak korunur, HTML varlığı güncellenir.
+
+### Düzeltildi
+
+- Yeni mermi türleri (`w: 'shard'`) ve isabet efektleri (`b.head`, `b.heavy`, `b.venom`) çizim ve hasar yollarına bağlandı; ölüm dalgası iç içe tetiklemeye karşı derinlik koruması taşır.
+- Boss her 5. dalgada, yükseltme her 3. dalgada, 50 düşmanlık akın 4/9/14/19... dalgalarında; ayrı 300 görevlik bonus kampanya ve "300 İÇERİK" sekmesinin yokluğu korunuyor.
+- Playwright kontrolleri: üretim dumanı (konsol hatası yok), yığınlama (83/83, yinelenen kimlik yok, TR/EN tam), savaş (6 kill, zehir, zırh kırığı, ölüm dalgası), genişleme (11 güçlendirme, 30 varyant, 83 başarım) ve mağaza (22 ürün, tüm kalıcı etkiler `baseStats`'a yansıyor) geçti.
+
 ## [9.9.0] - 2026-10-30
 
 ### Eklendi
