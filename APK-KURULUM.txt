@@ -1,7 +1,7 @@
 YILDIZ AKINI — ANDROID KURULUMU
 ================================
 
-Sürüm      : 9.9 (versionCode 20)
+Sürüm      : 10.0 (APK metadata 9.9 · versionCode 20)
 Dosya      : Yildiz-Akini.apk  (~0.8 MB)
 Paket      : com.saklabann.yildizakini
 Gereksinim : Android 5.0 veya üzeri
