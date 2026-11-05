@@ -45,39 +45,39 @@ Oyun 480 × 720 mantıksal alanda tasarlanır. Canvas, cihaz piksel oranına gö
 | `SHIPS` | 6 gemi; hız, ateş bekleme, can, hitbox, bomba, dash ve yetenek |
 | `ABIL` | 6 aktif yetenek; bekleme, süre ve renk |
 | `SKINS` | 10 görsel palet (2 sezon ödülü) |
-| `TREE` | Gemi başına 4 dal, 11 düğüm ve artan coin maliyeti |
-| `PERKS` | 63 koşu içi yükseltme |
-| `SHOP` | 7 kalıcı mağaza ürünü |
+| `TREE` | Gemi başına 4 dal, 11 düğüm + `abil`; her düğüm 10 seviye, artan coin maliyeti |
+| `PERKS` | 83 koşu içi yükseltme (hepsi 99 seviyeye kadar yığınlanır) |
+| `SHOP` | 22 kalıcı mağaza ürünü |
 | `GMODES` | 10 oyun modu (9 çekirdek + Haftalık Akın) |
 | `REGIONS` | 9 bölge paleti |
 | `DIFF` | 3 zorluk |
-| `ACHS` | 70 başarım |
+| `ACHS` | 83 başarım |
 | `EVOLUTIONS` | 3 silah evrimi yolu × 3 kademe = 9 kademe |
-| `ENEMY_BASE` + `ENEMY_VARIANTS` | 17 temel + 20 varyant = 37 düşman |
+| `ENEMY_BASE` + `ENEMY_VARIANTS` | 17 temel + 30 varyant = 47 düşman |
 | `BOSS_BASE` + `BOSS_VARIANTS` | 5 temel + 6 varyant = 11 boss |
-| `POWER_CATALOG` | 15 güçlendirme (altın ışın dahil) |
+| `POWER_CATALOG` | 26 güçlendirme (altın ışın ve v10.0 paketi dahil) |
 | `FUSIONS` | 15 gemi füzyonu; C(6,2) eşleşmeleri |
 | `MISS_POOL` / `WPOOL` | 9 görev türü; günlük ve haftalık görev havuzları |
 | `CAMP_GOALS` / `CAMP_MOD_GROUPS` | 8 kampanya hedefi, 16 modifikasyon |
 
 ## 300+ özellik
 
-v9.9'da 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
+v10.0'da 400+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistemlerinde yaşar. Ayrı `300 İÇERİK` satırı, sayfası ve katalog kodu yoktur. Özellik dağılımı:
 
 | Kategori | Adet |
 |---|---:|
-| Koşu yükseltmeleri (`PERKS`) | 63 |
-| Düşmanlar (17 temel + 20 varyant) | 37 |
+| Koşu yükseltmeleri (`PERKS`) | 83 |
+| Düşmanlar (17 temel + 30 varyant) | 47 |
 | Boss'lar (5 temel + 6 varyant) | 11 |
 | Oyun modları (`GMODES`) | 10 |
 | Galaksi bölgeleri (`REGIONS`) | 9 |
-| Başarımlar (`ACHS`) | 70 |
-| Güçlendirmeler (`POWER_CATALOG`) | 15 |
+| Başarımlar (`ACHS`) | 83 |
+| Güçlendirmeler (`POWER_CATALOG`) | 26 |
 | Gemiler (`SHIPS`) | 6 |
 | Füzyonlar (`FUSIONS`) | 15 |
 | Skinler (`SKINS`) | 16 |
 | Çipler | 3 |
-| Mağaza ürünleri (`SHOP`) | 7 |
+| Mağaza ürünleri (`SHOP`) | 22 |
 | İzler (`TRAILS`) | 3 |
 | Patlamalar (`BOOMS`) | 2 |
 | Rozetler (`BADGES`) | 7 |
@@ -88,7 +88,7 @@ v9.9'da 300+ özellik ayrı bir katalog sekmesinde değil, doğrudan oyun sistem
 | Kampanya hedefleri (`CAMP_GOALS`) | 8 |
 | Silah evrimi kademeleri (`EVO_TIERS`) | 9 |
 | Can damlası | 1 |
-| **Toplam** | **339** |
+| **Toplam** | **408** |
 
 Bu sayım test köprüsünde dizilerin uzunlukları üzerinden doğrulanır; içerik sekmesi olmadığı için çalışma zamanında ayrı bir katalog nesnesi tutulmaz. Belgede ve pazarlama metinlerinde güvenli alt sınır olarak "300+" kullanılır.
 
@@ -299,6 +299,16 @@ Tüm sesler Web Audio osilatörleri ve gürültü tamponlarıyla üretilir; hari
 - İlk temizlemede ödül verilir; tekrar oynayışta ödül yoktur. Daha düşük yıldız, kayıtlı en iyi yıldızın üzerine yazmaz.
 - `state.menuPage = 'camp'` görev haritasını, `'campinfo'` görev detayını açar. Ana menüdeki `BONUS KAMPANYA` satırı tam genişliktedir.
 
+## v10.0 — GEMİ 2.0
+
+- **Yığınlama.** `PERKS` kayıtlarının tamamı `max: 99`. Eskiden üzerine yazan yükseltmeler (`regen2`, `startw2`, `sideShots`, `rearShot`, `revive`, `startb`, `exec`, `leech`) sayaç ya da iyileşen değere dönüştü; `applyPerks()` her seviyeyi toplar, diriliş `state.reviveUsed` ile çoklu kullanım sağlar.
+- **Yeni süre sayaçları.** `p.pierceT`, `p.frenzyT`, `state.scoreBoostT`, `state.kinStreak` / `state.kinTimer`; `addScore()` çift puan aktifken ikiyle çarpar.
+- **Mermi işaretleri.** `split`, `splash`, `shatter`, `headshot`, `venom`, `bolt`, `heavy`, `twin`, `diag`, `bounce`, `kinetic`, `critDmg`, `pierceDmg`, `deathWave`, `overcharge`, `siphon`, `seeker`, `armorPen`, `frostbite`, `chainPow` bayrakları ateşleme ve hasar yollarında işlenir; `deathWave` derinlik korumalıdır.
+- **Güçlendirmeler.** `POWER_CATALOG` 26 kayıt; düşüş tablosu %50 klasik / %32 yeni / %18 nadir. Yeni türler `overdrive`, `barrage`, `pierce`, `frenzy`, `ghost`, `shock`, `coinRain`, `x2`, `repair`, `arsenal`, `nova`.
+- **Elitler ve başarımlar.** 30 varyant `ENEMY_VARIANTS` üzerinden dalga numarasıyla açılır; `P.eliteKills` kalıcı sayaçtır, 10/50/100 eşikleri başarım açar.
+- **Mağaza.** 22 ürün, `state.shopPage` ile sayfalanan 8 kartlık 2 sütunlu vitrin; tüm etkiler `baseStats()` içinde uygulanır.
+- **Ağaç maliyeti.** `treeCost()` liste dışı seviyelerde 1.8× büyür; kayıt temizliği düğüm seviyelerini 0–10 aralığında tutar.
+
 ## APK
 
 APK, Gradle kullanılmadan elle derlenir:
@@ -314,7 +324,7 @@ APK, Gradle kullanılmadan elle derlenir:
 | | |
 |---|---|
 | Paket | `com.saklabann.yildizakini` |
-| Sürüm | 9.9 (versionCode 20) |
+| Sürüm | 10.0 (APK metadata 9.9 · versionCode 20) |
 | minSdk | 21 (Android 5.0) |
 | targetSdk | 29 |
 | İzinler | Yok |
@@ -342,7 +352,7 @@ Ardından `http://127.0.0.1:8127/yildiz-akini.html` adresini aç.
 Otomatik Playwright paketi 91 kontrol içerir; son çalıştırmada **91/91** geçti.
 
 - Menü açılışı, 480 × 720 mantıksal alan ve canvas backing store doğru.
-- 15 füzyon, 15 benzersiz gemi çifti, 3 evrim yolu, 9 evrim kademesi ve 70 başarım sayımı tutarlı.
+- 15 füzyon, 15 benzersiz gemi çifti, 3 evrim yolu, 9 evrim kademesi, 83 yükseltme, 30 varyant ve 83 başarım sayımı tutarlı.
 - TR/EN anahtar ve yer tutucu pariteleri tam.
 - Boss tam olarak her 5. dalgada; akın 4, 9, 14, 19, 24. dalgalarda ve tam 50 düşmanla geliyor.
 - Boss dalgaları koruma taşıyor; yükseltme her 3. dalgada açılıyor; tüm dalga kuyrukları dolu.
