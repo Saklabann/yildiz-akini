@@ -44,6 +44,12 @@ Bu dosya, Yıldız Akını'nın planlanan geliştirme yönünü özetler. Öncel
 - [x] v9.9 evrim HUD rozeti, duraklatma yapı çipi ve iki yeni başarım (toplam 70)
 - [x] v9.9 339 kayıtlık özellik defteri ve evrim test paketi (20/20)
 - [x] Çevrimdışı Android APK (v9.9 / versionCode 20)
+- [x] v10.0 yığınlanan 83 koşu yükseltmesi (99 seviye) ve çoklu diriliş
+- [x] v10.0 vuruş paketi: 20 yeni isabet özelliği ve isabet geri bildirimi
+- [x] v10.0 gemi imza pasifleri, 10 seviyelik `abil` düğümü, hangar 2.0 kartları
+- [x] v10.0 11 güçlendirme, 10 elit varyant ve 13 başarım
+- [x] v10.0 mağaza 22 ürün, sayfalı 2 sütunlu vitrin
+- [x] v10.0 özellik defteri 408 kayıt ve yeniden paketlenmiş APK
 
 ## v10 — Planlanan
 
