@@ -8,7 +8,7 @@
 
 Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, reklam veya hesap gerekmez.
 
-[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v9.9-67e8f9?style=flat-square)](CHANGELOG.md)
+[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-v10.0-67e8f9?style=flat-square)](CHANGELOG.md)
 [![HTML5](https://img.shields.io/badge/HTML5-tek%20dosya-e34f26?style=flat-square&logo=html5&logoColor=white)](yildiz-akini.html)
 [![Canvas](https://img.shields.io/badge/Canvas-2D-38bdf8?style=flat-square)](yildiz-akini.html)
 [![Android](https://img.shields.io/badge/Android-5.0%2B-3ddc84?style=flat-square&logo=android&logoColor=white)](Yildiz-Akini.apk)
@@ -18,20 +18,29 @@ Tek dosyalık HTML5 uzay savaşı. Tarayıcıda aç, telefona kur; internet, rek
 
 </div>
 
-![Yıldız Akını v9.9 kapak görseli](docs/kapak.png)
+![Yıldız Akını v10.0 kapak görseli](docs/kapak.png)
 
 ## Oyun nedir?
 
 **Yıldız Akını**, tek bir HTML dosyasında çalışan dikey bir neon uzay savaşı oyunudur. Ateş otomatiktir; sen sadece konumlanır, kaçar ve doğru anda patlarsın. Dalgalar ilerledikçe düşmanlar sertleşir; her beş dalgada bir boss, her üç dalgada bir yükseltme ve 4, 9, 14, 19... dalgalarında 50 düşmanlık akın gelir.
 
-v9.9 **EVRİM**, savaşa üç kollu bir silah evrimi ekler: 6. dalgada sunduğu **Fırtına** (zincir yıldırımı), **Ray** (delici tam salvolar) ve **Nova** (patlayıcı mermi) yollarından birini seçer, 12. ve 18. dalgalarda kademesini yükseltirsin. v9.8'in odak modu ve şarjlı mızrağı, Haftalık Akın ve asistan paketi; v9.7'nin komuta güvertesi, Hangar 2.0 ve Yükseltme 2.0'ı; v9.5'in aksiyon ısısı, öldürme zinciri, şarapnel/nova ve bloom katmanı; v9.4'ün 15 füzyonu, kanat filosu, düellosu ve altın ışını aynen çalışmaya devam eder.
+v10.0 **GEMİ 2.0**, altı gemiye imza pasifi ve 10 seviyelik beşinci yetenek düğümü ekler; 83 koşu yükseltmesinin tamamı 99 seviyeye kadar yığınlanır. v9.9'un **EVRİM** yolları (Fırtına, Ray, Nova), v9.8'in odak modu ve şarjlı mızrağı, Haftalık Akın ve asistan paketi; v9.7'nin komuta güvertesi, Hangar 2.0 ve Yükseltme 2.0'ı; v9.5'in aksiyon ısısı, öldürme zinciri, şarapnel/nova ve bloom katmanı; v9.4'ün 15 füzyonu, kanat filosu, düellosu ve altın ışını aynen çalışmaya devam eder.
 
 Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma anında indirilen bir dosya vardır: gemi, düşman, boss ve bölge sanatı HTML'in içine gömülüdür; müzik ve efektler Web Audio API ile anlık üretilir. Tek dosyayı kopyaladığında tüm sanat da yanında gelir.
 
-## v9.9'un öne çıkanları
+## v10.0'un öne çıkanları
 
 | Alan | İçerik |
 |---|---|
+| **Yığınlanan yükseltmeler** | 83 koşu yükseltmesinin tamamı 99 seviyeye kadar birikir; can, hasar, diriliş, yan/arka atış, kalkan ve süre etkileri üst üste biner. |
+| **Vuruş paketi** | 20 yeni isabet özelliği: bölünen mermi, şok başlığı, zırh kırıcı, kafa vuruşu, zehir, yıldırım sıçraması, ağır mermi, ikiz namlu, çapraz ateş, sekmeli mermi, kinetik yük, kritik gücü, delme ustası, ölüm dalgası, aşırı yük, vuruş emme, güdümlü uç, zırh delen, buz ısırığı ve zincir gücü. |
+| **Gemi imza pasifleri** | Denge overdrive zinciri, Şimşek dash şok dalgası, Kale reaktif kalkan, Nova mini nova, Hayalet faz yankısı, Titan +2 füze ve +%25 füze hasarı. |
+| **Yetenek düğümü** | Beşinci ağaç düğümü `abil`: 10 seviye, taban 400/900/1800 coin ve sonrası 1.8× artan maliyet. Seviye başına Overload +0.5 sn, Blink +30 px/+1 hasar, Barrier +0.6 sn/+1 kalkan, Supernova +0.15 sn/+1 hasar, Phase +0.5 sn/yankı, Salvo +1 füze. |
+| **Hangar ve ağaç** | Gemi kartlarında imza pasifi ve yetenek seviyesi, 2 sütunlu yükseltme ızgarası, gemiye özel aura ve yenilenen ağaç ekranı. |
+| **11 yeni güçlendirme** | Aşırı Sürüş, Yoğun Atış, Delici Uç, Hücum, Hayalet Faz, Şok Dalgası, Para Yağmuru, Çift Puan, Onarım, Cephane ve Nova; süreli olanlar HUD'da rozet taşır. |
+| **10 yeni elit varyant** | Zehirli Bombacı, Altın Dokuyucu, Kalkanlı İzci, Şarjlı Hücumcu, Bölünen İzci, Bombardıman Tankı, Oynak Nişancı, Buz Hayaleti, Çağırıcı Kalkan ve Keskin Tank (toplam 30 varyant). |
+| **13 yeni başarım** | Güç toplama (50/200/400), elit avı (10/50/100), overdrive, hücum, hayalet, şok dalgası ve üç yetenek hedefi; toplam 83. |
+| **Mağaza 22 ürün** | 15 yeni kalıcı ürün (gövde, itki, kalkan yenilenmesi, kritik, şans, para, dalga bombası, delme, güdüm, skor, diriliş, kalkan hücresi, bomba siperi, sıyırma, mıknatıs) ve 2 sütunlu sayfalı vitrin. |
 | **Fırtına yolu** | İsabetler en yakın 2/3/4 düşmana zincir yıldırımı sıçratır; hasar ve menzil kademeyle artar. 3. kademede her 10 öldürme bir yıldırım novası tetikler. |
 | **Ray yolu** | Her 5/4/3 salvoda bir tam delici ray: 2.2×/3.0×/3.6× hasar ve 7/10/13 düşman delme. 3. kademe çift ray ateşler. |
 | **Nova yolu** | Mermi çarpmaları 44/58/72 px yarıçaplı patlama üretir; 3. kademede yanma hasarı eklenir. |
@@ -49,7 +58,7 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 | **Aksiyon ısısı** | 0–100 arası bir metre, beş kademe (SOĞUK · ISINIYOR · HIZLI · ÖFKELİ · KAOS). Isı yükseldikçe ateş hızı %22'ye, hasar %20'ye kadar artar; kademe atlayışı ekran bandı, halka ve sesle duyurulur. Zincir sürerken ısı 1.7/sn, zincir boşken 3.4/sn soğur. Hasar almak ısıyı 30 puan düşürür ve zinciri sıfırlar. |
 | **Öldürme zinciri** | Her öldürme 2.4 saniyelik pencereyi yeniler. 6 zincirden sonra her öldürme 2–4 şarapnel mermisi saçar; her 10 zincirde 92–172 px yarıçaplı nova patlar. Nova zinciri derinleştirir ama sonsuz döngüye girmez (en fazla 2 iç içe tetikleme). |
 | **Görsel katman** | 120 × 180 çözünürlüklü bloom tamponu (en fazla 48 ışık lekesi), şarapnel yıldız patlamaları, nova halkaları, ısı ve zincir HUD'u. Tümü `fxLevel()`, parçacık bütçesi, `fpsCap`, pil tasarrufu ve azaltılmış hareket ayarlarına bağlıdır. |
-| **300+ entegre özellik** | 63 koşu yükseltmesi · 37 düşman (17 temel + 20 varyant) · 11 boss (5 temel + 6 varyant) · 10 mod · 9 galaksi bölgesi · 70 başarım · 15 güçlendirme · 6 gemi · 15 füzyon · 16 skin · 3 çip · 7 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi · 3 evrim yolu (9 kademe) · can damlası — canlı sayım **339** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
+| **400+ entegre özellik** | 83 koşu yükseltmesi · 47 düşman (17 temel + 30 varyant) · 11 boss (5 temel + 6 varyant) · 10 mod · 9 galaksi bölgesi · 83 başarım · 26 güçlendirme · 6 gemi · 15 füzyon · 16 skin · 3 çip · 22 mağaza ürünü · 3 iz · 2 patlama · 7 rozet · 16 kampanya modifikasyonu · 19 sezon ödülü · 3 zorluk · 9 görev türü · 8 kampanya hedefi · 3 evrim yolu (9 kademe) · can damlası — canlı sayım **408** kayıt. Ayrı bir "300 İÇERİK" sekmesi yoktur. |
 | **15 gemi füzyonu** | Altı geminin tüm ikili eşleşmeleri (C(6,2) = 15). 6. dalgadan sonra yükseltme kartlarında çıkar, profiline kalıcı yazılır ve çiftteki iki gemiden biriyle uçarken etkindir. |
 | **Kanat filosu** | Füzyon sayısına bağlı 0–3 kalıcı eskort. 1 füzyonda bir, 3'te iki, 5'te üç kanat uçar; en yakın düşmana 560 px içinde otomatik ateş eder. |
 | **Çevrimdışı düello** | 60 saniyelik 1v1: sen ve yapay zekâ rakip aynı dalgada avlanır. En çok avlayan kazanır; galibiyet coin, toz ve "Düellocu" başarımı verir. |
@@ -96,7 +105,7 @@ Oyun tamamen çevrimdışıdır. Ne bir sunucu, ne bir hesap, ne de çalışma a
 
 ### Android · APK
 
-[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **9.9** (versionCode 20)
+[**Yildiz-Akini.apk**](Yildiz-Akini.apk) · **~0.8 MB** · Android 5.0+ · sürüm **10.0** (APK metadata 9.9 · versionCode 20)
 
 - Tam ekran, portre, ikonlu ve çevrimdışı.
 - APK **internet izni istemez**; hiçbir veri cihazdan çıkmaz.
@@ -226,7 +235,7 @@ Ayrıntılı adımlar: [APK-KURULUM.txt](APK-KURULUM.txt)
 | **Ses** | Web Audio API ile phonk esintili prosedürel müzik: 808 bas, cowbell melodi, trap davulları, plak cızırtısı |
 | **Kayıt** | `localStorage` (`ya_profile`, `ya_settings`) |
 | **Dosya boyutu** | HTML ~1.4 MB · APK ~0.8 MB (gömülü WebP sanat dahil) |
-| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v9.9 (versionCode 20) · minSdk 21 · targetSdk 29 |
+| **APK** | WebView sarmalayıcı · `com.saklabann.yildizakini` · v10.0 (APK metadata 9.9 · versionCode 20) · minSdk 21 · targetSdk 29 |
 | **Ağ** | Hiçbir ağ isteği yok; APK'da `INTERNET` izni yok |
 | **Derleme** | Gradle'sız: `aapt2` + `javac` + `d8` + `jarsigner` |
 
@@ -260,7 +269,7 @@ Depo özeldir ve tüm hakları saklıdır. Kullanım koşulları için [LICENSE]
 
 ## Yol haritası
 
-v9.9 ile Fırtına, Ray ve Nova evrim yolları oyuna eklendi; v9.8'in odak/şarjlı mızrağı, Haftalık Akın ve asistan paketi korunuyor. Sonraki sürümlerde boss zayıf noktaları, ara boss'lar ve düello zorluk seçimi değerlendirilecek.
+v10.0 ile yığınlanan yükseltmeler, vuruş paketi, gemi imza pasifleri, yetenek düğümü ve genişleyen mağaza geldi; v9.9'un evrim yolları ve önceki sürümlerin sistemleri korunuyor. Sonraki sürümlerde boss zayıf noktaları, ara boss'lar ve düello zorluk seçimi değerlendirilecek.
 
 Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
@@ -268,7 +277,13 @@ Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 
 **Yıldız Akını** (Star Rush) is a single-file, offline neon space shooter built with HTML5 Canvas and Web Audio. It ships as both a standalone HTML game and a tiny Android APK.
 
-- **300+ integrated features**: 63 run perks, 37 enemies (17 base + 20 variants), 11 bosses (5 base + 6 variants), 10 modes, 9 regions, 70 achievements, 15 power-ups, 6 ships, 15 fusions, 16 skins, 3 chips, 7 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types, 8 campaign goals, 3 evolution paths (9 tiers) and life drops — 339 live entries
+- **400+ integrated features**: 83 run perks, 47 enemies (17 base + 30 variants), 11 bosses (5 base + 6 variants), 10 modes, 9 regions, 83 achievements, 26 power-ups, 6 ships, 15 fusions, 16 skins, 3 chips, 22 shop items, 3 trails, 2 explosion styles, 7 badges, 16 campaign modifiers, 19 season rewards, 3 difficulties, 9 mission types, 8 campaign goals, 3 evolution paths (9 tiers) and life drops — 408 live entries
+- **Stackable upgrades**: all 83 run perks stack to 99 levels; lives, damage, revives, side and rear shots, shields and timers accumulate
+- **Hit pack**: 20 new on-hit perks, from splitting shells and shock heads to armor break, headshots, venom, chaining lightning, heavy shells, twin barrels, ricochets, kinetic ramp, death waves, overcharge lances, lifesteal, homing tips, armor pen, frostbite and chain power
+- **Ship signature passives** plus a fifth 10-level `abil` upgrade node with per-level ability bonuses; hangar cards show passive and ability levels
+- **11 new power-ups** (overdrive, barrage, piercing tip, frenzy, phase ghost, shockwave, coin rain, double score, repair, arsenal, nova) with HUD duration badges
+- **10 new elite variants** (30 total) and **13 new achievements** (83 total)
+- **Shop expanded to 22 permanent items** with a paged two-column showcase
 - **Weapon evolutions**: pick Storm (chain lightning), Rail (piercing full volleys) or Nova (explosive impacts) at wave 6, then upgrade at waves 12 and 18; each path has three tiers, with a HUD badge and a pause-screen build chip
 - **Life drops**: enemies occasionally drop a heart (tanks, healers and elites more often), guards have a 30% chance and every boss guarantees one; collecting it restores +1 life up to 6
 - **Gameplay 2.0**: hold Space / LT / the FOCUS button to slow the ship, tighten the spread and charge a piercing lance (2.2 s, 4.2× damage, pierces 8 enemies)
@@ -292,7 +307,7 @@ Ayrıntılar: [ROADMAP.md](ROADMAP.md)
 - Embedded art pack: Kenney Space Shooter Redux ships/enemies/bosses, nine NASA region backdrops and an ambientCG metal texture, all inlined as WebP
 - 300-mission bonus campaign: 5 chapters × 60 missions, all open, first-clear rewards only
 - 10 modes including Boss Rush, One Life, Chaos and Weekly Raid
-- Daily and weekly missions, 70 achievements, detailed stats
+- Daily and weekly missions, 83 achievements, detailed stats
 - Skippable 4-step tutorial and a 20-level season with badges
 - Validated profile backup export/import
 - A 50-enemy surge every 4th wave, with V formations, divers, rushers, tanks and elites
