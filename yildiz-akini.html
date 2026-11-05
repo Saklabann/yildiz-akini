@@ -24,7 +24,7 @@ window.YA_ART={"v":"9.3","ships":{"std":{"d":"data:image/webp;base64,UklGRuAtAAB
 <script>
 'use strict';
 /* ==========================================================
-   YILDIZ AKINI v9.9 EVRİM — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
+   YILDIZ AKINI v10.0 GEMİ 2.0 — tek dosyalık neon uzay savaşı (300 özellik · 300 görevlik bonus kampanya)
    Hareket: ok/WASD/fare/dokunma/gamepad · Ateş: otomatik
    Shift: atılma · Boşluk: odak · U: öfke · B: bomba · P: duraklat · M: ses · F: tam ekran
    ========================================================== */
@@ -578,7 +578,7 @@ const defP = { coins: 0, kills: 0, deaths: 0, games: 0, bosses: 0, shots: 0, hit
   shipUp: {}, shipBest: {}, recent: [], bestTime: 0, perfectBest: 0, week: null, weeksClaimed: 0, lastScore: 0,
   weeklyBest: 0, weeklyWeek: 0,
   tutDone: false, seasonLv: 1, seasonXp: 0, seasonClaimed: {}, badges: {}, badge: '', lastBackup: 0,
-  camp: {}, campSel: 1, fusions: {}, vsWins: 0, vsBest: 0, vsPlayed: 0 };
+  camp: {}, campSel: 1, fusions: {}, vsWins: 0, vsBest: 0, vsPlayed: 0, eliteKills: 0 };
 let S = Object.assign({}, defS, LS.get('ya_settings', {}));
 if (typeof S.skin !== 'number' || S.skin < 0 || S.skin > 19) S.skin = 0;
 S.lefty = !!S.lefty; S.hudMin = !!S.hudMin; S.aimLine = !!S.aimLine; S.uiAnim = S.uiAnim !== false;
@@ -616,12 +616,12 @@ function buzz(ms) { if (!S.haptic) return; try { if (navigator.vibrate) navigato
 
 /* ---------- oyun verisi ---------- */
 const SHIPS = {
-  std:   { color: '#9ef0ff', speed: 330, fireCd: 0.15,  lives: 3, hitR: 12, bulletSp: 640, bombMax: 2, dashCd: 1.6, shape: 0, abil: 'overload' },
-  speed: { color: '#ffe066', speed: 400, fireCd: 0.105, lives: 2, hitR: 11, bulletSp: 700, bombMax: 2, dashCd: 1.2, shape: 1, abil: 'blink' },
-  tank:  { color: '#8fffb0', speed: 255, fireCd: 0.18,  lives: 4, hitR: 14, bulletSp: 600, bombMax: 3, dashCd: 1.8, shieldStart: 8, shape: 2, abil: 'barrier' },
-  nova:  { color: '#ff9be8', speed: 355, fireCd: 0.125, lives: 3, hitR: 12, bulletSp: 665, bombMax: 2, dashCd: 1.45, shape: 3, abil: 'supernova' },
-  ghost: { color: '#c9b6ff', speed: 385, fireCd: 0.115, lives: 2, hitR: 11, bulletSp: 690, bombMax: 2, dashCd: 1.1, shape: 4, abil: 'phase' },
-  titan: { color: '#ffb060', speed: 245, fireCd: 0.19,  lives: 5, hitR: 15, bulletSp: 590, bombMax: 4, dashCd: 2.0, shieldStart: 10, shape: 5, abil: 'salvo' }
+  std:   { color: '#9ef0ff', speed: 330, fireCd: 0.15,  lives: 3, hitR: 12, bulletSp: 640, bombMax: 2, dashCd: 1.6, shape: 0, abil: 'overload', dmg: 1.00 },
+  speed: { color: '#ffe066', speed: 400, fireCd: 0.105, lives: 2, hitR: 11, bulletSp: 700, bombMax: 2, dashCd: 1.2, shape: 1, abil: 'blink',    dmg: 0.92 },
+  tank:  { color: '#8fffb0', speed: 255, fireCd: 0.18,  lives: 4, hitR: 14, bulletSp: 600, bombMax: 3, dashCd: 1.8, shape: 2, abil: 'barrier',  dmg: 1.12, shieldStart: 8 },
+  nova:  { color: '#ff9be8', speed: 355, fireCd: 0.125, lives: 3, hitR: 12, bulletSp: 665, bombMax: 2, dashCd: 1.45, shape: 3, abil: 'supernova', dmg: 1.00 },
+  ghost: { color: '#c9b6ff', speed: 385, fireCd: 0.115, lives: 2, hitR: 11, bulletSp: 690, bombMax: 2, dashCd: 1.1, shape: 4, abil: 'phase',     dmg: 0.95 },
+  titan: { color: '#ffb060', speed: 245, fireCd: 0.19,  lives: 5, hitR: 15, bulletSp: 590, bombMax: 4, dashCd: 2.0, shape: 5, abil: 'salvo',     dmg: 1.25, shieldStart: 10 }
 };
 /* v7 gemi yetenekleri */
 const ABIL = {
@@ -723,24 +723,27 @@ const SKINS = [
 
 /* v8 gemi gelistirme agaci */
 const TREE = [
-  { id: 'spd',  max: 3, cost: [250, 550, 1100], icon: 'bolt',   col: '#ffd166' },
-  { id: 'hull', max: 2, cost: [450, 1000],       icon: 'heart',  col: '#ff7ba6' },
-  { id: 'gun',  max: 3, cost: [300, 700, 1400],  icon: 'flame',  col: '#ff9a5c' },
-  { id: 'core', max: 3, cost: [250, 600, 1200],  icon: 'star',   col: '#59e6ff' }
+  { id: 'spd',  max: 10, cost: [250, 550, 1100], icon: 'bolt',   col: '#ffd166' },
+  { id: 'hull', max: 10, cost: [450, 1000],       icon: 'heart',  col: '#ff7ba6' },
+  { id: 'gun',  max: 10, cost: [300, 700, 1400],  icon: 'flame',  col: '#ff9a5c' },
+  { id: 'core', max: 10, cost: [250, 600, 1200],  icon: 'star',   col: '#59e6ff' },
+  { id: 'abil', max: 10, cost: [400, 900, 1800],  icon: 'bolt',   col: '#c78bff' }
 ];
 function shipUpLv(id) { return ((P.shipUp && P.shipUp[S.ship]) || {})[id] | 0; }
 function treeCost(id) {
   const tr = TREE.find(x => x.id === id);
   if (!tr) return 0;
   const lv = shipUpLv(id);
-  return lv >= tr.max ? 0 : tr.cost[lv];
+  if (lv >= tr.max) return 0;
+  if (tr.cost[lv] != null) return tr.cost[lv];
+  return Math.round(tr.cost[tr.cost.length - 1] * Math.pow(1.8, lv - tr.cost.length + 1));
 }
 function buyTree(id) {
   const tr = TREE.find(x => x.id === id);
   if (!tr) return;
   const lv = shipUpLv(id);
   if (lv >= tr.max) { sfx.deny(); return; }
-  const cost = tr.cost[lv];
+  const cost = treeCost(id);
   if (P.coins < cost) { sfx.deny(); toast(t('no_coins'), '#ff7bbd'); return; }
   P.coins -= cost;
   if (!P.shipUp[S.ship]) P.shipUp[S.ship] = {};
@@ -957,7 +960,7 @@ function sanitizeProfile(src) {
   const s = saveObj(src), p = Object.assign({}, defP);
   const nums = ['coins','kills','deaths','games','bosses','shots','hits','maxCombo','collected','playtime',
     'best','bestWave','dust','dustTotal','abils','missClaimed','timeBest','bestTime','perfectBest',
-    'weeksClaimed','lastScore','weeklyBest','weeklyWeek'];
+    'weeksClaimed','lastScore','weeklyBest','weeklyWeek','eliteKills'];
   for (const k of nums) p[k] = saveInt(s[k], 0, 1e9, defP[k] || 0);
   p.lastBackup = saveInt(s.lastBackup, 0, 1e13, 0);
   p.board = [];
@@ -979,7 +982,7 @@ function sanitizeProfile(src) {
   const su = saveObj(s.shipUp);
   for (const sh of Object.keys(SHIPS)) {
     const o = saveObj(su[sh]), q = {};
-    for (const id of ['spd', 'hull', 'gun', 'core']) q[id] = saveInt(o[id], 0, 3, 0);
+    for (const id of ['spd', 'hull', 'gun', 'core', 'abil']) q[id] = saveInt(o[id], 0, 10, 0);
     p.shipUp[sh] = q;
   }
   p.shipBest = {};
@@ -1105,70 +1108,91 @@ const DIFF = {
   hard:   { cnt: 1.35, spd: 1.16, hp: 1.25, score: 1.4, lives: -1 }
 };
 const PERKS = [
-  { id: 'dmg',    max: 3, apply: st => { st.dmg += 1; } },
-  { id: 'rate',   max: 3, apply: st => { st.rateMul *= 0.87; } },
-  { id: 'speed',  max: 2, apply: st => { st.speedMul *= 1.12; } },
-  { id: 'regen',  max: 2, apply: st => { st.shieldRegen = st.shieldRegen ? Math.max(8, st.shieldRegen - 4) : 16; } },
-  { id: 'bomb',   max: 2, apply: st => { st.bombMax += 1; } },
-  { id: 'magnet', max: 2, apply: st => { st.magnet += 80; } },
-  { id: 'combow', max: 2, apply: st => { st.comboWin += 1; } },
-  { id: 'combos', max: 2, apply: st => { st.comboStep += 0.05; } },
-  { id: 'dash',   max: 3, apply: st => { st.dashCd *= 0.7; } },
-  { id: 'life',   max: 2, apply: st => { st.lives += 1; } },
-  { id: 'miss',   max: 2, apply: st => { st.missilesDur += 5; } },
-  { id: 'drone',  max: 2, apply: st => { st.droneDur += 5; } },
-  { id: 'graze',  max: 2, apply: st => { st.graze *= 2; st.grazeR += 8; } },
-  { id: 'boss',   max: 2, apply: st => { st.bossDmg += 0.25; } },
-  { id: 'coin',   max: 2, apply: st => { st.coinMul *= 1.5; } },
-  { id: 'revive', max: 1, apply: st => { st.revive = true; } },
-  { id: 'startw', max: 1, apply: st => { st.startWeapon += 1; } },
-  { id: 'crit',   max: 2, apply: st => { st.crit = (st.crit || 0) + 0.12; } },
-  { id: 'pierce', max: 1, apply: st => { st.pierce = (st.pierce || 0) + 1; } },
-  { id: 'chain',  max: 2, apply: st => { st.chainR = (st.chainR || 0) + 18; } },
-  { id: 'rage',   max: 2, apply: st => { st.rageMul *= 1.2; } },
-  { id: 'dustw',  max: 2, apply: st => { st.dustWave = (st.dustWave || 0) + 1; } },
-  { id: 'orbit',  max: 2, apply: st => { st.orbit = (st.orbit || 0) + 2; } },
-  { id: 'nova',   max: 2, apply: st => { st.nova = (st.nova || 0) + 1; } },
-  { id: 'leech',  max: 1, apply: st => { st.leech = 1; } },
-  { id: 'slowb',  max: 2, apply: st => { st.bulletSlow = (st.bulletSlow || 0) + 0.15; } },
-  { id: 'thorns', max: 2, apply: st => { st.thorns = (st.thorns || 0) + 1; } },
-  { id: 'startb', max: 1, apply: st => { st.startBomb = true; } },
-  { id: 'exec',   max: 1, apply: st => { st.exec = true; } },
-  { id: 'luck',   max: 2, apply: st => { st.luckMul = (st.luckMul || 1) * 1.5; } },
-  /* v9.0 · 300 içerik paketi: 33 yeni yükseltme */
-  { id: 'multi',      max: 2, apply: st => { st.multi = (st.multi || 0) + 1; } },
-  { id: 'ricochet',   max: 2, apply: st => { st.ricochet = (st.ricochet || 0) + 1; } },
-  { id: 'homing',     max: 2, apply: st => { st.homing = (st.homing || 0) + 1; } },
-  { id: 'freeze',     max: 2, apply: st => { st.freeze = (st.freeze || 0) + 0.12; } },
-  { id: 'burn',       max: 2, apply: st => { st.burn = (st.burn || 0) + 0.12; } },
-  { id: 'vampire',    max: 2, apply: st => { st.vampire = (st.vampire || 0) + 0.07; } },
-  { id: 'bombShield', max: 2, apply: st => { st.bombShield = (st.bombShield || 0) + 4; } },
-  { id: 'sideShots',  max: 1, apply: st => { st.sideShots = true; } },
-  { id: 'rearShot',   max: 1, apply: st => { st.rearShot = true; } },
-  { id: 'lastStand',  max: 2, apply: st => { st.lastStand = (st.lastStand || 0) + 0.3; } },
-  { id: 'berserk',    max: 2, apply: st => { st.berserk = (st.berserk || 0) + 0.12; } },
-  { id: 'magnetPulse',max: 2, apply: st => { st.magnetPulse = (st.magnetPulse || 0) + 80; } },
-  { id: 'overkill',   max: 2, apply: st => { st.overkill = (st.overkill || 0) + 1.5; } },
-  { id: 'sniper',     max: 2, apply: st => { st.bossDmg += 0.35; st.crit = (st.crit || 0) + 0.08; } },
-  { id: 'orbital',    max: 1, apply: st => { st.orbit = (st.orbit || 0) + 4; } },
-  { id: 'supernova',  max: 1, apply: st => { st.nova = (st.nova || 0) + 2; } },
-  { id: 'chain2',     max: 2, apply: st => { st.chainR = (st.chainR || 0) + 30; } },
-  { id: 'exec2',      max: 1, apply: st => { st.exec = true; st.bossDmg += 0.2; } },
-  { id: 'luck2',      max: 2, apply: st => { st.luckMul = (st.luckMul || 1) * 2; st.coinMul *= 1.3; } },
-  { id: 'regen2',     max: 1, apply: st => { st.shieldRegen = 8; } },
-  { id: 'dash2',      max: 2, apply: st => { st.dashCd *= 0.7; } },
-  { id: 'startw2',    max: 1, apply: st => { st.startWeapon = Math.min(3, st.startWeapon + 1); } },
-  { id: 'crit2',      max: 2, apply: st => { st.crit = (st.crit || 0) + 0.2; } },
-  { id: 'pierce2',    max: 2, apply: st => { st.pierce = (st.pierce || 0) + 1; } },
-  { id: 'life2',      max: 2, apply: st => { st.lives += 1; } },
-  { id: 'bomb2',      max: 1, apply: st => { st.bombMax += 2; } },
-  { id: 'speed2',     max: 2, apply: st => { st.speedMul *= 1.1; } },
-  { id: 'rate2',      max: 2, apply: st => { st.rateMul *= 0.9; } },
-  { id: 'dmg2',       max: 2, apply: st => { st.dmg += 2; } },
-  { id: 'coin2',      max: 2, apply: st => { st.coinMul *= 1.8; } },
-  { id: 'graze2',     max: 2, apply: st => { st.graze *= 2; st.grazeR += 10; } },
-  { id: 'boss2',      max: 2, apply: st => { st.bossDmg += 0.4; } },
-  { id: 'miss2',      max: 1, apply: st => { st.missilesDur += 8; } }
+  { id: 'dmg',    max: 99, apply: st => { st.dmg += 1; } },
+  { id: 'rate',   max: 99, apply: st => { st.rateMul *= 0.87; } },
+  { id: 'speed',  max: 99, apply: st => { st.speedMul *= 1.12; } },
+  { id: 'regen',  max: 99, apply: st => { st.shieldRegen = st.shieldRegen ? Math.max(6, st.shieldRegen - 4) : 16; } },
+  { id: 'bomb',   max: 99, apply: st => { st.bombMax += 1; } },
+  { id: 'magnet', max: 99, apply: st => { st.magnet += 80; } },
+  { id: 'combow', max: 99, apply: st => { st.comboWin += 1; } },
+  { id: 'combos', max: 99, apply: st => { st.comboStep += 0.05; } },
+  { id: 'dash',   max: 99, apply: st => { st.dashCd *= 0.7; } },
+  { id: 'life',   max: 99, apply: st => { st.lives += 1; } },
+  { id: 'miss',   max: 99, apply: st => { st.missilesDur += 5; } },
+  { id: 'drone',  max: 99, apply: st => { st.droneDur += 5; } },
+  { id: 'graze',  max: 99, apply: st => { st.graze *= 2; st.grazeR += 8; } },
+  { id: 'boss',   max: 99, apply: st => { st.bossDmg += 0.25; } },
+  { id: 'coin',   max: 99, apply: st => { st.coinMul *= 1.5; } },
+  { id: 'revive', max: 99, apply: st => { st.revive = (st.revive || 0) + 1; } },
+  { id: 'startw', max: 99, apply: st => { if (st.startWeapon < 3) st.startWeapon += 1; else st.dmg += 0.5; } },
+  { id: 'crit',   max: 99, apply: st => { st.crit = (st.crit || 0) + 0.12; } },
+  { id: 'pierce', max: 99, apply: st => { st.pierce = (st.pierce || 0) + 1; } },
+  { id: 'chain',  max: 99, apply: st => { st.chainR = (st.chainR || 0) + 18; } },
+  { id: 'rage',   max: 99, apply: st => { st.rageMul *= 1.2; } },
+  { id: 'dustw',  max: 99, apply: st => { st.dustWave = (st.dustWave || 0) + 1; } },
+  { id: 'orbit',  max: 99, apply: st => { st.orbit = (st.orbit || 0) + 2; } },
+  { id: 'nova',   max: 99, apply: st => { st.nova = (st.nova || 0) + 1; } },
+  { id: 'leech',  max: 99, apply: st => { st.leech = (st.leech || 0) + 1; } },
+  { id: 'slowb',  max: 99, apply: st => { st.bulletSlow = (st.bulletSlow || 0) + 0.15; } },
+  { id: 'thorns', max: 99, apply: st => { st.thorns = (st.thorns || 0) + 1; } },
+  { id: 'startb', max: 99, apply: st => { st.startBomb = (st.startBomb || 0) + 1; } },
+  { id: 'exec',   max: 99, apply: st => { st.exec = (st.exec || 0) + 1; } },
+  { id: 'luck',   max: 99, apply: st => { st.luckMul = (st.luckMul || 1) * 1.5; } },
+  /* v9.0 · 300 içerik paketi: 33 yeni yükseltme — v10.0'da tümü yığınlanır */
+  { id: 'multi',      max: 99, apply: st => { st.multi = (st.multi || 0) + 1; } },
+  { id: 'ricochet',   max: 99, apply: st => { st.ricochet = (st.ricochet || 0) + 1; } },
+  { id: 'homing',     max: 99, apply: st => { st.homing = (st.homing || 0) + 1; } },
+  { id: 'freeze',     max: 99, apply: st => { st.freeze = (st.freeze || 0) + 0.12; } },
+  { id: 'burn',       max: 99, apply: st => { st.burn = (st.burn || 0) + 0.12; } },
+  { id: 'vampire',    max: 99, apply: st => { st.vampire = (st.vampire || 0) + 0.07; } },
+  { id: 'bombShield', max: 99, apply: st => { st.bombShield = (st.bombShield || 0) + 4; } },
+  { id: 'sideShots',  max: 99, apply: st => { st.sideShots = (st.sideShots || 0) + 1; } },
+  { id: 'rearShot',   max: 99, apply: st => { st.rearShot = (st.rearShot || 0) + 1; } },
+  { id: 'lastStand',  max: 99, apply: st => { st.lastStand = (st.lastStand || 0) + 0.3; } },
+  { id: 'berserk',    max: 99, apply: st => { st.berserk = (st.berserk || 0) + 0.12; } },
+  { id: 'magnetPulse',max: 99, apply: st => { st.magnetPulse = (st.magnetPulse || 0) + 80; } },
+  { id: 'overkill',   max: 99, apply: st => { st.overkill = (st.overkill || 0) + 1.5; } },
+  { id: 'sniper',     max: 99, apply: st => { st.bossDmg += 0.35; st.crit = (st.crit || 0) + 0.08; } },
+  { id: 'orbital',    max: 99, apply: st => { st.orbit = (st.orbit || 0) + 4; } },
+  { id: 'supernova',  max: 99, apply: st => { st.nova = (st.nova || 0) + 2; } },
+  { id: 'chain2',     max: 99, apply: st => { st.chainR = (st.chainR || 0) + 30; } },
+  { id: 'exec2',      max: 99, apply: st => { st.exec = (st.exec || 0) + 1; st.bossDmg += 0.2; } },
+  { id: 'luck2',      max: 99, apply: st => { st.luckMul = (st.luckMul || 1) * 2; st.coinMul *= 1.3; } },
+  { id: 'regen2',     max: 99, apply: st => { st.shieldRegen = Math.max(4, (st.shieldRegen || 16) - 3); } },
+  { id: 'dash2',      max: 99, apply: st => { st.dashCd *= 0.7; } },
+  { id: 'startw2',    max: 99, apply: st => { if (st.startWeapon < 3) st.startWeapon += 1; else st.dmg += 0.5; } },
+  { id: 'crit2',      max: 99, apply: st => { st.crit = (st.crit || 0) + 0.2; } },
+  { id: 'pierce2',    max: 99, apply: st => { st.pierce = (st.pierce || 0) + 1; } },
+  { id: 'life2',      max: 99, apply: st => { st.lives += 1; } },
+  { id: 'bomb2',      max: 99, apply: st => { st.bombMax += 2; } },
+  { id: 'speed2',     max: 99, apply: st => { st.speedMul *= 1.1; } },
+  { id: 'rate2',      max: 99, apply: st => { st.rateMul *= 0.9; } },
+  { id: 'dmg2',       max: 99, apply: st => { st.dmg += 2; } },
+  { id: 'coin2',      max: 99, apply: st => { st.coinMul *= 1.8; } },
+  { id: 'graze2',     max: 99, apply: st => { st.graze *= 2; st.grazeR += 10; } },
+  { id: 'boss2',      max: 99, apply: st => { st.bossDmg += 0.4; } },
+  { id: 'miss2',      max: 99, apply: st => { st.missilesDur += 8; } },
+  /* v10.0 vuruş paketi: 20 yeni yığınlanabilir isabet/silah özelliği */
+  { id: 'split',     max: 99, apply: st => { st.split = (st.split || 0) + 1; } },
+  { id: 'splash',    max: 99, apply: st => { st.splash = (st.splash || 0) + 1; } },
+  { id: 'shatter',   max: 99, apply: st => { st.shatter = (st.shatter || 0) + 1; } },
+  { id: 'headshot',  max: 99, apply: st => { st.headshot = (st.headshot || 0) + 1; } },
+  { id: 'venom',     max: 99, apply: st => { st.venom = (st.venom || 0) + 1; } },
+  { id: 'bolt',      max: 99, apply: st => { st.bolt = (st.bolt || 0) + 1; } },
+  { id: 'heavy',     max: 99, apply: st => { st.heavy = (st.heavy || 0) + 1; } },
+  { id: 'twin',      max: 99, apply: st => { st.twin = (st.twin || 0) + 1; } },
+  { id: 'diag',      max: 99, apply: st => { st.diag = (st.diag || 0) + 1; } },
+  { id: 'bounce',    max: 99, apply: st => { st.bounce = (st.bounce || 0) + 1; } },
+  { id: 'kinetic',   max: 99, apply: st => { st.kinetic = (st.kinetic || 0) + 1; } },
+  { id: 'critDmg',   max: 99, apply: st => { st.critDmg = (st.critDmg || 0) + 0.25; } },
+  { id: 'pierceDmg', max: 99, apply: st => { st.pierceDmg = (st.pierceDmg || 0) + 1; } },
+  { id: 'deathWave', max: 99, apply: st => { st.deathWave = (st.deathWave || 0) + 1; } },
+  { id: 'overcharge',max: 99, apply: st => { st.overcharge = (st.overcharge || 0) + 1; } },
+  { id: 'siphon',    max: 99, apply: st => { st.siphon = (st.siphon || 0) + 1; } },
+  { id: 'seeker',    max: 99, apply: st => { st.seeker = (st.seeker || 0) + 1; } },
+  { id: 'armorPen',  max: 99, apply: st => { st.armorPen = (st.armorPen || 0) + 1; } },
+  { id: 'frostbite', max: 99, apply: st => { st.frostbite = (st.frostbite || 0) + 1; } },
+  { id: 'chainPow',  max: 99, apply: st => { st.chainPow = (st.chainPow || 0) + 1; } }
 ];
 const SHOP = [
   { id: 'shield', cost: 120 },
@@ -1177,7 +1201,23 @@ const SHOP = [
   { id: 'weapon', cost: 250 },
   { id: 'palgold', cost: 6, dust: true },
   { id: 'chip',   cost: 8, dust: true },
-  { id: 'rage',   cost: 10, dust: true }
+  { id: 'rage',   cost: 10, dust: true },
+  /* v10.0 mağaza paketi: 15 yeni kalıcı ürün */
+  { id: 'hull',        cost: 420,  icon: 'heart',  col: '#ff7ba6' },
+  { id: 'dashcd',      cost: 380,  icon: 'dash',   col: '#ffd166' },
+  { id: 'regen',       cost: 460,  icon: 'shield', col: '#8fffb0' },
+  { id: 'crit',        cost: 520,  icon: 'target', col: '#ffe066' },
+  { id: 'luck',        cost: 480,  icon: 'star',   col: '#ffd85f' },
+  { id: 'coin',        cost: 400,  icon: 'coin',   col: '#ffd85f' },
+  { id: 'startbomb',   cost: 360,  icon: 'bomb',   col: '#ffcf5f' },
+  { id: 'pierce',      cost: 560,  icon: 'arrow',  col: '#8ff3ff' },
+  { id: 'homing',      cost: 600,  icon: 'rocket', col: '#ff9e6b' },
+  { id: 'score',       cost: 640,  icon: 'trophy', col: '#ffd166' },
+  { id: 'revive',      cost: 900,  icon: 'heart',  col: '#ff8fa8' },
+  { id: 'shieldCell',  cost: 14, dust: true, icon: 'shield', col: '#59f0a0' },
+  { id: 'bombShield',  cost: 14, dust: true, icon: 'bomb',   col: '#ffb060' },
+  { id: 'grazeM',      cost: 12, dust: true, icon: 'cross',  col: '#c39bff' },
+  { id: 'magnetPulse', cost: 16, dust: true, icon: 'magnet', col: '#c39bff' }
 ];
 const GMODES = ['classic', 'endless', 'rush', 'daily', 'time', 'perfect', 'bossrush', 'onelife', 'chaos', 'weekly'];
 const CORE_MODES = ['classic', 'endless', 'rush', 'daily', 'time', 'perfect', 'bossrush', 'onelife', 'chaos'];
@@ -1218,7 +1258,9 @@ const ACHS = ['first', 'combo10', 'combo25', 'boss1', 'boss5', 'wave10', 'wave20
   'combo40', 'combo60', 'score50k', 'score100k', 'coins1000', 'coins5000', 'modes9',
   'ships6', 'season10', 'season15', 'season20', 'ach40', 'ach50', 'camp150', 'camp250',
   'perfect25', 'time30k', 'abil50', 'missions30', 'fusion5', 'duelist', 'focus1', 'weekly1',
-  'evo1', 'evo3'];
+  'evo1', 'evo3', 'tree15', 'abilmax', 'abil100',
+  'power50', 'power200', 'power400', 'elite10', 'elite50', 'elite100',
+  'odbuff', 'frenzy1', 'ghost1', 'shockwave1'];
 
 /* ============================================================
    v9.0 · 300 ÖZELLİK
@@ -1279,7 +1321,17 @@ const ENEMY_VARIANTS = [
   { id: 'phasePhantom',  base: 'phantom',  mod: 'phase',    nameKey: 'ev_phasePhantom_n',  descKey: 'ev_phasePhantom_d',  col: '#e0d8ff', hp: 1.2,  spd: 1.0,  minWave: 8 },
   { id: 'chargeDiver',   base: 'diver',    mod: 'charge',   nameKey: 'ev_chargeDiver_n',   descKey: 'ev_chargeDiver_d',   col: '#ffb060', hp: 1.15, spd: 1.05, minWave: 7 },
   { id: 'volatileMine',  base: 'mine',     mod: 'volatile', nameKey: 'ev_volatileMine_n',  descKey: 'ev_volatileMine_d',  col: '#ff8a5c', hp: 1.2,  spd: 1.0,  minWave: 5 },
-  { id: 'summonerHealer',base: 'healer',   mod: 'summoner', nameKey: 'ev_summonerHealer_n',descKey: 'ev_summonerHealer_d',col: '#b9ffe2', hp: 1.3,  spd: 0.9,  minWave: 10 }
+  { id: 'summonerHealer',base: 'healer',   mod: 'summoner', nameKey: 'ev_summonerHealer_n',descKey: 'ev_summonerHealer_d',col: '#b9ffe2', hp: 1.3,  spd: 0.9,  minWave: 10 },
+  { id: 'venomBomber',    base: 'bomber',   mod: 'venom',    nameKey: 'ev_venomBomber_n',    descKey: 'ev_venomBomber_d',    col: '#9dff8e', hp: 1.25, spd: 1.0,  minWave: 9 },
+  { id: 'goldWeaver',     base: 'weaver',   mod: 'gold',     nameKey: 'ev_goldWeaver_n',     descKey: 'ev_goldWeaver_d',     col: '#ffe066', hp: 1.3,  spd: 1.0,  minWave: 10 },
+  { id: 'shieldScout',    base: 'scout',    mod: 'shield',   nameKey: 'ev_shieldScout_n',    descKey: 'ev_shieldScout_d',    col: '#6fd8ff', hp: 1.15, spd: 1.05, minWave: 6 },
+  { id: 'chargeRusher',   base: 'rusher',   mod: 'charge',   nameKey: 'ev_chargeRusher_n',   descKey: 'ev_chargeRusher_d',   col: '#ffb060', hp: 1.2,  spd: 1.1,  minWave: 8 },
+  { id: 'splitScout',     base: 'scout',    mod: 'split',    nameKey: 'ev_splitScout_n',     descKey: 'ev_splitScout_d',     col: '#ffb3e6', hp: 1.15, spd: 1.0,  minWave: 7 },
+  { id: 'bomberTank',     base: 'tank',     mod: 'bomber',   nameKey: 'ev_bomberTank_n',     descKey: 'ev_bomberTank_d',     col: '#ffc46b', hp: 1.5,  spd: 0.9,  size: 1.1, minWave: 11 },
+  { id: 'volatileShooter',base: 'shooter',  mod: 'volatile', nameKey: 'ev_volatileShooter_n',descKey: 'ev_volatileShooter_d',col: '#ff8a5c', hp: 1.25, spd: 1.0,  minWave: 9 },
+  { id: 'frostPhantom',   base: 'phantom',  mod: 'frost',    nameKey: 'ev_frostPhantom_n',   descKey: 'ev_frostPhantom_d',   col: '#9fd8ff', hp: 1.3,  spd: 1.0,  minWave: 10 },
+  { id: 'summonerShielder',base: 'shielder',mod: 'summoner', nameKey: 'ev_summonerShielder_n',descKey: 'ev_summonerShielder_d',col: '#b9ffe2', hp: 1.35, spd: 0.9, minWave: 12 },
+  { id: 'sniperTank',     base: 'tank',     mod: 'sniper',   nameKey: 'ev_sniperTank_n',     descKey: 'ev_sniperTank_d',     col: '#ff6b7a', hp: 1.6,  spd: 0.88, size: 1.12, minWave: 12 }
 ];
 const POWER_CATALOG = [
   { id: 'weapon', icon: 'wave',   col: '#8ff3ff' },
@@ -1296,7 +1348,18 @@ const POWER_CATALOG = [
   { id: 'time',   icon: 'clock',  col: '#9fd8ff' },
   { id: 'crit',   icon: 'cross',  col: '#ffe066' },
   { id: 'gold',   icon: 'coin',   col: '#ffd85f' },
-  { id: 'beam',   icon: 'bolt',   col: '#ffd85f' }
+  { id: 'beam',   icon: 'bolt',   col: '#ffd85f' },
+  { id: 'overdrive', icon: 'bolt',  col: '#ffd166' },
+  { id: 'barrage',   icon: 'bolt',  col: '#ff9e6b' },
+  { id: 'pierce',    icon: 'arrow', col: '#8ff3ff' },
+  { id: 'frenzy',    icon: 'flame', col: '#ff5fd2' },
+  { id: 'ghost',     icon: 'eye',   col: '#cfd6ff' },
+  { id: 'shock',     icon: 'cross', col: '#9fe8ff' },
+  { id: 'coinRain',  icon: 'coin',  col: '#ffd85f' },
+  { id: 'x2',        icon: 'trophy',col: '#ffe066' },
+  { id: 'repair',    icon: 'heart', col: '#5cf2b6' },
+  { id: 'arsenal',   icon: 'bomb',  col: '#ffb060' },
+  { id: 'nova',      icon: 'star',  col: '#ffb060' }
 ];
 
 /* ---------- v7 gunluk gorevler ---------- */
@@ -1520,16 +1583,20 @@ function claimMission(i, kind) {
 function baseStats() {
   const b = SHIPS[S.ship];
   const st = Object.assign({}, b);
-  st.dmg = 1; st.rateMul = 1; st.speedMul = 1; st.shieldRegen = 0;
+  st.dmg = b.dmg || 1; st.rateMul = 1; st.speedMul = 1; st.shieldRegen = 0;
   st.magnet = 0; st.comboWin = 2.5; st.comboStep = 0.1; st.graze = 1; st.grazeR = 26;
-  st.bossDmg = 1; st.coinMul = 1; st.revive = false;
+  st.bossDmg = 1; st.coinMul = 1; st.revive = 0;
   st.missilesDur = 0; st.droneDur = 0; st.startWeapon = 1;
   st.rageMul = 1; st.startChip = null; st.scoreMul = 1;
   st.crit = 0; st.pierce = 0; st.chainR = 0; st.dustWave = 0;
   st.orbit = 0; st.nova = 0; st.leech = 0; st.bulletSlow = 0; st.thorns = 0;
-  st.startBomb = false; st.exec = false; st.luckMul = 1; st.abilCdMul = 1;
+  st.startBomb = 0; st.exec = 0; st.luckMul = 1; st.abilCdMul = 1;
   st.multi = 0; st.ricochet = 0; st.homing = 0; st.freeze = 0; st.burn = 0;
-  st.vampire = 0; st.bombShield = 0; st.sideShots = false; st.rearShot = false;
+  st.vampire = 0; st.bombShield = 0; st.sideShots = 0; st.rearShot = 0;
+  st.split = 0; st.splash = 0; st.shatter = 0; st.headshot = 0; st.venom = 0; st.bolt = 0;
+  st.heavy = 0; st.twin = 0; st.diag = 0; st.bounce = 0; st.kinetic = 0; st.critDmg = 0;
+  st.pierceDmg = 0; st.deathWave = 0; st.overcharge = 0; st.siphon = 0; st.seeker = 0;
+  st.armorPen = 0; st.frostbite = 0; st.chainPow = 0;
   st.lastStand = 0; st.berserk = 0; st.magnetPulse = 0; st.overkill = 0;
   if (P.shop.shield) st.shieldStart = Math.max(st.shieldStart || 0, 10);
   if (P.shop.bomb) st.bombMax += 1;
@@ -1538,13 +1605,31 @@ function baseStats() {
   if (P.shop.rage) st.rageMul = 1.35;
   if (P.shop.chip) st.startChip = pick(['rear', 'orb', 'bolt']);
   if (P.shop.palgold) st.color = '#ffd85f';
+  /* v10.0 mağaza paketi */
+  if (P.shop.hull) st.lives += 1;
+  if (P.shop.dashcd) st.dashCd *= 0.8;
+  if (P.shop.regen) st.shieldRegen = Math.max(st.shieldRegen || 0, 14);
+  if (P.shop.crit) st.crit = (st.crit || 0) + 0.06;
+  if (P.shop.luck) st.luckMul *= 1.3;
+  if (P.shop.coin) st.coinMul *= 1.25;
+  if (P.shop.startbomb) st.startBomb = (st.startBomb || 0) + 1;
+  if (P.shop.pierce) st.pierce = (st.pierce || 0) + 1;
+  if (P.shop.homing) st.homing = (st.homing || 0) + 0.4;
+  if (P.shop.score) st.scoreMul *= 1.12;
+  if (P.shop.revive) st.revive = (st.revive || 0) + 1;
+  if (P.shop.shieldCell) st.shieldStart = (st.shieldStart || 0) + 6;
+  if (P.shop.bombShield) st.bombShield = (st.bombShield || 0) + 6;
+  if (P.shop.grazeM) st.grazeR += 10;
+  if (P.shop.magnetPulse) st.magnetPulse = (st.magnetPulse || 0) + 90;
   const shu = (P.shipUp && P.shipUp[S.ship]) || {};
   st.speedMul *= 1 + 0.06 * (shu.spd || 0);
   st.dmg += shu.gun || 0;
   st.lives = Math.min(6, st.lives + (shu.hull || 0));
-  st.abilCdMul = 1 - 0.08 * (shu.core || 0);
+  st.shieldStart = (st.shieldStart || 0) + Math.max(0, (shu.hull || 0) - Math.max(0, 6 - (b.lives + DIFF[S.diff].lives)));
+  st.abilLv = shu.abil || 0;
+  st.abilCdMul = Math.max(0.45, 1 - 0.08 * (shu.core || 0) - 0.05 * st.abilLv);
   st.lives += DIFF[S.diff].lives;
-  if (S.gmode === 'onelife') { st.lives = 1; st.revive = false; st.shieldStart = 0; }
+  if (S.gmode === 'onelife') { st.lives = 1; st.revive = 0; st.shieldStart = 0; }
   if (S.gmode === 'weekly') {
     const wm = weekMutator();
     if (wm && wm.apply) wm.apply(st);
@@ -1553,14 +1638,14 @@ function baseStats() {
   if (S.gmode === 'bossrush') st.coinMul *= 1.2;
   if (S.gmode === 'chaos') st.coinMul *= 1.15;
   for (const f of FUSIONS) if (fusionOwned(f.id) && (f.a === S.ship || f.b === S.ship)) f.apply(st);
-  /* v9.6: gemiye özel pasif (füzyonlardan sonra uygulanır) */
+  /* v10.0: gemiye özel imza pasifi (füzyonlardan sonra uygulanır) */
   st.odMul = 1; st.heatMul = 1; st.invBonus = 0;
-  if (S.ship === 'std') st.odMul *= 1.15;
-  else if (S.ship === 'speed') { st.dashCd *= 0.85; st.fireCd *= 0.92; }
-  else if (S.ship === 'tank') { st.shieldStart = (st.shieldStart || 0) + 3; st.invBonus += 0.6; }
-  else if (S.ship === 'nova') st.heatMul *= 1.2;
-  else if (S.ship === 'ghost') { st.grazeR += 8; st.coinMul *= 1.1; }
-  else if (S.ship === 'titan') { st.bossDmg *= 1.12; st.bombMax += 1; }
+  if (S.ship === 'std') { st.odMul *= 1.15; st.odChain = true; }
+  else if (S.ship === 'speed') { st.dashCd *= 0.85; st.fireCd *= 0.92; st.dashSurge = true; }
+  else if (S.ship === 'tank') { st.shieldStart = (st.shieldStart || 0) + 3; st.invBonus += 0.6; st.reactiveArmor = true; }
+  else if (S.ship === 'nova') { st.heatMul *= 1.2; st.fusionCore = true; }
+  else if (S.ship === 'ghost') { st.grazeR += 8; st.coinMul *= 1.1; st.phaseEcho = true; }
+  else if (S.ship === 'titan') { st.bossDmg *= 1.12; st.bombMax += 1; st.siege = true; }
   return st;
 }
 
@@ -1638,6 +1723,22 @@ st_games: 'Oyun', st_kills: 'Öldürülen', st_deaths: 'Ölüm', st_bosses: 'Bos
 st_maxcombo: 'En iyi kombo', st_coins: 'Toplam para', st_time: 'Oynama süresi',
 st_acc: 'İsabet', st_best: 'En iyi skor', st_bestwave: 'En iyi dalga',
 shop_hint: 'Para ve yıldız tozu topla, kalıcı güç satın al',
+  shop_hull: 'Güçlendirilmiş Gövde', shop_hull_d: 'Her oyuna +1 canla başla',
+  shop_dashcd: 'Çevik İtki', shop_dashcd_d: 'Atılma beklemesi %20 azalır',
+  shop_regen: 'Onaran Kalkan', shop_regen_d: 'Kalkan 14 saniyede yenilenir',
+  shop_crit: 'Keskin Nişangâh', shop_crit_d: 'Kritik şansı kalıcı +%6',
+  shop_luck: 'Şans Yıldızı', shop_luck_d: 'Güçlendirme düşüşü +%30',
+  shop_coin: 'Hazine Pusulası', shop_coin_d: 'Para kazancı +%25',
+  shop_startbomb: 'Cephane Sandığı', shop_startbomb_d: 'Her dalga başında +1 bomba',
+  shop_pierce: 'Delici Çekirdek', shop_pierce_d: 'Mermiler bir düşman daha deler',
+  shop_homing: 'Güdüm Çipi', shop_homing_d: 'Mermiler hafifçe hedefe döner',
+  shop_score: 'Yarış Bilgisayarı', shop_score_d: 'Skor kazancı +%12',
+  shop_revive: 'Yedek Kapsül', shop_revive_d: 'Her oyunda bir diriliş hakkı',
+  shop_shieldCell: 'Kalkan Hücresi', shop_shieldCell_d: 'Başlangıç kalkanı +6',
+  shop_bombShield: 'Bomba Siperi', shop_bombShield_d: 'Bomba patlaması +6 kalkan verir',
+  shop_grazeM: 'Sıyırma Ustası', shop_grazeM_d: 'Sıyırma menzili +10',
+  shop_magnetPulse: 'Mıknatıs Nabzı', shop_magnetPulse_d: 'Toplama menzili +90',
+  no_coins_short: 'YETERSİZ',
 shop_shield: 'Başlangıç Kalkanı', shop_shield_d: 'Her oyuna kalkanla başla',
 shop_bomb: 'Bomba +1', shop_bomb_d: 'Bomba kapasitesi kalıcı +1',
 shop_magnet: 'Kalıcı Mıknatıs', shop_magnet_d: 'Toplama menzili +90',
@@ -1896,6 +1997,22 @@ st_games: 'Games', st_kills: 'Kills', st_deaths: 'Deaths', st_bosses: 'Bosses',
 st_maxcombo: 'Best combo', st_coins: 'Total coins', st_time: 'Playtime',
 st_acc: 'Accuracy', st_best: 'Best score', st_bestwave: 'Best wave',
 shop_hint: 'Collect coins and star dust, buy permanent power',
+  shop_hull: 'Reinforced Hull', shop_hull_d: 'Start every run with +1 life',
+  shop_dashcd: 'Agile Thrusters', shop_dashcd_d: 'Dash cooldown reduced by 20%',
+  shop_regen: 'Regenerating Shield', shop_regen_d: 'Shield regenerates in 14 s',
+  shop_crit: 'Sharp Sight', shop_crit_d: 'Permanent +6% crit chance',
+  shop_luck: 'Lucky Star', shop_luck_d: 'Powerup drop chance +30%',
+  shop_coin: 'Treasure Compass', shop_coin_d: 'Coin gain +25%',
+  shop_startbomb: 'Ammo Crate', shop_startbomb_d: '+1 bomb at every wave start',
+  shop_pierce: 'Piercing Core', shop_pierce_d: 'Bullets pierce one more enemy',
+  shop_homing: 'Homing Chip', shop_homing_d: 'Bullets curve slightly toward targets',
+  shop_score: 'Race Computer', shop_score_d: 'Score gain +12%',
+  shop_revive: 'Backup Capsule', shop_revive_d: 'One revive per run',
+  shop_shieldCell: 'Shield Cell', shop_shieldCell_d: 'Starting shield +6',
+  shop_bombShield: 'Bomb Barrier', shop_bombShield_d: 'Bombs grant +6 shield',
+  shop_grazeM: 'Graze Master', shop_grazeM_d: 'Graze radius +10',
+  shop_magnetPulse: 'Magnet Pulse', shop_magnetPulse_d: 'Pickup magnet +90',
+  no_coins_short: 'TOO POOR',
 shop_shield: 'Starting Shield', shop_shield_d: 'Begin every run with a shield',
 shop_bomb: 'Bomb +1', shop_bomb_d: 'Permanent +1 bomb capacity',
 shop_magnet: 'Permanent Magnet', shop_magnet_d: 'Pickup range +90',
@@ -2138,6 +2255,26 @@ const V9_TR = {
   perk_graze2_n: 'Sıyırma Ustası', perk_graze2_d: 'Sıyırma puanı x2',
   perk_boss2_n: 'Boss Kırıcı', perk_boss2_d: 'Boss hasarı +%40',
   perk_miss2_n: 'Füze Yağmuru', perk_miss2_d: 'Füze süresi +8 sn',
+  perk_split_n: 'Bölünen Mermi', perk_split_d: 'İsabette kıymık mermilere ayrılır (+1 kıymık)',
+  perk_splash_n: 'Şok Başlığı', perk_splash_d: 'İsabette patlama: +6 yarıçap, %30 hasar',
+  perk_shatter_n: 'Zırh Kırıcı', perk_shatter_d: 'Aynı düşmana ardışık vuruş +%4 hasar (10 yığın)',
+  perk_headshot_n: 'Kafa Vuruşu', perk_headshot_d: '%6 şansla 3,5 kat hasar',
+  perk_venom_n: 'Zehirli Mermi', perk_venom_d: '3 sn zehir; saniyede %12 hasar',
+  perk_bolt_n: 'Yıldırım Mermisi', perk_bolt_d: '%10 şansla yakın düşmana %60 hasar sıçrar',
+  perk_heavy_n: 'Ağır Mermi', perk_heavy_d: 'Her 6. atış 2,6 kat hasar ve patlama',
+  perk_twin_n: 'İkiz Namlu', perk_twin_d: 'Ana atışa +1 merkez mermi',
+  perk_diag_n: 'Çapraz Ateş', perk_diag_d: 'Çapraz yöne +1 mermi çifti',
+  perk_bounce_n: 'Sekmeli Mermi', perk_bounce_d: '+1 sekme; ilk sekmede hasar kaybı yok',
+  perk_kinetic_n: 'Kinetik Yük', perk_kinetic_d: 'İsabet başına +%2 hasar; 1,5 sn boşlukta sıfırlanır',
+  perk_critDmg_n: 'Kritik Gücü', perk_critDmg_d: 'Kritik çarpanı +0,25',
+  perk_pierceDmg_n: 'Delme Ustası', perk_pierceDmg_d: 'Delinen düşman başına hasar kaybı %10 azalır',
+  perk_deathWave_n: 'Ölüm Dalgası', perk_deathWave_d: 'Öldürünce şok dalgası (%30 hasar, +12 yarıçap)',
+  perk_overcharge_n: 'Aşırı Yük', perk_overcharge_d: 'Her 12. atış 3,2 kat hasarlı delici mızrak',
+  perk_siphon_n: 'Vuruş Emme', perk_siphon_d: '%4 şansla +1 kalkan',
+  perk_seeker_n: 'Güdümlü Uç', perk_seeker_d: 'Mermiler hafifçe düşmana yönelir',
+  perk_armorPen_n: 'Zırh Delen', perk_armorPen_d: 'Zırhlı ve boss modülü hasar azaltmasını deler',
+  perk_frostbite_n: 'Buz Isırığı', perk_frostbite_d: 'Donmuş düşmana +%20 hasar',
+  perk_chainPow_n: 'Zincir Gücü', perk_chainPow_d: 'Zincir hasarı +%15',
   p_chip: 'ÇİP',
   mode_bossrush: 'Boss Fırtınası', mode_s_bossrush: 'BOSS+',
   mode_bossrush_d: 'Her dalga boss; arka arkaya dev savaşlar',
@@ -2208,6 +2345,37 @@ const V9_TR = {
   p_magnet_d: 'Toplama menzilini artırır', p_chip_d: 'Yan silah çipi verir',
   p_life_d: '+1 can verir', p_bomb_d: '+1 bomba verir',
   p_nuke: 'NÜKLEER DALGA', p_nuke_d: 'Ekranı temizleyen büyük patlama',
+  p_overdrive: 'AŞIRI SÜRÜŞ', p_overdrive_d: '4,5 saniye overdrive',
+  p_barrage: 'YOĞUN ATIŞ', p_barrage_d: '10 saniye hızlı ateş',
+  p_pierce: 'DELİCİ UÇ', p_pierce_d: '9 saniye +2 delme',
+  p_frenzy: 'HÜCUM', p_frenzy_d: '9 saniye +%25 hasar',
+  p_ghost: 'HAYALET FAZ', p_ghost_d: '6 saniye dokunulmazlık',
+  p_shock: 'ŞOK DALGASI', p_shock_d: 'Üç çevresel hasar dalgası',
+  p_coinRain: 'PARA YAĞMURU', p_coinRain_d: '18 para düşürür',
+  p_x2: 'ÇİFT PUAN', p_x2_d: '12 saniye iki kat puan',
+  p_repair: 'ONARIM', p_repair_d: '+1 can verir',
+  p_arsenal: 'CEPHANE', p_arsenal_d: '+3 bomba verir',
+  p_nova: 'NOVA', p_nova_d: 'Çevresel nova patlaması',
+  ev_venomBomber_n: 'Zehirli Bombacı', ev_venomBomber_d: 'Ölünce zehir bulutu bırakır',
+  ev_goldWeaver_n: 'Altın Dokuyucu', ev_goldWeaver_d: 'Ekstra para düşürür',
+  ev_shieldScout_n: 'Kalkanlı İzci', ev_shieldScout_d: 'Bir vuruşu emen kalkan taşır',
+  ev_chargeRusher_n: 'Şarjlı Hücumcu', ev_chargeRusher_d: 'Hedefe hızlanarak dalar',
+  ev_splitScout_n: 'Bölünen İzci', ev_splitScout_d: 'Ölünce ikiye ayrılır',
+  ev_bomberTank_n: 'Bombardıman Tankı', ev_bomberTank_d: 'Bomba yağmuru atar',
+  ev_volatileShooter_n: 'Oynak Nişancı', ev_volatileShooter_d: 'Ölünce büyük patlar',
+  ev_frostPhantom_n: 'Buz Hayaleti', ev_frostPhantom_d: 'Yakınken yavaşlatır',
+  ev_summonerShielder_n: 'Çağırıcı Kalkan', ev_summonerShielder_d: 'Yardımcı düşman çağırır',
+  ev_sniperTank_n: 'Keskin Tank', ev_sniperTank_d: 'Uzaktan nişan alır',
+  ach_power50_n: 'Güç Toplayıcı', ach_power50_d: '50 güçlendirme topla',
+  ach_power200_n: 'Güç Ustası', ach_power200_d: '200 güçlendirme topla',
+  ach_power400_n: 'Güç Efsanesi', ach_power400_d: '400 güçlendirme topla',
+  ach_elite10_n: 'Elit Avcısı', ach_elite10_d: '10 elit düşman yok et',
+  ach_elite50_n: 'Elit Kasabı', ach_elite50_d: '50 elit düşman yok et',
+  ach_elite100_n: 'Elit Efsanesi', ach_elite100_d: '100 elit düşman yok et',
+  ach_odbuff_n: 'Aşırı Sürüş', ach_odbuff_d: 'İlk overdrive güçlendirmesini al',
+  ach_frenzy1_n: 'Hücum', ach_frenzy1_d: 'İlk hücum güçlendirmesini al',
+  ach_ghost1_n: 'Hayalet', ach_ghost1_d: 'İlk hayalet fazını al',
+  ach_shockwave1_n: 'Şok Ustası', ach_shockwave1_d: 'İlk şok dalgasını al',
   p_time: 'AĞIR ÇEKİM', p_time_d: 'Kısa süreli ağır çekim',
   p_crit: 'KRİTİK HEDEF', p_crit_d: '8 saniye kritik şansı',
   p_gold: 'ALTIN YAĞMURU', p_gold_d: '40 para ve bonus puan',
@@ -2307,6 +2475,26 @@ const V9_EN = {
   perk_graze2_n: 'Graze Master II', perk_graze2_d: 'Graze score x2',
   perk_boss2_n: 'Boss Breaker', perk_boss2_d: 'Boss damage +40%',
   perk_miss2_n: 'Missile Rain', perk_miss2_d: 'Missile duration +8s',
+  perk_split_n: 'Split Rounds', perk_split_d: 'Splits into shrapnel bullets on hit (+1 shard)',
+  perk_splash_n: 'Shock Rounds', perk_splash_d: 'Impact blast: +6 radius, 30% damage',
+  perk_shatter_n: 'Armor Shatter', perk_shatter_d: 'Consecutive hits on the same enemy deal +4% (10 stacks)',
+  perk_headshot_n: 'Headshot', perk_headshot_d: '6% chance for 3.5x damage',
+  perk_venom_n: 'Venom Rounds', perk_venom_d: '3 s poison; 12% damage per second',
+  perk_bolt_n: 'Bolt Rounds', perk_bolt_d: '10% chance to arc 60% damage to a nearby enemy',
+  perk_heavy_n: 'Heavy Shell', perk_heavy_d: 'Every 6th shot deals 2.6x damage with a blast',
+  perk_twin_n: 'Twin Barrel', perk_twin_d: '+1 center bullet per volley',
+  perk_diag_n: 'Cross Fire', perk_diag_d: '+1 diagonal bullet pair',
+  perk_bounce_n: 'Bouncing Shot', perk_bounce_d: '+1 bounce; the first bounce keeps full damage',
+  perk_kinetic_n: 'Kinetic Charge', perk_kinetic_d: '+2% damage per hit; resets after 1.5 s',
+  perk_critDmg_n: 'Crit Power', perk_critDmg_d: 'Crit multiplier +0.25',
+  perk_pierceDmg_n: 'Pierce Master', perk_pierceDmg_d: 'Pierce damage loss reduced by 10% per enemy',
+  perk_deathWave_n: 'Death Wave', perk_deathWave_d: 'Kills emit a shockwave (30% damage, +12 radius)',
+  perk_overcharge_n: 'Overcharge', perk_overcharge_d: 'Every 12th shot fires a 3.2x piercing lance',
+  perk_siphon_n: 'Hit Siphon', perk_siphon_d: '4% chance for +1 shield on hit',
+  perk_seeker_n: 'Seeker Tip', perk_seeker_d: 'Bullets curve slightly toward enemies',
+  perk_armorPen_n: 'Armor Piercer', perk_armorPen_d: 'Pierces armored and boss module damage reduction',
+  perk_frostbite_n: 'Frostbite', perk_frostbite_d: '+20% damage against frozen enemies',
+  perk_chainPow_n: 'Chain Power', perk_chainPow_d: 'Chain damage +15%',
   p_chip: 'CHIP',
   mode_bossrush: 'Boss Storm', mode_s_bossrush: 'BOSS+',
   mode_bossrush_d: 'A boss every wave; back-to-back giant fights',
@@ -2377,6 +2565,37 @@ const V9_EN = {
   p_magnet_d: 'Increases pickup range', p_chip_d: 'Grants a side weapon chip',
   p_life_d: '+1 life', p_bomb_d: '+1 bomb',
   p_nuke: 'NUKE WAVE', p_nuke_d: 'A screen-clearing blast',
+  p_overdrive: 'OVERDRIVE', p_overdrive_d: '4.5 seconds of overdrive',
+  p_barrage: 'BARRAGE', p_barrage_d: '10 seconds of fast fire',
+  p_pierce: 'PIERCING TIP', p_pierce_d: '9 seconds of +2 pierce',
+  p_frenzy: 'FRENZY', p_frenzy_d: '9 seconds of +25% damage',
+  p_ghost: 'PHASE GHOST', p_ghost_d: '6 seconds of invulnerability',
+  p_shock: 'SHOCKWAVE', p_shock_d: 'Three damaging shockwaves',
+  p_coinRain: 'COIN RAIN', p_coinRain_d: 'Drops 18 coins',
+  p_x2: 'DOUBLE SCORE', p_x2_d: 'Double score for 12 seconds',
+  p_repair: 'REPAIR', p_repair_d: 'Grants +1 life',
+  p_arsenal: 'ARSENAL', p_arsenal_d: 'Grants +3 bombs',
+  p_nova: 'NOVA', p_nova_d: 'Blast nova around you',
+  ev_venomBomber_n: 'Venom Bomber', ev_venomBomber_d: 'Leaves a poison cloud on death',
+  ev_goldWeaver_n: 'Gold Weaver', ev_goldWeaver_d: 'Drops extra coins',
+  ev_shieldScout_n: 'Shielded Scout', ev_shieldScout_d: 'Carries a shield that absorbs one hit',
+  ev_chargeRusher_n: 'Charging Rusher', ev_chargeRusher_d: 'Dives at you with increasing speed',
+  ev_splitScout_n: 'Splitting Scout', ev_splitScout_d: 'Splits in two on death',
+  ev_bomberTank_n: 'Bomber Tank', ev_bomberTank_d: 'Fires a bomb barrage',
+  ev_volatileShooter_n: 'Volatile Shooter', ev_volatileShooter_d: 'Explodes violently on death',
+  ev_frostPhantom_n: 'Frost Phantom', ev_frostPhantom_d: 'Slows you when close',
+  ev_summonerShielder_n: 'Summoner Shield', ev_summonerShielder_d: 'Summons helper enemies',
+  ev_sniperTank_n: 'Sharpshooter Tank', ev_sniperTank_d: 'Snipes from long range',
+  ach_power50_n: 'Power Collector', ach_power50_d: 'Collect 50 powerups',
+  ach_power200_n: 'Power Master', ach_power200_d: 'Collect 200 powerups',
+  ach_power400_n: 'Power Legend', ach_power400_d: 'Collect 400 powerups',
+  ach_elite10_n: 'Elite Hunter', ach_elite10_d: 'Destroy 10 elite enemies',
+  ach_elite50_n: 'Elite Butcher', ach_elite50_d: 'Destroy 50 elite enemies',
+  ach_elite100_n: 'Elite Legend', ach_elite100_d: 'Destroy 100 elite enemies',
+  ach_odbuff_n: 'Overdrive', ach_odbuff_d: 'Pick up your first overdrive',
+  ach_frenzy1_n: 'Frenzy', ach_frenzy1_d: 'Pick up your first frenzy',
+  ach_ghost1_n: 'Ghost', ach_ghost1_d: 'Pick up your first phase ghost',
+  ach_shockwave1_n: 'Shock Master', ach_shockwave1_d: 'Trigger your first shockwave',
   p_time: 'BULLET TIME', p_time_d: 'Brief slow motion',
   p_crit: 'CRIT TARGET', p_crit_d: '8 seconds of crit chance',
   p_gold: 'GOLD RAIN', p_gold_d: '40 coins and bonus score',
@@ -2737,6 +2956,54 @@ const V99_EN = {
 Object.assign(TR, V99_TR);
 Object.assign(EN, V99_EN);
 
+/* v10.0: gemi 2.0 — imza pasifleri, yetenek seviyeleri ve hangar kartları */
+const V100_TR = {
+  ver_fmt: 'v10.0',
+  pas_std: 'Aşırı Yük +%15 · öldürme zinciri süreyi uzatır',
+  pas_speed: 'Atılma +%15 · Ateş +%8 · dash şok dalgası',
+  pas_tank: 'Kalkan +3 · Dokunulmazlık +0,6 sn · 10 sn reaktif kalkan',
+  pas_nova: 'Isı +%20 · her 8. atış mini nova',
+  pas_ghost: 'Sıyırma +8 · Para +%10 · faz yankısı',
+  pas_titan: 'Boss hasarı +%12 · Bomba +1 · Salvo +2 füze',
+  abil_overload_d: '4 sn aşırı yük: hızlı ateş ve +hasar. Seviye başına +0,5 sn.',
+  abil_blink_d: '180 px ışınlanma; varışta hasar ve mermi temizliği.',
+  abil_barrier_d: '4,5 sn dokunulmazlık ve 1 kalkan. Seviye başına +0,6 sn, +1 kalkan.',
+  abil_supernova_d: 'Ekranı temizleyen nova; tüm düşmanlara hasar.',
+  abil_phase_d: '3 sn dokunulmazlık; arkanda patlayan yankı bırakır.',
+  abil_salvo_d: '4 güdümlü füze. Titan 2 ekstra füze atar.',
+  tree_abil_n: 'Yetenek', tree_abil_d: 'Yetenek gücü + · bekleme -%5 / seviye',
+  hangar_ability: 'YETENEK', hangar_abil_lv: 'SEVİYE {a}/{b}',
+  hangar_passive_short: 'İMZA PASİFİ', hangar_power: 'GÜÇ',
+  p_react: 'REAKTİF KALKAN',
+  ach_tree15_n: 'Gemi Mühendisi', ach_tree15_d: 'Gemilerde toplam 15 yükseltme seviyesi al',
+  ach_abilmax_n: 'Yetenek Ustası', ach_abilmax_d: 'Bir geminin yetenek düğümünü 3. seviyeye çıkar',
+  ach_abil100_n: 'Yetenek Efsanesi', ach_abil100_d: '100 kez gemi yeteneği kullan'
+};
+const V100_EN = {
+  ver_fmt: 'v10.0',
+  pas_std: 'Overdrive +15% · kills extend the chain',
+  pas_speed: 'Dash +15% · Fire +8% · dash shockwave',
+  pas_tank: 'Shield +3 · Invuln +0.6s · 10s reactive shield',
+  pas_nova: 'Heat +20% · every 8th shot is a mini nova',
+  pas_ghost: 'Graze +8 · Coins +10% · phase echo',
+  pas_titan: 'Boss damage +12% · Bomb +1 · Salvo +2 missiles',
+  abil_overload_d: '4s overdrive: rapid fire and +damage. +0.5s per level.',
+  abil_blink_d: '180px blink; damage and bullet clear on arrival.',
+  abil_barrier_d: '4.5s invulnerability and 1 shield. +0.6s, +1 shield per level.',
+  abil_supernova_d: 'Screen-clearing nova that damages every enemy.',
+  abil_phase_d: '3s invulnerability; leaves a bursting echo behind.',
+  abil_salvo_d: '4 homing missiles. Titan fires 2 extra.',
+  tree_abil_n: 'Ability', tree_abil_d: 'Ability power + · cooldown -5% per level',
+  hangar_ability: 'ABILITY', hangar_abil_lv: 'LEVEL {a}/{b}',
+  hangar_passive_short: 'SIGNATURE PASSIVE', hangar_power: 'POWER',
+  p_react: 'REACTIVE SHIELD',
+  ach_tree15_n: 'Ship Engineer', ach_tree15_d: 'Buy 15 total ship upgrade levels',
+  ach_abilmax_n: 'Ability Mastery', ach_abilmax_d: 'Raise a ship ability node to level 3',
+  ach_abil100_n: 'Ability Legend', ach_abil100_d: 'Use ship abilities 100 times'
+};
+Object.assign(TR, V100_TR);
+Object.assign(EN, V100_EN);
+
 /* v9.7: yükseltme kartları, duraklatma ve derece ekranı için ortak yardımcılar */
 const PERK_ICONS = {
   dmg: 'flame', rate: 'bolt', speed: 'wind', regen: 'shield', bomb: 'bomb', magnet: 'magnet',
@@ -2750,7 +3017,12 @@ const PERK_ICONS = {
   sniper: 'cross', orbital: 'star', supernova: 'star', chain2: 'flame', exec2: 'skull',
   luck2: 'star', regen2: 'shield', dash2: 'dash', startw2: 'bolt', crit2: 'cross',
   pierce2: 'arrow', life2: 'heart', bomb2: 'bomb', speed2: 'wind', rate2: 'bolt',
-  dmg2: 'flame', coin2: 'coin', graze2: 'target', boss2: 'skull', miss2: 'rocket'
+  dmg2: 'flame', coin2: 'coin', graze2: 'target', boss2: 'skull', miss2: 'rocket',
+  split: 'arrow', splash: 'bomb', shatter: 'cross', headshot: 'target', venom: 'flame',
+  bolt: 'bolt', heavy: 'bomb', twin: 'arrow', diag: 'cross', bounce: 'wind',
+  kinetic: 'bolt', critDmg: 'target', pierceDmg: 'arrow', deathWave: 'flame',
+  overcharge: 'bolt', siphon: 'shield', seeker: 'rocket', armorPen: 'cross',
+  frostbite: 'star', chainPow: 'bolt'
 };
 function perkIcon(id) {
   if (PERK_ICONS[id]) return PERK_ICONS[id];
@@ -3150,7 +3422,10 @@ const PAL = { eb: '#ff6688', scout: '#ff4f9a', diver: '#ff9a3d', shooter: '#a05c
   weapon: '#8ff3ff', missile: '#ff9e6b', laser: '#ff6bd0', drone: '#8fffb0', magnet: '#c39bff', life: '#ff7bbd',
   rusher: '#ff8a5c', shielder: '#6fd8b0', phantom: '#cfd6ff', guard: '#ffb060', queen: '#ff6bd0', chip: '#ffd85f',
   bomber: '#ffb347', healer: '#5cf2b6', weaver: '#c98bff',
-  nuke: '#ff9e6b', time: '#9fd8ff', crit: '#ffe066', beam: '#ffd85f' };
+  nuke: '#ff9e6b', time: '#9fd8ff', crit: '#ffe066', beam: '#ffd85f',
+  overdrive: '#ffd166', barrage: '#ff9e6b', pierce: '#8ff3ff', frenzy: '#ff5fd2',
+  ghost: '#cfd6ff', shock: '#9fe8ff', coinRain: '#ffd85f', x2: '#ffe066',
+  repair: '#5cf2b6', arsenal: '#ffb060', nova: '#ffb060' };
 const CBP = Object.assign({}, PAL, { eb: '#ffd24f', scout: '#ffb347', diver: '#ffe066', tank: '#5fb0ff',
   shield: '#5fb0ff', sniper: '#ffcc55', mine: '#ffcc55', rusher: '#ffe066', shielder: '#5fb0ff',
   phantom: '#ffffff', guard: '#ffcc55', queen: '#ff8ad0', bomber: '#ffcc55', healer: '#7dffcf', weaver: '#e0b8ff' });
@@ -3240,9 +3515,18 @@ function checkAch() {
     ['camp150', campDone >= 150], ['camp250', campDone >= 250],
     ['perfect25', (P.perfectBest || 0) >= 25], ['time30k', (P.timeBest || 0) >= 30000],
     ['abil50', P.abils >= 50], ['missions30', P.missClaimed >= 30],
-    ['fusion5', fusionCount() >= 5], ['duelist', (P.vsWins || 0) >= 5]
+    ['fusion5', fusionCount() >= 5], ['duelist', (P.vsWins || 0) >= 5],
+    ['abil100', P.abils >= 100]
   ];
   for (const [id, ok] of simple) if (ok) unlockAch(id);
+  let treeSum = 0, abilMaxed = false;
+  for (const sh in (P.shipUp || {})) {
+    const q = P.shipUp[sh] || {};
+    for (const tr of TREE) treeSum += clamp(q[tr.id] || 0, 0, tr.max);
+    if ((q.abil || 0) >= 3) abilMaxed = true;
+  }
+  if (treeSum >= 15) unlockAch('tree15');
+  if (abilMaxed) unlockAch('abilmax');
   const got = ACHS.filter(id => P.ach[id]).length;
   if (got >= 40) unlockAch('ach40');
   if (got >= 50) unlockAch('ach50');
@@ -3322,6 +3606,10 @@ function impactFx(x, y, b) {
     pushP({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
       life: rand(0.12, 0.34), max: 0.34, size: rand(1.2, crit ? 3.8 : 2.8), color: crit ? '#fff2b0' : col });
   }
+  if (b.head) { fxRing(x, y, 4, 340, 3, 0.3, '#fff3b0'); fxBurst(x, y, '#fff3b0', 18, 0.18, 'star'); }
+  if (b.heavy) { fxRing(x, y, 6, 420, 4, 0.32, '#ff9a5c'); addShake(1.8); }
+  if (b.venom) fxBurst(x, y, '#9dff8e', 7, 0.15, 'ring');
+  if (b.w === 'shard') fxBurst(x, y, '#ffd166', 6, 0.1, 'shard');
   if (b.w === 'drone') fxBurst(x, y, '#9eeeff', 7, 0.14, 'ring');
   else if (b.w === 'rear') fxBurst(x, y, '#ffc078', 8, 0.14, 'ring');
   else if (b.w === 'wing') fxBurst(x, y, '#ffd166', 6, 0.12, 'ring');
@@ -3464,7 +3752,7 @@ function assistCount() {
   return (S.asBomb ? 1 : 0) + (S.asAim ? 1 : 0) + (S.asSlow ? 1 : 0) + (S.asLife ? 1 : 0);
 }
 function assistScoreMul() { return Math.max(0.8, 1 - assistCount() * 0.05); }
-function addScore(v) { state.score += Math.round(v * (st && st.scoreMul || 1) * assistScoreMul()); }
+function addScore(v) { state.score += Math.round(v * (st && st.scoreMul || 1) * assistScoreMul() * (state.scoreBoostT > 0 ? 2 : 1)); }
 function comboMult() { return Math.min(5, 1 + state.combo * st.comboStep); }
 const RANKS = ['D', 'C', 'B', 'A', 'S'];
 const RANK_AT = [4, 8, 14, 22, 30];
@@ -3620,8 +3908,11 @@ function addCoins(n) {
 /* ---------- ödüller ---------- */
 function dropPowerup(x, y, kind) {
   if (!kind) {
-    kind = pick(['weapon','shield','rapid','missile','laser','drone','magnet','beam']);
-    if (Math.random() < 0.16) kind = pick(['nuke', 'time', 'crit', 'gold', 'beam']);
+    const roll = Math.random();
+    if (roll < 0.50) kind = pick(['weapon','shield','rapid','missile','laser','drone','magnet','beam']);
+    else if (roll < 0.82) kind = pick(['overdrive','barrage','pierce','frenzy','ghost','shock',
+      'coinRain','x2','repair','arsenal','nova']);
+    else kind = pick(['nuke','time','crit','gold','beam','life']);
   }
   powerups.push({ x, y, kind, r: 13, vy: 70, t: rand(0,TAU), dead: false });
 }
@@ -3635,21 +3926,21 @@ function givePower(kind, atX, atY, chipSel) {
   const p = player;
   const f = (txt, col) => addFloat(p.x, p.y - 28, txt, col);
   if (kind === 'weapon') { if (p.weapon < 3) { p.weapon++; f(t('p_weapon', { n: p.weapon }), CC.weapon); } else { addScore(200); f('+200', CC.weapon); } }
-  else if (kind === 'shield') { p.shield = 8; f(t('p_shield'), CC.shield); }
-  else if (kind === 'rapid') { p.rapid = 8; f(t('p_rapid'), CC.rapid); }
+  else if (kind === 'shield') { p.shield = (p.shield || 0) + 8; f(t('p_shield'), CC.shield); }
+  else if (kind === 'rapid') { p.rapid = (p.rapid || 0) + 8; f(t('p_rapid'), CC.rapid); }
   else if (kind === 'missile') { p.missiles += 10 + st.missilesDur; f(t('p_missile'), CC.missile); }
-  else if (kind === 'laser') { p.laser = 7; f(t('p_laser'), CC.laser); }
-  else if (kind === 'drone') { p.drones = 15 + st.droneDur; f(t('p_drone'), CC.drone); }
+  else if (kind === 'laser') { p.laser = (p.laser || 0) + 7; f(t('p_laser'), CC.laser); }
+  else if (kind === 'drone') { p.drones = (p.drones || 0) + 15 + st.droneDur; f(t('p_drone'), CC.drone); }
   else if (kind === 'chip') {
     const c = chipSel || pick(['rear','orb','bolt']);
     p.chip = c; P.chipsFound[c] = true;
     if (P.chipsFound.rear && P.chipsFound.orb && P.chipsFound.bolt) unlockAch('chips3');
     f(t('p_chip_' + c), CC.chip); buzz(15);
   }
-  else if (kind === 'magnet') { p.magnet = 12; f(t('p_magnet'), CC.magnet); }
+  else if (kind === 'magnet') { p.magnet = (p.magnet || 0) + 12; f(t('p_magnet'), CC.magnet); }
   else if (kind === 'life') { state.lives = Math.min(6, state.lives + 1); f(t('p_life'), CC.life); }
   else if (kind === 'bomb') { state.bombs = Math.min(st.bombMax, state.bombs + 1); f(t('p_bomb'), '#ffcf5f'); }
-  else if (kind === 'beam') { p.beamT = 2.6; f(t('p_beam'), CC.beam); flash(0.18, '#ffd85f'); }
+  else if (kind === 'beam') { p.beamT = (p.beamT || 0) + 2.6; f(t('p_beam'), CC.beam); flash(0.18, '#ffd85f'); }
   else if (kind === 'nuke') {
     for (const e of enemies) if (!e.dead) hurtEnemy(e, 8 * st.dmg * st.bossDmg, e.x, e.y, true);
     for (const b of ebullets) { b.dead = true; spark(b.x, b.y, '#fff'); }
@@ -3659,8 +3950,43 @@ function givePower(kind, atX, atY, chipSel) {
     f(t('p_nuke'), CC.nuke);
   }
   else if (kind === 'time') { slow(0.55, 4); f(t('p_time'), CC.time); }
-  else if (kind === 'crit') { p.critT = 8; f(t('p_crit'), CC.crit); }
+  else if (kind === 'crit') { p.critT = (p.critT || 0) + 8; f(t('p_crit'), CC.crit); }
   else if (kind === 'gold') { addCoins(40); addScore(400); f(t('p_gold'), CC.gold); }
+  else if (kind === 'overdrive') {
+    state.odT = Math.min(9, (state.odT || 0) + 4.5);
+    f(t('p_overdrive'), CC.overdrive); unlockAch('odbuff'); flash(0.12, CC.overdrive);
+  }
+  else if (kind === 'nova') {
+    novaBlast(p.x, p.y); addShake(5);
+    f(t('p_nova'), CC.nova); unlockAch('shockwave1');
+  }
+  else if (kind === 'repair') { state.lives = Math.min(6, state.lives + 1); f(t('p_repair'), CC.repair); }
+  else if (kind === 'x2') { state.scoreBoostT = 12; f(t('p_x2'), CC.x2); }
+  else if (kind === 'barrage') { p.rapid = (p.rapid || 0) + 10; f(t('p_barrage'), CC.barrage); }
+  else if (kind === 'pierce') { p.pierceT = 9; f(t('p_pierce'), CC.pierce); }
+  else if (kind === 'frenzy') { p.frenzyT = 9; f(t('p_frenzy'), CC.frenzy); unlockAch('frenzy1'); }
+  else if (kind === 'ghost') { p.inv = Math.max(p.inv || 0, 6); f(t('p_ghost'), CC.ghost); unlockAch('ghost1'); }
+  else if (kind === 'coinRain') {
+    for (let q = 0; q < 18; q++) spawnCoin(p.x + rand(-90, 90), p.y - rand(0, 90), rand(-40, 40), rand(-160, -60));
+    f(t('p_coinRain'), CC.coinRain);
+  }
+  else if (kind === 'shock') {
+    for (let wv = 0; wv < 3; wv++) {
+      const R = 90 + wv * 70;
+      fxRing(p.x, p.y, 10, R * 2.4, 4, 0.34, CC.shock);
+      for (const o of enemies) {
+        if (o.dead || o.dying) continue;
+        if (dist2(o.x, o.y, p.x, p.y) < R * R) hurtEnemy(o, 4 * st.dmg * st.bossDmg, o.x, o.y, true);
+      }
+    }
+    addShake(7); flash(0.18, CC.shock);
+    f(t('p_shock'), CC.shock); unlockAch('shockwave1');
+  }
+  else if (kind === 'arsenal') { state.bombs = Math.min(st.bombMax, state.bombs + 3); f(t('p_arsenal'), CC.arsenal); }
+  P.collected++;
+  if (P.collected >= 50) unlockAch('power50');
+  if (P.collected >= 200) unlockAch('power200');
+  if (P.collected >= 400) unlockAch('power400');
   addScore(50);
   sfx.power();
   ringParticles(atX != null ? atX : p.x, atY != null ? atY : p.y, '#fff');
@@ -3670,8 +3996,8 @@ function giveCrate(c) {
   let txt = '', col = '#fff';
   if (kind === 'bomb') { state.bombs = Math.min(st.bombMax, state.bombs + 1); txt = t('c_bomb'); col = '#ffcf5f'; }
   else if (kind === 'coins') { addCoins(15); txt = t('c_coins'); col = CC.coin; }
-  else if (kind === 'weapon') { player.weapon = 3; txt = t('c_weapon'); col = CC.weapon; }
-  else if (kind === 'shield') { player.shield = 12; txt = t('c_shield'); col = CC.shield; }
+  else if (kind === 'weapon') { player.weapon = Math.min(3, player.weapon + 1); txt = t('c_weapon'); col = CC.weapon; }
+  else if (kind === 'shield') { player.shield = (player.shield || 0) + 12; txt = t('c_shield'); col = CC.shield; }
   else if (kind === 'life') { state.lives = Math.min(6, state.lives + 1); txt = t('c_life'); col = CC.life; }
   else if (kind === 'score') { addScore(500); txt = t('c_score'); col = '#ffe9a8'; }
   else if (kind === 'chip') {
@@ -3706,7 +4032,7 @@ function stormChain(x, y, dmg, skip) {
   const tier = evoActive('storm') ? evoTier() : 0;
   if (!tier || (state.evoZapCd || 0) > 0) return;
   state.evoZapCd = 0.14;
-  const n = 1 + tier, range = 120 + tier * 30, mul = 0.26 + tier * 0.11;
+  const n = 1 + tier, range = 120 + tier * 30, mul = 0.26 + tier * 0.11 + Math.min(1.5, 0.15 * (st.chainPow || 0));
   let sx = x, sy = y, arcs = 0;
   const hitSet = new Set();
   for (let k = 0; k < n; k++) {
@@ -3778,8 +4104,8 @@ function hurtEnemy(e, dmg, sx, sy, quiet, byRival) {
     return;
   }
   e.rivalKill = !!byRival;
-  if (e.armored) dmg *= 0.65;
-  if (e.type === 'boss' && e.mods && e.mods.some(m => !m.dead)) dmg *= 0.72;
+  if (e.armored) dmg *= Math.min(1, 0.65 + 0.05 * (st.armorPen || 0));
+  if (e.type === 'boss' && e.mods && e.mods.some(m => !m.dead)) dmg *= Math.min(1, 0.72 + 0.04 * (st.armorPen || 0));
   if (e.type === 'boss' && e.armorBroken) dmg *= 1.12;
   e.hp -= dmg; e.flash = 0.12;
   const execCut = st.exec && e.type !== 'boss' && e.type !== 'guard' &&
@@ -3845,11 +4171,21 @@ function killEnemy(e) {
   if (P.kills >= 500) unlockAch('kill500');
   if (P.kills >= 1500) unlockAch('kill1500');
   if (st.nova && state.killN % (st.nova >= 2 ? 5 : 6) === 0) novaBlast(e.x, e.y);
+  if (st.deathWave && (state.dwDepth || 0) < 3) {
+    state.dwDepth = (state.dwDepth || 0) + 1;
+    const DR = 55 + 12 * st.deathWave;
+    fxRing(e.x, e.y, 8, DR, 3, 0.32, '#ffb060');
+    for (const o of enemies) {
+      if (o.dead || o.dying) continue;
+      if (dist2(o.x, o.y, e.x, e.y) < DR * DR) hurtEnemy(o, st.dmg * 0.3 * st.deathWave, o.x, o.y, true);
+    }
+    state.dwDepth--;
+  }
   if (evoActive('storm') && evoTier() >= 3) {
     state.evoKillN = (state.evoKillN || 0) + 1;
     if (state.evoKillN % 10 === 0) stormNova(e.x, e.y);
   }
-  if (st.leech && state.killN % 40 === 0 && state.lives < 6) {
+  if (st.leech && state.killN % Math.max(10, 40 - 6 * (st.leech - 1)) === 0 && state.lives < 6) {
     state.lives++;
     addFloat(e.x, e.y - 24, '+1 ♥', '#ff8fa8');
     fxRing(e.x, e.y, 10, 260, 3, 0.5, '#ff8fa8');
@@ -3857,6 +4193,9 @@ function killEnemy(e) {
   }
   addRage(e.type === 'boss' ? 0.25 : e.type === 'guard' ? 0.15 : e.type === 'tank' ? 0.035 : 0.02);
   addOverdrive((e.type === 'boss' ? 0.35 : e.type === 'guard' ? 0.18 : e.type === 'tank' ? 0.05 : 0.018) * (1 + state.heat * 0.006));
+  if (st.odChain && state.odT > 0) {
+    state.odT = Math.min(9, state.odT + (e.type === 'boss' ? 0.8 : e.type === 'guard' ? 0.4 : e.type === 'tank' ? 0.22 : 0.14));
+  }
   if (e.type === 'splitter') {
     for (let k = -1; k <= 1; k += 2)
       enemies.push(mkEnemy({ type: 'splitling', x: e.x + k*14, y: e.y }));
@@ -3939,7 +4278,13 @@ function killEnemy(e) {
     }
     if (e.type === 'mine') radialShot(e.x, e.y, 8, 180, 0, 5, CC.mine);
     sfx.boom();
-    if (e.elite) dropPowerup(e.x, e.y);
+    if (e.elite) {
+      dropPowerup(e.x, e.y);
+      P.eliteKills = (P.eliteKills || 0) + 1;
+      if (P.eliteKills >= 10) unlockAch('elite10');
+      if (P.eliteKills >= 50) unlockAch('elite50');
+      if (P.eliteKills >= 100) unlockAch('elite100');
+    }
     else if (Math.random() < (0.15 + (e.type === 'tank' ? 0.2 : 0) + (e.type === 'mine' ? 0.1 : 0)) * st.luckMul) dropPowerup(e.x, e.y);
     /* v9.9: can damlası — düşmanlardan seyrek, tank/healer/elitlerden daha sık. */
     const lifeChance = 0.025 + (e.type === 'tank' ? 0.035 : 0) + (e.type === 'healer' ? 0.05 : 0) + (e.elite ? 0.15 : 0);
@@ -4015,8 +4360,8 @@ function damagePlayer() {
     return;
   }
   if (state.lives <= 0) {
-    if (st.revive && !state.reviveUsed) {
-      state.reviveUsed = true; state.lives = 1; p.inv = 3;
+    if (st.revive > 0 && (state.reviveUsed | 0) < st.revive) {
+      state.reviveUsed = (state.reviveUsed | 0) + 1; state.lives = 1; p.inv = 3;
       addFloat(p.x, p.y - 30, t('second_chance'), CC.life);
       fxRing(p.x, p.y, 12, 520, 5, 0.7, CC.life);
       flash(0.4, CC.life); sfx.upgrade();
@@ -4151,7 +4496,8 @@ function mkPlayer() {
     muzzle: 0, droneA: 0, wingT: [0, 0, 0], missileSide: 1, laserTick: 0, grazeTick: 0,
     moveMag: 0, shieldHit: 0, hurtFx: 0, leakT: 0, exhaustT: 0,
     critT: 0, chill: 0, beamT: 0, beamTick: 0,
-    focus: 0, focusOn: false, focusReady: false, focusTick: 0 };
+    focus: 0, focusOn: false, focusReady: false, focusTick: 0,
+    surgeN: 0, shotN: 0 };
 }
 function mkUfo() {
   const dir = Math.random() < 0.5 ? 1 : -1;
@@ -4292,7 +4638,7 @@ function nextWave() {
   state.waveTotal = state.spawnQueue.length;
   state.waveKilled0 = state.runKills;
   state.spawnTimer = 0;
-  if (st.startBomb && n > 1) state.bombs = Math.min(st.bombMax, state.bombs + 1);
+  if (st.startBomb && n > 1) state.bombs = Math.min(st.bombMax, state.bombs + st.startBomb);
   state.waveBanner = state.mod === 'horde' ? 2.6 : 1.8;
   state.clearT = 0;
   const oldRegion = state.region | 0;
@@ -4347,13 +4693,16 @@ function resetRun() {
   state.waveBanner = 0; state.clearText = ''; state.clearT = 0; state.mod = null;
   state.combo = 0; state.comboT = 0; state.shake = 0; state.runT = 0; state.overT = 0;
   state.runCoins = 0; state.runKills = 0; state.runShots = 0; state.runHits = 0; state.runCombo = 0;
-  state.reviveUsed = false; state.bombs = st.bombMax; state.bombCd = 0; state.tut = null;
+  state.reviveUsed = 0; state.bombs = st.bombMax; state.bombCd = 0; state.tut = null;
   state.regenT = st.shieldRegen || 0; state.progs = {}; state.toasts = [];
   state.flashA = 0; state.slowT = 0; state.zoomT = 0; state.newRecord = false;
   state.ufoTimer = rand(35, 55); state.cometT = rand(4, 10);
   state.rage = 0; state.ultraT = 0; state.od = 0; state.odT = 0; state.odBanner = 0; state.zaps = []; state.bossIdx = 0;
+  state.kinStreak = 0; state.kinTimer = 0;
+  state.reactT = 0; state.phaseEcho = null;
   state.introT = 0; state.introName = ''; state.lastRank = ''; state.achPage = 0;
   state.hitT = 0; state.fever = 0; state.meteorT = rand(20, 34); state.meteorWarn = 0;
+  state.scoreBoostT = 0;
   state.comboPulse = 0; state.comboGain = 0; state.comboGainT = 0; state.scorePulse = 0;
   state.critPulse = 0; state.bossDeath = null; state.bossBreakT = 0; state.bgPulse = 0;
   state.heat = 0; state.heatBest = 0; state.heatPulse = 0; state.chain = 0; state.chainT = 0; state.chainBest = 0;
@@ -4442,7 +4791,7 @@ function applyCampaign(id) {
     else if (m === 'seyrek') state.campDensity = 0.8;
     else if (m === 'guclu') state.campBossHp = 1.3;
     else if (m === 'zayif') state.campBossHp = 0.75;
-    else if (m === 'tekcan') { state.lives = 1; st.revive = false; }
+    else if (m === 'tekcan') { state.lives = 1; st.revive = 0; }
     else if (m === 'bolcan') state.lives = Math.min(6, state.lives + 1);
     else if (m === 'hizliates') st.fireCd *= 0.8;
     else if (m === 'buyuk') state.campBulletR = 1.35;
@@ -4916,20 +5265,29 @@ function bossLeadPoint(x, y, spd) {
 }
 function fireWeapon(gdt) {
   const p = player;
+  if (state.kinTimer > 0) { state.kinTimer -= gdt; if (state.kinTimer <= 0) state.kinStreak = 0; }
   p.cool -= gdt;
   if (p.cool > 0) return;
   const ult = state.ultraT > 0, ov = p.ovT > 0, od = state.odT > 0;
   const low = state.lives <= 1;
   p.cool = st.fireCd * st.rateMul * heatFireMul() * (p.rapid > 0 ? 0.6 : 1) * (ult ? 0.62 : 1) * (ov ? 0.5 : 1) * (od ? 0.46 : 1) *
     (low && st.berserk ? Math.max(0.55, 1 - st.berserk) : 1);
+  const kinMul = 1 + Math.min((st.kinetic || 0) * 0.2, (state.kinStreak || 0) * 0.02);
   const spd = st.bulletSp * (ov ? 1.12 : 1) * (od ? 1.15 : 1) * (p.focusOn ? 1.18 : 1),
-    dmg = st.dmg * heatDmgMul() * (ult ? 1.6 : 1) * (ov ? 1.25 : 1) * (od ? 1.5 : 1) * (low ? 1 + (st.lastStand || 0) : 1) * (p.focusOn ? 1.12 : 1),
-    prc = (st.pierce || 0) + (ov ? 1 : 0) + (od ? 2 : 0);
+    dmg = st.dmg * heatDmgMul() * (ult ? 1.6 : 1) * (ov ? 1.25 : 1) * (od ? 1.5 : 1) * (low ? 1 + (st.lastStand || 0) : 1) * (p.focusOn ? 1.12 : 1) * kinMul * (p.frenzyT > 0 ? 1.25 : 1),
+    prc = (st.pierce || 0) + (ov ? 1 : 0) + (od ? 2 : 0) + (p.pierceT > 0 ? 2 : 0);
   const spread = p.focusOn ? 0.45 : 1;
   const evoN = evoActive('nova') ? evoTier() : 0;
   const evoS = evoActive('storm') ? evoTier() : 0;
   const mk = (dx, dy, vx, lead, dirY, dmul) => {
     const cr = p.phT > 0 || (st.crit > 0 && Math.random() < st.crit) || (p.critT > 0 && Math.random() < 0.25);
+    p.shotN = (p.shotN || 0) + 1;
+    const fus = !!(st.fusionCore && p.shotN % 8 === 0);
+    const hs = (st.headshot || 0) > 0 && Math.random() < Math.min(0.65, st.headshot * 0.06);
+    const hv = (st.heavy || 0) > 0 && p.shotN % 6 === 0;
+    const ovc = (st.overcharge || 0) > 0 && p.shotN % 12 === 0;
+    let srg = false;
+    if (p.surgeN > 0) { srg = true; p.surgeN--; }
     let bx = p.x + dx, by = p.y + dy, bvx = vx || 0, bvy = (dirY == null ? -1 : dirY) * spd;
     if (lead) {
       const ap = bossLeadPoint(bx, by, spd);
@@ -4938,13 +5296,20 @@ function fireWeapon(gdt) {
         bvx = ax / al * spd; bvy = ay / al * spd;
       }
     }
-    bullets.push({ x: bx, y: by, vx: bvx, vy: bvy, r: (state.fever > 0.5 ? 3.6 : 3) * (state.campBulletR || 1) * (od ? 1.18 : 1),
-      dmg: dmg * (cr ? 2 : 1) * (dmul || 1), crit: cr, pierce: prc, w: 'cannon',
-      homing: (st.homing || 0) + (S.asAim ? 0.6 : 0), turn: (S.asAim && !st.homing) ? 2.4 : 0,
-      ricochet: st.ricochet || 0,
+    const bdmg = dmg * (cr ? (2 + (st.critDmg || 0)) : 1) * (dmul || 1) * (srg ? 1.5 : 1) * (fus ? 1.4 : 1) *
+      (hs ? 3.5 : 1) * (hv ? 2.6 : 1) * (ovc ? 3.2 : 1);
+    bullets.push({ x: bx, y: by, vx: bvx, vy: bvy,
+      r: ((state.fever > 0.5 ? 3.6 : 3) * (state.campBulletR || 1) * (od ? 1.18 : 1)) * (fus ? 1.7 : 1) * (hv ? 1.7 : 1) * (ovc ? 1.35 : 1),
+      dmg: bdmg, crit: cr, head: hs, heavy: hv, headHit: hs,
+      pierce: prc + (srg ? 2 : 0) + (ovc ? 8 : 0), w: ovc ? 'lance' : hv ? 'heavy' : 'cannon',
+      homing: (st.homing || 0) + (st.seeker || 0) * 0.8 + (S.asAim ? 0.6 : 0),
+      turn: (st.seeker || st.homing || S.asAim) ? 3.2 : 0,
+      ricochet: (st.ricochet || 0) + (st.bounce || 0), fullBounce: (st.bounce || 0) > 0,
       freeze: st.freeze || 0, burn: st.burn || 0,
-      nova: evoN, storm: evoS,
-      c: cr ? '#ffe066' : (od ? (Math.random() < 0.34 ? '#ffd166' : Math.random() < 0.5 ? '#8ff3ff' : '#ff9be8') : (state.fever > 0.5 ? '#ff9be8' : st.color)), dead: false });
+      venom: st.venom || 0, splash: st.splash || 0, split: st.split || 0, bolt: st.bolt || 0,
+      siphon: st.siphon || 0, shard: false,
+      nova: evoN || (fus ? 2 : 0), storm: evoS,
+      c: hs ? '#fff3b0' : hv ? '#ff9a5c' : ovc ? '#8ff3ff' : fus ? '#ff9be8' : cr ? '#ffe066' : (od ? (Math.random() < 0.34 ? '#ffd166' : Math.random() < 0.5 ? '#8ff3ff' : '#ff9be8') : (state.fever > 0.5 ? '#ff9be8' : st.color)), dead: false });
     state.runShots++; P.shots++;
   };
   if (p.weapon === 1) mk(0, -16, 0, true);
@@ -4956,8 +5321,26 @@ function fireWeapon(gdt) {
       mk(10 + k * 4, -8, (90 + k * 45) * spread, true);
     }
   }
-  if (st.sideShots) { mk(-15, 0, -260); mk(15, 0, 260); }
-  if (st.rearShot) mk(0, 12, 0, false, 1);
+  if (st.sideShots) {
+    for (let k = 0; k < st.sideShots; k++) {
+      mk(-15 - k * 7, 0, (-260 - k * 55) * spread);
+      mk(15 + k * 7, 0, (260 + k * 55) * spread);
+    }
+  }
+  if (st.rearShot) {
+    for (let k = 0; k < st.rearShot; k++) mk((k - (st.rearShot - 1) / 2) * 9, 12, 0, false, 1);
+  }
+  if (st.twin) {
+    for (let k = 0; k < st.twin; k++)
+      mk((k % 2 ? 1 : -1) * (4 + 5 * ((k / 2) | 0)), -15, 0, true);
+  }
+  if (st.diag) {
+    for (let k = 0; k < st.diag; k++) {
+      const dv = 120 + k * 45;
+      mk(-7, -11, -dv, true, -0.92);
+      mk(7, -11, dv, true, -0.92);
+    }
+  }
   if (od) { mk(-15, -2, -230); mk(15, -2, 230); mk(0, 14, 0, false, 1); }
   state.volley = (state.volley || 0) + 1;
   if (state.heat >= 68 && state.volley % 3 === 0) {
@@ -5196,45 +5579,53 @@ function useAbil() {
   const id = (SHIPS[S.ship] && SHIPS[S.ship].abil) || 'overload';
   const A = ABIL[id] || ABIL.overload;
   if (p.abilT > 0) { sfx.deny(); return; }
+  const al = st.abilLv || 0;
   p.abilT = A.cd * (st.abilCdMul || 1);
-  if (id === 'overload') { p.ovT = A.dur; fxRing(p.x, p.y, 10, 380, 4, 0.5, A.col); }
+  if (id === 'overload') { p.ovT = A.dur + 0.5 * al; fxRing(p.x, p.y, 10, 380 + al * 30, 4, 0.5, A.col); }
   else if (id === 'blink') {
     const d = p.lastDir || { x: 0, y: -1 };
-    const bx = clamp(p.x + d.x * 180, 20, W - 20), by = clamp(p.y + d.y * 180, 46, H - 34);
+    const range = 180 + 30 * al;
+    const bx = clamp(p.x + d.x * range, 20, W - 20), by = clamp(p.y + d.y * range, 46, H - 34);
     fxRing(p.x, p.y, 8, 300, 4, 0.4, A.col);
     for (let i = 1; i <= 5; i++)
       afterimages.push({ x: p.x + (bx - p.x) * i / 5, y: p.y + (by - p.y) * i / 5, tilt: p.tilt, life: 0.35, max: 0.35 });
     p.x = bx; p.y = by; p.inv = Math.max(p.inv, 0.7);
     fxRing(bx, by, 12, 520, 5, 0.5, A.col);
     flash(0.14, A.col);
+    const br = 130 + 10 * al;
     for (const e of enemies.slice()) {
       if (e.dead) continue;
-      if (dist2(e.x, e.y, bx, by) < 130*130) hurtEnemy(e, 4, bx, by, true);
+      if (dist2(e.x, e.y, bx, by) < br*br) hurtEnemy(e, 4 + al, bx, by, true);
     }
     for (let i = ebullets.length - 1; i >= 0; i--)
-      if (dist2(ebullets[i].x, ebullets[i].y, bx, by) < 140*140) { spark(ebullets[i].x, ebullets[i].y, A.col); ebullets.splice(i, 1); }
+      if (dist2(ebullets[i].x, ebullets[i].y, bx, by) < (br + 10)*(br + 10)) { spark(ebullets[i].x, ebullets[i].y, A.col); ebullets.splice(i, 1); }
     addShake(5);
   }
-  else if (id === 'barrier') { p.barT = A.dur; fxRing(p.x, p.y, 16, 420, 5, 0.55, A.col); }
+  else if (id === 'barrier') { p.barT = A.dur + 0.6 * al; p.shield = Math.max(p.shield, 1 + al); fxRing(p.x, p.y, 16, 420, 5, 0.55, A.col); }
   else if (id === 'supernova') {
-    p.snT = A.dur; p.inv = Math.max(p.inv, 1.0);
+    p.snT = A.dur + 0.15 * al; p.inv = Math.max(p.inv, 1.0);
     flash(0.3, A.col); addShake(12); slow(0.35, 0.35);
     for (const e of enemies.slice()) {
       if (e.dead) continue;
-      const dmg = (e.type === 'boss' ? 6 : e.type === 'guard' ? 8 : 6) * st.dmg;
+      const dmg = (e.type === 'boss' ? 6 + al : e.type === 'guard' ? 8 + al : 6 + al) * st.dmg;
       hurtEnemy(e, dmg, p.x, p.y, true);
     }
     for (const b of ebullets) if (!b.dead) { spark(b.x, b.y, A.col); b.dead = true; }
     for (const m of emissiles) if (!m.dead) killEmissile(m, true);
-    for (const r of rocks) if (!r.dead) hurtRock(r, 3);
+    for (const r of rocks) if (!r.dead) hurtRock(r, 3 + al);
     sfx.bigboom();
   }
-  else if (id === 'phase') { p.phT = A.dur; fxRing(p.x, p.y, 12, 340, 4, 0.5, A.col); }
+  else if (id === 'phase') {
+    p.phT = A.dur + 0.5 * al;
+    if (st.phaseEcho) state.phaseEcho = { x: p.x, y: p.y, t: 1.5, max: 1.5 };
+    fxRing(p.x, p.y, 12, 340, 4, 0.5, A.col);
+  }
   else if (id === 'salvo') {
-    for (let k = 0; k < 4; k++) {
-      const a = -Math.PI / 2 + (k - 1.5) * 0.32;
-      missiles.push({ x: p.x + (k - 1.5) * 8, y: p.y - 10, vx: Math.cos(a) * 320, vy: Math.sin(a) * 320,
-        r: 9, t: 0, heavy: true, dead: false });
+    const n = 4 + al + (st.siege ? 2 : 0);
+    for (let k = 0; k < n; k++) {
+      const a = -Math.PI / 2 + (k - (n - 1) / 2) * 0.18;
+      missiles.push({ x: p.x + (k - (n - 1) / 2) * 6, y: p.y - 10, vx: Math.cos(a) * 320, vy: Math.sin(a) * 320,
+        r: 9, t: 0, heavy: true, dmgMul: st.siege ? 1.25 : 1, dead: false });
     }
     fxRing(p.x, p.y, 10, 320, 4, 0.4, A.col);
     addShake(4);
@@ -5253,6 +5644,21 @@ function doDash() {
   p.dvx = d.x * 900; p.dvy = d.y * 900;
   p.inv = Math.max(p.inv, 0.4);
   p.dashFx = 0.25;
+  if (st.dashSurge) {
+    p.surgeN = 3;
+    const br = 102 + 14 * (st.abilLv || 0);
+    for (const e of enemies.slice()) {
+      if (e.dead || e.dying) continue;
+      if (dist2(e.x, e.y, p.x, p.y) < br * br) hurtEnemy(e, 3 * st.dmg, p.x, p.y, true);
+    }
+    for (let i = ebullets.length - 1; i >= 0; i--) {
+      const b = ebullets[i];
+      if (b.dead) continue;
+      if (dist2(b.x, b.y, p.x, p.y) < br * br) { spark(b.x, b.y, '#ffe066'); ebullets.splice(i, 1); }
+    }
+    fxRing(p.x, p.y, 14, 460, 4, 0.42, '#ffe066');
+    fxBurst(p.x, p.y, '#fff0a8', 16, 0.16, 'ring');
+  }
   sfx.dash();
 }
 function updatePlayer(gdt) {
@@ -5265,6 +5671,7 @@ function updatePlayer(gdt) {
   if (p.muzzle > 0) p.muzzle -= gdt;
   if (p.dashFx > 0) p.dashFx -= gdt;
   if (state.ultraT > 0) state.ultraT -= gdt;
+  if (state.scoreBoostT > 0) state.scoreBoostT = Math.max(0, state.scoreBoostT - gdt);
   if (state.odT > 0) state.odT = Math.max(0, state.odT - gdt);
   if (state.odBanner > 0) state.odBanner = Math.max(0, state.odBanner - gdt);
   if (p.abilT > 0) p.abilT = Math.max(0, p.abilT - gdt);
@@ -5273,6 +5680,8 @@ function updatePlayer(gdt) {
   if (p.phT > 0) p.phT -= gdt;
   if (p.snT > 0) p.snT -= gdt;
   if (p.critT > 0) p.critT -= gdt;
+  if (p.pierceT > 0) p.pierceT -= gdt;
+  if (p.frenzyT > 0) p.frenzyT -= gdt;
   if (p.chill > 0) p.chill -= gdt;
   if (p.shieldHit > 0) p.shieldHit -= gdt;
   if (p.beamT > 0) p.beamT = Math.max(0, p.beamT - gdt);
@@ -5325,15 +5734,35 @@ function updatePlayer(gdt) {
       }
     }
   }
-  if (st.shieldRegen > 0) {
-    if (p.shield <= 0) {
-      state.regenT -= gdt;
-      if (state.regenT <= 0) {
-        p.shield = 8; state.regenT = st.shieldRegen;
-        addFloat(p.x, p.y - 26, t('p_shield'), CC.shield);
+  if (st.reactiveArmor) {
+    if (p.shield <= 0 && state.mode === 'playing') {
+      state.reactT = (state.reactT || 0) + gdt;
+      if (state.reactT >= 10) {
+        state.reactT = 0; p.shield = 1;
+        fxRing(p.x, p.y, 8, 260, 3, 0.45, '#8fffb0');
+        addFloat(p.x, p.y - 26, t('p_react'), '#8fffb0');
         sfx.power();
       }
-    } else state.regenT = st.shieldRegen;
+    } else state.reactT = 0;
+  }
+  if (state.phaseEcho) {
+    const ec = state.phaseEcho;
+    ec.t -= gdt;
+    if (ec.t <= 0) {
+      const R = 96 + 12 * (st.abilLv || 0);
+      for (const e of enemies.slice()) {
+        if (e.dead || e.dying) continue;
+        if (dist2(e.x, e.y, ec.x, ec.y) < R * R) hurtEnemy(e, 5 * st.dmg, ec.x, ec.y, true);
+      }
+      for (let i = ebullets.length - 1; i >= 0; i--) {
+        const b = ebullets[i];
+        if (!b.dead && dist2(b.x, b.y, ec.x, ec.y) < R * R) { spark(b.x, b.y, '#c9b6ff'); ebullets.splice(i, 1); }
+      }
+      fxRing(ec.x, ec.y, 10, 420, 4, 0.5, '#c9b6ff');
+      fxBurst(ec.x, ec.y, '#d8c8ff', 18, 0.2, 'ring');
+      addShake(3);
+      state.phaseEcho = null;
+    }
   }
   const oldX = p.x, oldY = p.y;
   const kx = (KEYS['arrowright'] || KEYS['d'] ? 1 : 0) - (KEYS['arrowleft'] || KEYS['a'] ? 1 : 0);
@@ -5423,6 +5852,12 @@ function updateEnemies(gdt) {
       hurtEnemy(e, e.burnDps * gdt, e.x, e.y, true);
       if (e.dead || e.dying) continue;
     }
+    if (e.poisonT > 0) {
+      e.poisonT -= gdt;
+      hurtEnemy(e, e.poisonDps * gdt, e.x, e.y, true);
+      if (e.dead || e.dying) continue;
+    }
+    if (e.shatterT > 0) { e.shatterT -= gdt; if (e.shatterT <= 0) e.shatterN = 0; }
     if (e.freezeT > 0) {
       e.freezeT -= gdt;
       if (e.freezeT > 0) continue;
@@ -5927,6 +6362,7 @@ function collideBullets(gdt) {
       const rr = md ? md.r + b.r : (e.type === 'boss' ? 44 : e.r) + b.r;
       if (dist2(b.x, b.y, tx, ty) < rr*rr) {
         state.runHits++; P.hits++; impactFx(b.x, b.y, b);
+        state.kinStreak = Math.min(50, (state.kinStreak || 0) + 1); state.kinTimer = 1.5;
         if (b.freeze && Math.random() < b.freeze && e.type !== 'boss' && e.type !== 'guard') {
           e.freezeT = Math.max(e.freezeT || 0, 1.1);
           spark(e.x, e.y, '#8fe8ff');
@@ -5936,9 +6372,50 @@ function collideBullets(gdt) {
           e.burnDps = Math.max(e.burnDps || 0, b.dmg * 0.35);
           spark(e.x, e.y, '#ff9a5c');
         }
-        if (md) damageBossModule(e, md, b.dmg * (st.bossDmg || 1), b.x, b.y);
-        else if (b.rival) hurtEnemy(e, b.dmg, b.x, b.y, false, true);
-        else hurtEnemy(e, b.dmg * (e.type === 'boss' ? (st.bossDmg || 1) : 1), b.x, b.y);
+        if (b.venom && e.type !== 'boss' && e.type !== 'guard') {
+          e.poisonT = Math.max(e.poisonT || 0, 3.0);
+          e.poisonDps = Math.max(e.poisonDps || 0, b.dmg * Math.min(2.5, 0.12 * b.venom));
+          spark(e.x, e.y, '#9dff8e');
+        }
+        let hd = b.dmg;
+        if (st.frostbite && (e.freezeT || 0) > 0) hd *= 1 + Math.min(2, 0.2 * st.frostbite);
+        if (st.shatter) {
+          hd *= 1 + Math.min(10, e.shatterN || 0) * 0.04 * st.shatter;
+          e.shatterN = (e.shatterN || 0) + 1; e.shatterT = 1.4;
+        }
+        if (md) damageBossModule(e, md, hd * (st.bossDmg || 1), b.x, b.y);
+        else if (b.rival) hurtEnemy(e, hd, b.x, b.y, false, true);
+        else hurtEnemy(e, hd * (e.type === 'boss' ? (st.bossDmg || 1) : 1), b.x, b.y);
+        if (b.splash) {
+          const SR = 14 + 7 * b.splash;
+          fxRing(b.x, b.y, 4, SR, 2, 0.2, '#ffcf5f');
+          for (const o of enemies) {
+            if (o === e || o.dead || o.dying) continue;
+            if (dist2(o.x, o.y, b.x, b.y) < SR * SR) hurtEnemy(o, b.dmg * Math.min(1.2, 0.3 * b.splash), o.x, o.y, true);
+          }
+        }
+        if (b.bolt && Math.random() < Math.min(0.9, 0.1 * b.bolt)) {
+          const tz = nearestEnemy(b.x, b.y);
+          if (tz && tz !== e && !tz.dead) {
+            state.zaps.push({ x1: b.x, y1: b.y, x2: tz.x, y2: tz.y, life: 0.12, max: 0.12, col: '#9fe8ff' });
+            hurtEnemy(tz, b.dmg * Math.min(2, 0.6 * b.bolt), tz.x, tz.y, true);
+            spark(tz.x, tz.y, '#9fe8ff');
+          }
+        }
+        if (b.split && !b.shard) {
+          const n = 1 + Math.min(6, b.split), sa = Math.atan2(-(b.vy || -1), -(b.vx || 0));
+          for (let sq = 0; sq < n; sq++) {
+            const aa = sa + (sq - (n - 1) / 2) * 0.55;
+            bullets.push({ x: b.x, y: b.y, vx: Math.cos(aa) * 540, vy: Math.sin(aa) * 540, r: 2.2,
+              dmg: b.dmg * 0.45, crit: false, pierce: 1, w: 'shard', homing: 0, turn: 0, ricochet: 0,
+              freeze: 0, burn: 0, nova: 0, storm: 0, shard: true, c: '#ffd166', dead: false });
+          }
+          fxBurst(b.x, b.y, '#ffd166', 10, 0.14, 'shard');
+        }
+        if (b.siphon && p && Math.random() < Math.min(0.8, 0.04 * b.siphon)) {
+          p.shield = Math.min(24, (p.shield || 0) + 1);
+          spark(b.x, b.y, '#9fffcf');
+        }
         if (b.storm) stormChain(b.x, b.y, b.dmg, e);
         if (b.nova && (state.evoNovaCd || 0) <= 0) {
           state.evoNovaCd = 0.16;
@@ -5946,7 +6423,7 @@ function collideBullets(gdt) {
         }
         hit = true;
         if (b.ricochet > 0) {
-          b.ricochet--; b.dmg *= 0.8;
+          b.ricochet--; if (!(b.fullBounce && b.ricochet >= 0)) b.dmg *= 0.8; else b.fullBounce = false;
           const nt = nearestEnemy(b.x, b.y);
           const bs = Math.max(120, Math.hypot(b.vx, b.vy));
           const ba = nt && nt !== e ? Math.atan2(nt.y - b.y, nt.x - b.x) + rand(-0.25, 0.25) : rand(0, TAU);
@@ -5975,7 +6452,10 @@ function collideBullets(gdt) {
         killEmissile(m, true); hit = true; break;
       }
     }
-    if (hit && !bounced) { if (b.pierce > 0) { b.pierce--; b.dmg *= 0.75; } else b.dead = true; }
+    if (hit && !bounced) {
+      if (b.pierce > 0) { b.pierce--; b.dmg *= (1 - Math.max(0.05, 0.25 - 0.1 * (st.pierceDmg || 0))); }
+      else b.dead = true;
+    }
   }
   // oyuncu güdümlü füzeleri
   for (const m of missiles) {
@@ -6001,7 +6481,7 @@ function collideBullets(gdt) {
       if (e.dead || e.dying) continue;
       const rr = (e.type === 'boss' ? 44 : e.r) + m.r;
       if (dist2(m.x, m.y, e.x, e.y) < rr*rr) {
-        hurtEnemy(e, (m.heavy ? 6 : 3) * st.dmg * st.bossDmg, m.x, m.y);
+        hurtEnemy(e, (m.heavy ? 6 : 3) * st.dmg * st.bossDmg * (m.dmgMul || 1), m.x, m.y);
         explodeAt(m.x, m.y, 12, '#ffb890'); fxRing(m.x, m.y, 5, 260, 3, 0.3, '#ffb890');
         hitted = true; break;
       }
@@ -8478,8 +8958,38 @@ function drawPlayer() {
     ctx.globalAlpha = clamp(a.life/a.max, 0, 1) * 0.35;
     drawShip(a.x, a.y, a.tilt, st.color, false, 0);
   }
+  if (state.phaseEcho) {
+    const ec = state.phaseEcho;
+    const ea = clamp(ec.t / ec.max, 0, 1);
+    ctx.globalAlpha = 0.2 + 0.35 * ea;
+    drawShip(ec.x, ec.y, 0, '#c9b6ff', false, 0);
+    ctx.globalAlpha = 0.5;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = '#c9b6ff'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(ec.x, ec.y, 26 + (1 - ea) * 18, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
   ctx.globalAlpha = 1;
   const shA = p.shield > 0 ? 0.45 + 0.25*Math.sin(state.time*6) : (p.shieldHit > 0 ? 0.55 * clamp(p.shieldHit / 0.45, 0, 1) : 0);
+  /* v10.0: gemiye özel imza aurası */
+  if (!S.rmotion && fxLevel() > 0 && state.mode === 'playing') {
+    const AC = { std: '#9ef0ff', speed: '#ffe066', tank: '#8fffb0', nova: '#ff9be8', ghost: '#c9b6ff', titan: '#ffb060' }[S.ship] || st.color;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const ar = 24 + Math.sin(state.time * 3.4) * 2.5;
+    const ag = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, ar + 10);
+    ag.addColorStop(0, AC + '33');
+    ag.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = ag;
+    ctx.beginPath(); ctx.arc(p.x, p.y, ar + 10, 0, TAU); ctx.fill();
+    ctx.strokeStyle = AC + '44';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 8]);
+    ctx.lineDashOffset = -state.time * 16;
+    ctx.beginPath(); ctx.arc(p.x, p.y, ar, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
   if (p.phT > 0) ctx.globalAlpha = 0.55 + 0.2 * Math.sin(state.time * 8);
   drawShip(p.x, p.y, p.tilt, st.color, true, shA, Math.max(0.16, p.moveMag || 0), {
     dash: p.dashFx > 0,
@@ -10655,7 +11165,9 @@ function drawPowerup(pu) {
   ctx.beginPath(); ctx.arc(0, 0, 10.5, 0, TAU); ctx.stroke();
   const gu = { weapon: 'wave', rapid: 'bolt', shield: 'shield', missile: 'rocket', bomb: 'bomb',
     magnet: 'magnet', drone: 'ship', chip: 'dust', life: 'heart', laser: 'bolt',
-    nuke: 'bomb', time: 'clock', crit: 'cross', gold: 'coin', beam: 'bolt' }[pu.kind] || 'star';
+    nuke: 'bomb', time: 'clock', crit: 'cross', gold: 'coin', beam: 'bolt',
+    overdrive: 'bolt', barrage: 'bolt', pierce: 'arrow', frenzy: 'flame', ghost: 'eye',
+    shock: 'cross', coinRain: 'coin', x2: 'trophy', repair: 'heart', arsenal: 'bomb', nova: 'star' }[pu.kind] || 'star';
   iconGlyph(0, 0.4, 10.6, gu, col);
   ctx.restore();
 }
@@ -11821,6 +12333,9 @@ function drawHUD() {
   if (p.laser > 0) badges.push([t('p_laser') + ' ' + p.laser.toFixed(1), CC.laser, 'flame']);
   if (p.drones > 0) badges.push([t('p_drone') + ' ' + p.drones.toFixed(1), CC.drone, 'ship']);
   if (p.magnet > 0) badges.push([t('p_magnet') + ' ' + p.magnet.toFixed(1), CC.magnet, 'magnet']);
+  if (p.pierceT > 0) badges.push([t('p_pierce') + ' ' + p.pierceT.toFixed(1), CC.pierce, 'arrow']);
+  if (p.frenzyT > 0) badges.push([t('p_frenzy') + ' ' + p.frenzyT.toFixed(1), CC.frenzy, 'flame']);
+  if (state.scoreBoostT > 0) badges.push([t('p_x2') + ' ' + state.scoreBoostT.toFixed(1), CC.x2, 'trophy']);
   if (p.chip) badges.push([t('p_chip_' + p.chip), CC.chip, 'target']);
   {
     const aId = (SHIPS[S.ship] || {}).abil || 'overload';
@@ -13324,6 +13839,15 @@ function renderMenu() {
       });
     }
     if (!S.rmotion) glowDot(W / 2, py, 64, 'rgba(80,170,255,0.26)', 0.8);
+    if (!S.rmotion) glowDot(W / 2, py + 4, 44, sh.color + '33', 0.9);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = ABIL[sh.abil || 'overload'].col + '55';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 7]);
+    ctx.lineDashOffset = -state.time * 18;
+    ctx.beginPath(); ctx.arc(W / 2, py, 42 + Math.sin(state.time * 2) * 2, 0, TAU); ctx.stroke();
+    ctx.restore();
     ctx.save();
     ctx.strokeStyle = 'rgba(120,200,255,0.22)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.ellipse(W / 2, py + 20, 68, 14, 0, 0, TAU); ctx.stroke();
@@ -13385,19 +13909,41 @@ function renderMenu() {
         ctx.fillStyle = sg; ctx.fill();
       }
     });
-    // pasif kartı
-    panel(34, 302, W - 68, 44, 12, {
+    // v10.0: imza pasifi + yetenek kartı (yan yana)
+    const hw = (W - 68 - 8) / 2;
+    panel(34, 300, hw, 52, 12, {
       c1: 'rgba(52,42,16,0.6)', c2: 'rgba(18,14,6,0.78)',
       border: 'rgba(255,209,102,0.34)'
     });
-    iconGlyph(54, 324, 8, 'star', '#ffd166');
+    iconGlyph(50, 318, 7.4, 'star', '#ffd166');
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = 'rgba(255,209,102,0.72)';
     ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('hangar_passive'), 70, 316);
+    ctx.fillText(t('hangar_passive_short'), 62, 314);
     ctx.fillStyle = '#ffe9a8';
-    ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
-    ctx.fillText(t('pas_' + shipKeys[sel]), 70, 330, W - 120);
+    ctx.font = '800 8.3px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('pas_' + shipKeys[sel]), 48, 330, hw - 20);
+    const abilId = sh.abil || 'overload';
+    const abilMax = (TREE.find(x => x.id === 'abil') || { max: 10 }).max, abilLv = clamp(bup.abil || 0, 0, abilMax);
+    panel(34 + hw + 8, 300, hw, 52, 12, {
+      c1: 'rgba(44,30,64,0.62)', c2: 'rgba(14,10,28,0.8)',
+      border: 'rgba(199,139,255,0.4)'
+    });
+    iconGlyph(50 + hw + 8, 318, 7.4, ABIL[abilId].icon, '#c78bff');
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(199,139,255,0.78)';
+    ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_ability'), 62 + hw + 8, 314);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(210,180,255,0.85)';
+    ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_abil_lv', { a: abilLv, b: abilMax }), 34 + W - 68 - 10, 314);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#e2d4ff';
+    ctx.font = '800 9.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('abil_' + abilId), 48 + hw + 8, 329, hw - 20);
+    for (let k = 0; k < Math.min(abilMax, 5); k++)
+      iconGlyph(52 + hw + 8 + k * 14, 342, 4.6, 'star', k < abilLv ? '#c78bff' : 'rgba(130,110,170,0.38)');
     addRow(354, selected ? t('hangar_selected') : t('hangar_select'), null, {
       h: 42, cta: !selected, icon: selected ? 'star' : 'play', center: true, fs: 14, dim: selected
     }, {
@@ -13522,38 +14068,46 @@ function renderMenu() {
     ctx.fillStyle = '#ffe9a8';
     ctx.font = '800 12px system-ui, "Segoe UI", sans-serif';
     ctx.fillText('⛁ ' + fmt(P.coins), W - 48, 100);
+    const treeShip = SHIPS[S.ship];
+    const treeAbil = treeShip.abil || 'overload';
+    const gw = (W - 60 - 14) / 2, gh = 102;
     TREE.forEach((tr, ti) => {
-      const y2 = 122 + ti * 116;
+      const last = ti === TREE.length - 1;
+      const col = ti % 2, row = Math.floor(ti / 2);
+      const tw = last ? W - 60 : gw;
+      const gx = last ? 30 : 30 + col * (gw + 14);
+      const gy = 120 + row * (gh + 12);
       const lv = shipUpLv(tr.id), mx = tr.max, full = lv >= mx;
-      panel(30, y2, W - 60, 108, 14, { border: full ? 'rgba(90,240,160,0.4)' : 'rgba(110,160,220,0.22)' });
-      ctx.beginPath(); ctx.arc(62, y2 + 30, 17, 0, TAU);
+      panel(gx, gy, tw, gh, 13, { border: full ? 'rgba(90,240,160,0.4)' : 'rgba(110,160,220,0.22)' });
+      ctx.beginPath(); ctx.arc(gx + 25, gy + 27, 15, 0, TAU);
       ctx.fillStyle = 'rgba(28,44,78,0.85)'; ctx.fill();
       ctx.strokeStyle = tr.col + '88'; ctx.lineWidth = 1.2; ctx.stroke();
-      iconGlyph(62, y2 + 30, 9, tr.icon, tr.col);
+      iconGlyph(gx + 25, gy + 27, 8, tr.icon, tr.col);
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = full ? '#9fffc8' : '#eaf6ff';
-      ctx.font = '800 15px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('tree_' + tr.id + '_n'), 88, y2 + 27);
+      ctx.font = '800 12px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('tree_' + tr.id + '_n'), gx + 46, gy + 24, tw - 100);
       ctx.textAlign = 'right';
       ctx.fillStyle = 'rgba(150,180,210,0.9)';
-      ctx.font = '700 10px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('tree_lv', { a: lv, b: mx }), W - 44, y2 + 27);
+      ctx.font = '700 8.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('tree_lv', { a: lv, b: mx }), gx + tw - 10, gy + 24);
       ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(150,180,210,0.88)';
-      ctx.font = '600 10.5px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(t('tree_' + tr.id + '_d'), 88, y2 + 45);
+      ctx.fillStyle = 'rgba(150,180,210,0.85)';
+      ctx.font = '600 7.8px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('tree_' + tr.id + '_d'), gx + 14, gy + 42, tw - 26);
       for (let k = 0; k < mx; k++)
-        iconGlyph(90 + k * 18, y2 + 61, 5.5, 'star', k < lv ? tr.col : 'rgba(120,150,190,0.35)');
+        iconGlyph(gx + 18 + k * 15, gy + 56, 5, 'star', k < lv ? tr.col : 'rgba(120,150,190,0.35)');
       const cost = treeCost(tr.id);
       const afford = !full && P.coins >= cost;
-      ctx.beginPath(); roundRect(40, y2 + 72, W - 80, 26, 13);
+      const bwid = tw - 24;
+      ctx.beginPath(); roundRect(gx + 12, gy + 68, bwid, 24, 12);
       if (full) {
         ctx.fillStyle = 'rgba(30,70,52,0.55)'; ctx.fill();
         ctx.strokeStyle = 'rgba(90,240,160,0.4)'; ctx.lineWidth = 1.2; ctx.stroke();
       } else if (afford) {
-        const cg2 = ctx.createLinearGradient(40, 0, W - 40, 0);
-        cg2.addColorStop(0, 'rgba(255,209,102,0.9)');
-        cg2.addColorStop(1, 'rgba(255,150,60,0.9)');
+        const cg2 = ctx.createLinearGradient(gx, 0, gx + bwid, 0);
+        cg2.addColorStop(0, 'rgba(255,209,102,0.92)');
+        cg2.addColorStop(1, 'rgba(255,150,60,0.92)');
         ctx.fillStyle = cg2; ctx.fill();
         ctx.strokeStyle = 'rgba(255,240,190,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
       } else {
@@ -13562,10 +14116,27 @@ function renderMenu() {
       }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = full ? '#9fffc8' : (afford ? '#241503' : 'rgba(255,170,185,0.85)');
-      ctx.font = '800 11.5px system-ui, "Segoe UI", sans-serif';
-      ctx.fillText(full ? t('tree_max') : t('tree_buy') + '  ⛁ ' + fmt(cost), W / 2, y2 + 86);
-      UI.row(40, y2 + 72, W - 80, 26, { act: () => buyTree(tr.id) });
+      ctx.font = '800 10.5px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(full ? t('tree_max') : t('tree_buy') + '  ⛁ ' + fmt(cost), gx + tw / 2, gy + 80);
+      UI.row(gx + 12, gy + 68, bwid, 24, { act: () => buyTree(tr.id) });
     });
+    // yetenek özeti
+    const abilLv2 = shipUpLv('abil');
+    panel(30, 466, W - 60, 62, 13, {
+      c1: 'rgba(40,28,62,0.62)', c2: 'rgba(12,9,26,0.8)',
+      border: 'rgba(199,139,255,0.34)'
+    });
+    iconGlyph(52, 488, 8, ABIL[treeAbil].icon, '#c78bff');
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(199,139,255,0.8)';
+    ctx.font = '700 7.5px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_ability') + ' · ' + t('abil_' + treeAbil), 70, 484);
+    ctx.fillStyle = '#e2d4ff';
+    ctx.font = '800 11px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('hangar_abil_lv', { a: abilLv2, b: 10 }), 70, 500);
+    ctx.fillStyle = 'rgba(190,170,220,0.88)';
+    ctx.font = '600 7.6px system-ui, "Segoe UI", sans-serif';
+    ctx.fillText(t('abil_' + treeAbil + '_d'), 70, 513, W - 100);
     addRow(612, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'hangar'; sfx.tick(); } });
   } else if (page === 'collec') {
     menuTitle(t('collec'));
@@ -13639,16 +14210,54 @@ function renderMenu() {
     ctx.font = '600 11.5px system-ui, "Segoe UI", sans-serif';
     ctx.fillText(t('shop_hint'), W / 2, 132);
     const sicons = { shield: 'shield', bomb: 'bomb', magnet: 'magnet', weapon: 'rocket', palgold: 'coin', chip: 'dust', rage: 'bolt' };
-    y = 150;
-    for (const it of SHOP) {
+    /* v10.0: sayfalı 2 sütunlu vitrin */
+    const perPage = 8;
+    const pages = Math.max(1, Math.ceil(SHOP.length / perPage));
+    state.shopPage = clamp(state.shopPage || 0, 0, pages - 1);
+    const cw = (W - 46) / 2;
+    const start = state.shopPage * perPage;
+    for (let si = start; si < Math.min(start + perPage, SHOP.length); si++) {
+      const it = SHOP[si], k = si - start;
+      const cx = 18 + (k % 2) * (cw + 10), cy = 150 + Math.floor(k / 2) * 86;
       const owned = !!P.shop[it.id];
       const afford = (it.dust ? P.dust : P.coins) >= it.cost;
-      addRow(y, t('shop_' + it.id), owned ? t('owned') : (it.dust ? '✦ ' + fmt(it.cost) : fmt(it.cost)),
-        { h: 52, icon: sicons[it.id] || 'bag', accent: it.dust ? '#c9e8ff' : TH.gold,
-          sub: t('shop_' + it.id + '_d'),
-          col: owned ? '#59f0a0' : (afford ? '#ffd85f' : '#ff7b8f') },
-        { act: () => buyShop(it.id) });
-      y += 58;
+      const col = owned ? '#59f0a0' : (it.dust ? '#c9e8ff' : TH.gold);
+      panel(cx, cy, cw, 78, 11, {
+        c1: owned ? 'rgba(20,52,44,0.78)' : 'rgba(20,32,62,0.76)',
+        c2: 'rgba(8,14,30,0.86)',
+        border: owned ? 'rgba(89,240,160,0.45)' : (afford ? 'rgba(255,209,102,0.4)' : 'rgba(120,150,190,0.22)')
+      });
+      iconGlyph(cx + 18, cy + 19, 7.4, it.icon || sicons[it.id] || 'bag', col);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#e2f1ff';
+      ctx.font = '800 9.6px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('shop_' + it.id), cx + 32, cy + 18, cw - 40);
+      ctx.fillStyle = 'rgba(150,184,218,0.82)';
+      ctx.font = '700 7.4px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(t('shop_' + it.id + '_d'), cx + 10, cy + 42, cw - 20);
+      ctx.fillStyle = col;
+      ctx.font = '800 9px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText(owned ? t('owned') : (it.dust ? '✦ ' + fmt(it.cost) : fmt(it.cost)), cx + 10, cy + 63);
+      if (!owned && !afford) {
+        ctx.fillStyle = 'rgba(255,123,143,0.9)';
+        ctx.font = '700 7px system-ui, "Segoe UI", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(t('no_coins_short'), cx + cw - 10, cy + 63);
+        ctx.textAlign = 'left';
+      }
+      UI.row(cx, cy, cw, 78, { act: () => buyShop(it.id) });
+    }
+    if (pages > 1) {
+      const py = 500;
+      menuChip(W / 2 - 86, py, 52, 30, 'arrow', '', '‹', '#8fd0ff',
+        { act: () => { state.shopPage = (state.shopPage + pages - 1) % pages; sfx.tick(); } });
+      menuChip(W / 2 + 34, py, 52, 30, 'arrow', '', '›', '#8fd0ff',
+        { act: () => { state.shopPage = (state.shopPage + 1) % pages; sfx.tick(); } });
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(139,163,192,0.9)';
+      ctx.font = '800 11px system-ui, "Segoe UI", sans-serif';
+      ctx.fillText((state.shopPage + 1) + ' / ' + pages, W / 2, py + 15);
+      ctx.textAlign = 'left';
     }
     addRow(572, t('back'), null, { h: 44, icon: 'arrow' }, { act: () => { state.menuPage = 'main'; sfx.tick(); } });
   } else if (page === 'settings') {
